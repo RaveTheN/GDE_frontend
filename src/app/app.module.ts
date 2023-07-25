@@ -20,9 +20,10 @@ import {
   NbToastrModule,
   NbWindowModule,
 } from '@nebular/theme';
+import { MapCreationComponent } from './map-creation/map-creation.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, MapCreationComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
