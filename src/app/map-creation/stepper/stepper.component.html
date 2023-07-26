@@ -9,12 +9,7 @@
               (ngSubmit)="onFirstSubmit()"
               class="step-container"
             >
-              <p class="lorem">
-                Lorizzle ipsum dolizzle stuff fizzle, consectetuer adipiscing
-                break it down. Nullizzle sapien velizzle, my shizz pimpin',
-                shizzle my nizzle crocodizzle shut the shizzle up, gravida
-                vizzle, dang.
-              </p>
+              <p class="lorem">Scegliere la città da visualizzare</p>
               <div class="input-group">
                 <input
                   type="text"
@@ -28,7 +23,9 @@
                   }"
                 />
               </div>
-              <button nbButton nbStepperNext>next</button>
+              <button nbButton nbStepperNext (click)="testFunction()">
+                next
+              </button>
             </form>
           </nb-step>
           <nb-step [stepControl]="secondForm" label="Second step">
@@ -37,12 +34,7 @@
               (ngSubmit)="onSecondSubmit()"
               class="step-container"
             >
-              <p class="lorem">
-                Pellentesque we gonna chung tortor. Sizzle pizzle. Fizzle izzle
-                dolor dapibus fo shizzle mah nizzle fo rizzle, mah home g-dizzle
-                tempus tempor. Maurizzle cool nibh owned turpizzle. My shizz fo
-                shizzle tortor.
-              </p>
+              <p class="lorem">Selezionare i filtri</p>
               <div class="input-group">
                 <input
                   type="text"
@@ -84,7 +76,9 @@
                 />
               </div>
               <button nbButton nbStepperPrevious>prev</button>
-              <button nbButton nbStepperNext>Confirm</button>
+              <button nbButton nbStepperNext routerLink="/layers">
+                Confirm
+              </button>
             </form>
           </nb-step>
           <nb-step [stepControl]="thirdForm" [hidden]="true" label="Third step">
@@ -98,3 +92,5 @@
     </nb-card>
   </div>
 </div>
+
+<div>{{ message }}</div>
