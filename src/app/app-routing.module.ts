@@ -7,15 +7,15 @@ export const routes: Routes = [
     loadChildren: () =>
       import("./pages/pages.module").then((m) => m.PagesModule),
   },
-  { path: "", redirectTo: "map-creation", pathMatch: "full" },
-  { path: "**", redirectTo: "map-creation" },
-  {
-    path: "map-creation",
-    loadChildren: () =>
-      import("./map-creation/map-creation.module").then(
-        (m) => m.MapCreationModule
-      ),
-  },
+  { path: "", redirectTo: "pages", pathMatch: "full" },
+  { path: "**", redirectTo: "pages" },
+  // {
+  //   path: "map-creation",
+  //   loadChildren: () =>
+  //     import("./map-creation/map-creation.module").then(
+  //       (m) => m.MapCreationModule
+  //     ),
+  // },
 ];
 
 const config: ExtraOptions = {

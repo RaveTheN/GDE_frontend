@@ -7,6 +7,7 @@ import { DashboardModule } from "./dashboard/dashboard.module";
 import { ECommerceModule } from "./e-commerce/e-commerce.module";
 import { PagesRoutingModule } from "./pages-routing.module";
 import { MiscellaneousModule } from "./miscellaneous/miscellaneous.module";
+import { CreateLayerComponent } from "./create-layer/create-layer.component";
 
 @NgModule({
   imports: [
@@ -17,6 +18,6 @@ import { MiscellaneousModule } from "./miscellaneous/miscellaneous.module";
     ECommerceModule,
     MiscellaneousModule,
   ],
-  declarations: [PagesComponent],
+  declarations: [PagesComponent, CreateLayerComponent],
 })
 export class PagesModule {}
