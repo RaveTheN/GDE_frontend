@@ -9,7 +9,7 @@
               (ngSubmit)="onFirstSubmit()"
               class="step-container"
             >
-              <p class="lorem">Scegliere la città da visualizzare</p>
+              <p class="lorem">Step 1</p>
               <div class="input-group">
                 <input
                   type="text"
@@ -34,7 +34,7 @@
               (ngSubmit)="onSecondSubmit()"
               class="step-container"
             >
-              <p class="lorem">Selezionare i filtri</p>
+              <p class="lorem">Step 2</p>
               <div class="input-group">
                 <input
                   type="text"
@@ -53,33 +53,15 @@
             </form>
           </nb-step>
           <nb-step [stepControl]="thirdForm" label="Third step">
-            <form
-              [formGroup]="thirdForm"
-              (ngSubmit)="onThirdSubmit()"
-              class="step-container"
-            >
-              <p class="lorem">
-                Things boom shackalack rhoncus yo. In fo shizzle my nizzle
-                gangsta platea dictumst. Check it out pot.
-              </p>
-              <div class="input-group">
-                <input
-                  type="text"
-                  placeholder="Enter something"
-                  class="form-control"
-                  formControlName="thirdCtrl"
-                  [ngClass]="{
-                    'form-control-danger':
-                      thirdForm.invalid &&
-                      (thirdForm.dirty || thirdForm.touched)
-                  }"
-                />
+            <div class="map-container">
+              <div class="map-frame">
+                <div id="map"></div>
               </div>
-              <button nbButton nbStepperPrevious>prev</button>
-              <button nbButton nbStepperNext routerLink="/layers">
-                Confirm
-              </button>
-            </form>
+            </div>
+
+            <button nbButton nbStepperPrevious>prev</button>
+            <button nbButton (click)="viewMap()">map</button>
+            <button nbButton nbStepperNext routerLink="/layers">Confirm</button>
           </nb-step>
           <nb-step [stepControl]="thirdForm" [hidden]="true" label="Third step">
             <div class="step-container">
