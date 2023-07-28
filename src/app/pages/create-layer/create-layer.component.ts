@@ -13,6 +13,23 @@ import * as L from "leaflet";
   styleUrls: ["./create-layer.component.scss"],
 })
 export class CreateLayerComponent implements OnInit {
+  //list of parks
+
+  stadspark: L.Marker = L.marker([51.21227, 4.41433], {
+    icon: new L.Icon.Default(),
+  }).bindPopup("This is Stadspark");
+  hobokense_polder: L.Marker = L.marker([51.19121, 4.34971]).bindPopup(
+    "This is Hobokense Polder"
+  );
+  het_rat: L.Marker = L.marker([51.22318, 4.36092]).bindPopup(
+    "This is Het Rat"
+  );
+  uditore: L.Marker = L.marker([38.13048, 13.3272]).bindPopup(
+    "Questo è Parco Uditore"
+  );
+
+  parks = L.layerGroup([]);
+
   //steps of the stepper
   firstForm: FormGroup;
   secondForm: FormGroup;
