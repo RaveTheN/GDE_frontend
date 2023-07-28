@@ -5,6 +5,7 @@ import {
   FormGroup,
   Validators,
 } from "@angular/forms";
+import * as L from "leaflet";
 
 @Component({
   selector: "ngx-create-layer",
@@ -19,11 +20,46 @@ export class CreateLayerComponent implements OnInit {
 
   //Radio options for step !
   options = [
-    { value: "Helsinki", label: "Helsinki" },
-    { value: "Flanders", label: "Flanders" },
-    { value: "Santander", label: "Santander" },
+    { value: [60.1699, 24.9384], label: "Helsinki" },
+    { value: [51.2213, 4.4051], label: "Antwerp" },
+    { value: [43.462776, -3.805], label: "Santander" },
   ];
   option;
+
+  private map;
+
+  popup = L.popup();
+
+  //popup showing cohordinates on click
+  onMapClick(e) {
+    this.popup
+      .setLatLng(e.latlng)
+      .setContent("You clicked the map at " + e.latlng.toString())
+      .openOn(this.map);
+  }
+
+  //map rendering
+  private initMap(): void {
+    this.map = L.map("map", {
+      center: this.option,
+      zoom: 13,
+    });
+
+    const tiles = L.tileLayer(
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {
+        maxZoom: 18,
+        minZoom: 3,
+        attribution:
+          '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }
+    );
+
+    tiles.addTo(this.map);
+
+    //function to make the popup with the coordinates appear
+    this.map.on("click", this.onMapClick.bind(this));
+  }
 
   constructor(private fb: FormBuilder) {}
 
@@ -52,5 +88,9 @@ export class CreateLayerComponent implements OnInit {
 
   onThirdSubmit() {
     this.thirdForm.markAsDirty();
+  }
+
+  viewMap() {
+    this.initMap();
   }
 }
