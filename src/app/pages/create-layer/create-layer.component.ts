@@ -5,7 +5,9 @@ import {
   FormGroup,
   Validators,
 } from "@angular/forms";
+
 import * as L from "leaflet";
+import "leaflet-draw";
 
 @Component({
   selector: "ngx-create-layer",
@@ -13,22 +15,52 @@ import * as L from "leaflet";
   styleUrls: ["./create-layer.component.scss"],
 })
 export class CreateLayerComponent implements OnInit {
+  customIcon = L.icon({
+    iconUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/8/88/Map_marker.svg",
+
+    iconSize: [15, 35], // size of the icon
+  });
+
   //list of parks
-
   stadspark: L.Marker = L.marker([51.21227, 4.41433], {
-    icon: new L.Icon.Default(),
+    icon: this.customIcon,
   }).bindPopup("This is Stadspark");
-  hobokense_polder: L.Marker = L.marker([51.19121, 4.34971]).bindPopup(
-    "This is Hobokense Polder"
-  );
-  het_rat: L.Marker = L.marker([51.22318, 4.36092]).bindPopup(
-    "This is Het Rat"
-  );
-  uditore: L.Marker = L.marker([38.13048, 13.3272]).bindPopup(
-    "Questo è Parco Uditore"
-  );
-
-  parks = L.layerGroup([]);
+  hobokense_polder: L.Marker = L.marker([51.19121, 4.34971], {
+    icon: this.customIcon,
+  }).bindPopup("This is Hobokense Polder");
+  het_rot: L.Marker = L.marker([51.22318, 4.36092], {
+    icon: this.customIcon,
+  }).bindPopup("This is Het Rat");
+  kaisaniemen: L.Marker = L.marker([60.174718, 24.949741], {
+    icon: this.customIcon,
+  }).bindPopup("Kaisaniemen");
+  tahtitornin: L.Marker = L.marker([60.162666, 24.950495], {
+    icon: this.customIcon,
+  }).bindPopup("Tahtitornin");
+  luattasari: L.Marker = L.marker([60.162292, 24.883466], {
+    icon: this.customIcon,
+  }).bindPopup("Luattasari");
+  mendicague: L.Marker = L.marker([43.463164, -3.826884], {
+    icon: this.customIcon,
+  }).bindPopup("Mendicague");
+  dr_morales: L.Marker = L.marker([43.45525, -3.838943], {
+    icon: this.customIcon,
+  }).bindPopup("Parque del dr. Morales");
+  libertad: L.Marker = L.marker([43.470762, -3.808859], {
+    icon: this.customIcon,
+  }).bindPopup("Caje de la libertad");
+  faulty_bench = L.layerGroup([
+    this.stadspark,
+    this.hobokense_polder,
+    this.het_rot,
+    this.kaisaniemen,
+    this.tahtitornin,
+    this.luattasari,
+    this.mendicague,
+    this.dr_morales,
+    this.libertad,
+  ]);
 
   //steps of the stepper
   firstForm: FormGroup;
@@ -47,35 +79,35 @@ export class CreateLayerComponent implements OnInit {
 
   popup = L.popup();
 
-  //popup showing cohordinates on click
-  onMapClick(e) {
-    this.popup
-      .setLatLng(e.latlng)
-      .setContent("You clicked the map at " + e.latlng.toString())
-      .openOn(this.map);
-  }
+  //open street map tiles
+  osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "© OpenStreetMap",
+  });
 
   //map rendering
   private initMap(): void {
     this.map = L.map("map", {
+      drawControl: true,
       center: this.option,
-      zoom: 13,
+      zoom: 12,
+      layers: [this.osm, this.faulty_bench],
     });
 
-    const tiles = L.tileLayer(
-      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      {
-        maxZoom: 18,
-        minZoom: 3,
-        attribution:
-          '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      }
-    );
+    const layerControl = L.control.layers(null, null).addTo(this.map);
 
-    tiles.addTo(this.map);
+    layerControl.addOverlay(this.faulty_bench, "Faulty benches");
 
-    //function to make the popup with the coordinates appear
-    this.map.on("click", this.onMapClick.bind(this));
+    // //popup showing cohordinates on click
+    // function onMapClick(e) {
+    //   this.popup
+    //     .setLatLng(e.latlng)
+    //     .setContent("You clicked the map at " + e.latlng.toString())
+    //     .openOn(this.map);
+    // }
+
+    // //function to make the popup with the coordinates appear
+    // this.map.on("click", onMapClick.bind(this));
   }
 
   constructor(private fb: FormBuilder) {}
