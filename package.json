@@ -46,6 +46,8 @@
     "@nebular/security": "10.0.0",
     "@nebular/theme": "10.0.0",
     "@swimlane/ngx-charts": "^14.0.0",
+    "@turf/boolean-point-in-polygon": "^6.5.0",
+    "@turf/turf": "^6.5.0",
     "@types/ws": "^8.5.4",
     "angular2-chartjs": "0.4.1",
     "bootstrap": "4.3.1",
@@ -76,6 +78,7 @@
     "style-loader": "^1.3.0",
     "tinymce": "4.5.7",
     "tslib": "^2.3.1",
+    "turf-inside": "^3.0.12",
     "typeface-exo": "0.0.22",
     "web-animations-js": "^2.3.2",
     "zone.js": "~0.11.4"

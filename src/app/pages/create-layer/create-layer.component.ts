@@ -8,7 +8,8 @@ import {
 
 import * as L from "leaflet";
 import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
-import { DOCUMENT } from "@angular/common";
+import "@turf/turf";
+import "turf-inside";
 
 @Component({
   selector: "ngx-create-layer",
@@ -22,6 +23,33 @@ export class CreateLayerComponent implements OnInit {
 
     iconSize: [15, 35], // size of the icon
   });
+
+  //esempio vecchi marker
+  // stadspark: L.Marker = L.marker([51.21227, 4.41433], {
+  //   icon: this.customIcon,
+  // }).bindPopup("This is Stadspark");
+
+  // stadspark = [51.21227, 4.41433];
+  // hobokense_polder = [51.19121, 4.34971];
+  // het_rot = [51.22318, 4.36092];
+  // kaisaniemen = [60.174718, 24.949741];
+  // tahtitornin = [60.162666, 24.950495];
+  // luattasari = [60.162292, 24.883466];
+  // mendicague = [43.463164, -3.826884];
+  // dr_morales = [43.45525, -3.838943];
+  // libertad = [43.470762, -3.808859];
+
+  // faulty_bench = [
+  //   this.stadspark,
+  //   this.hobokense_polder,
+  //   this.het_rot,
+  //   this.kaisaniemen,
+  //   this.tahtitornin,
+  //   this.luattasari,
+  //   this.mendicague,
+  //   this.dr_morales,
+  //   this.libertad,
+  // ];
 
   //list of parks
   stadspark: L.Marker = L.marker([51.21227, 4.41433], {
@@ -51,7 +79,8 @@ export class CreateLayerComponent implements OnInit {
   libertad: L.Marker = L.marker([43.470762, -3.808859], {
     icon: this.customIcon,
   }).bindPopup("Caje de la libertad");
-  faulty_bench = L.layerGroup([
+
+  private faulty_bench: L.LayerGroup = L.layerGroup([
     this.stadspark,
     this.hobokense_polder,
     this.het_rot,
@@ -107,30 +136,43 @@ export class CreateLayerComponent implements OnInit {
       draw: {
         marker: false,
         polyline: false,
-        rectangle: <any>{ repeatMode: true, showArea: false },
+        rectangle: <any>{ showArea: false },
         polygon: false,
         circlemarker: false,
       },
     });
     map.addControl(drawControl);
 
-    map.on(L.Draw.Event.CREATED, function (e: L.LayerEvent) {
+    map.on(L.Draw.Event.CREATED, function (e: any) {
       var layer = e.layer;
       // Do whatever else you need to. (save to db; add to map etc)
-      console.log(layer);
+      console.log(layer._latlngs);
       editableLayers.addLayer(layer);
+
+      var point = [51.241146, 4.442459];
+      const Xp = point[0];
+      const Yp = point[1];
+
+      function is_inside(edges, Xp, Yp) {
+        let cnt = 0;
+        for (let edge of edges) {
+          console.log(edge);
+        }
+      }
+
+      is_inside(layer._latlngs, Xp, Yp);
     });
 
     // //popup showing cohordinates on click
-    // function onthis.MapClick(e) {
+    // function onclick(e) {
     //   this.popup
     //     .setLatLng(e.latlng)
     //     .setContent("You clicked the map at " + e.latlng.toString())
-    //     .openOn(this.map);
+    //     .openOn(map);
     // }
 
     // //function to make the popup with the coordinates appear
-    // this.map.on("click", onMapClick.bind(this));
+    // map.on("click", onclick.bind(this));
   }
 
   constructor(private fb: FormBuilder) {}
