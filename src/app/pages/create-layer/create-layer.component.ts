@@ -7,7 +7,8 @@ import {
 } from "@angular/forms";
 
 import * as L from "leaflet";
-import "leaflet-draw";
+import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
+import { DOCUMENT } from "@angular/common";
 
 @Component({
   selector: "ngx-create-layer",
@@ -75,8 +76,6 @@ export class CreateLayerComponent implements OnInit {
   ];
   option;
 
-  private map;
-
   popup = L.popup();
 
   //open street map tiles
@@ -87,19 +86,43 @@ export class CreateLayerComponent implements OnInit {
 
   //map rendering
   private initMap(): void {
-    this.map = L.map("map", {
-      drawControl: true,
+    const map = L.map("map", {
       center: this.option,
       zoom: 12,
       layers: [this.osm, this.faulty_bench],
     });
 
-    const layerControl = L.control.layers(null, null).addTo(this.map);
+    const layerControl = L.control.layers(null, null).addTo(map);
 
     layerControl.addOverlay(this.faulty_bench, "Faulty benches");
 
+    // Initialise the FeatureGroup to store editable layers
+    var editableLayers = new L.FeatureGroup();
+    map.addLayer(editableLayers);
+
+    // Initialise the draw control and pass it the FeatureGroup of editable layers
+    var drawControl = new L.Control.Draw({
+      edit: { featureGroup: editableLayers },
+      position: "topright",
+      draw: {
+        marker: false,
+        polyline: false,
+        rectangle: <any>{ repeatMode: true, showArea: false },
+        polygon: false,
+        circlemarker: false,
+      },
+    });
+    map.addControl(drawControl);
+
+    map.on(L.Draw.Event.CREATED, function (e: L.LayerEvent) {
+      var layer = e.layer;
+      // Do whatever else you need to. (save to db; add to map etc)
+      console.log(layer);
+      editableLayers.addLayer(layer);
+    });
+
     // //popup showing cohordinates on click
-    // function onMapClick(e) {
+    // function onthis.MapClick(e) {
     //   this.popup
     //     .setLatLng(e.latlng)
     //     .setContent("You clicked the map at " + e.latlng.toString())
