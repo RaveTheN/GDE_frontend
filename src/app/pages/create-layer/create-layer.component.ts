@@ -173,12 +173,6 @@ export class CreateLayerComponent implements OnInit {
         }
         console.log(pointInsidePolygon(point, edges));
       } else {
-        const pointX = point[0];
-        const pointY = point[1];
-        const { lat: centerX, lng: centerY } = layer._latlng;
-
-        console.log(layer);
-        console.log("cx: " + centerX, "cy: " + centerY, "r: " + layer._radius);
         console.log(pointInsideCircle(point, layer._latlng, layer._radius));
       }
 
