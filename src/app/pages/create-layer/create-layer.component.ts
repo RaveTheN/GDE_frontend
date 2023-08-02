@@ -113,13 +113,19 @@ export class CreateLayerComponent implements OnInit {
     attribution: "© OpenStreetMap",
   });
 
+  overlayMaps = {
+    Parks: this.faulty_bench,
+  };
+
   //map rendering
   private initMap(): void {
     const map = L.map("map", {
       center: this.option,
       zoom: 12,
-      layers: [this.osm, this.faulty_bench],
+      layers: [this.osm],
     });
+
+    map.addLayer(this.faulty_bench);
 
     const layerControl = L.control.layers(null, null).addTo(map);
 
@@ -145,22 +151,81 @@ export class CreateLayerComponent implements OnInit {
 
     map.on(L.Draw.Event.CREATED, function (e: any) {
       var layer = e.layer;
-      // Do whatever else you need to. (save to db; add to map etc)
-      console.log(layer._latlngs);
+      //layer in which we are going to draw the selecion areas
       editableLayers.addLayer(layer);
 
-      var point = [51.241146, 4.442459];
-      const Xp = point[0];
-      const Yp = point[1];
+      //empty array, for storing polygons' edges' coordinates
+      let edges = [];
 
-      function is_inside(edges, Xp, Yp) {
-        let cnt = 0;
-        for (let edge of edges) {
-          console.log(edge);
+      var point = [51.21227, 4.41433];
+
+      if (Array.isArray(layer._latlngs)) {
+        // For polygons, layer._latlngs[i] is an array of LatLngs objects
+        for (let i = 0; i < layer._latlngs.length; i++) {
+          for (let j = 0; j < layer._latlngs[i].length; j++) {
+            const edge = {
+              x: layer._latlngs[i][j].lat,
+              y: layer._latlngs[i][j].lng,
+            };
+            edges.push(edge);
+            // Do something with lat and lng here...
+          }
         }
+        console.log(pointInsidePolygon(point, edges));
+      } else {
+        const pointX = point[0];
+        const pointY = point[1];
+        const { lat: centerX, lng: centerY } = layer._latlng;
+
+        console.log(layer);
+        console.log("cx: " + centerX, "cy: " + centerY, "r: " + layer._radius);
+        console.log(pointInsideCircle(point, layer._latlng, layer._radius));
       }
 
-      is_inside(layer._latlngs, Xp, Yp);
+      function pointInsidePolygon(point, polygon) {
+        // Extract x and y coordinates of the point
+        const x = point[0];
+        const y = point[1];
+
+        // Initialize a variable to keep track of the number of intersections
+        let numIntersections = 0;
+
+        // Iterate through each edge of the polygon
+        for (let i = 0; i < polygon.length; i++) {
+          const p1 = polygon[i];
+          const p2 = polygon[(i + 1) % polygon.length];
+
+          // Check if the point is on the same y-coordinate as the edge
+          if (y > Math.min(p1.y, p2.y) && y <= Math.max(p1.y, p2.y)) {
+            // Check if the point is to the left of the edge (use cross product)
+            const crossProduct =
+              (x - p1.x) / (p2.x - p1.x) - (y - p1.y) / (p2.y - p1.y);
+            if (crossProduct < 0) {
+              numIntersections++;
+            }
+          }
+        }
+
+        // If the number of intersections is odd, the point is inside the polygon
+        return numIntersections % 2 === 1;
+      }
+
+      function pointInsideCircle(point, circleCenter, radius) {
+        const pointX = point[0];
+        const pointY = point[1];
+        const { lat: centerX, lng: centerY } = circleCenter;
+
+        // Calculate the distance between the point and the center of the circle
+        const distance = Math.sqrt(
+          (pointX - centerX) ** 2 + (pointY - centerY) ** 2
+        );
+
+        // Check if the distance is less than the radius
+        console.log(distance * 1000 <= radius);
+        return distance * 1000 <= radius;
+      }
+
+      console.log(editableLayers);
     });
 
     // //popup showing cohordinates on click
