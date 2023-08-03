@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild } from "@angular/core";
 import {
   FormBuilder,
   FormControl,
@@ -10,6 +10,7 @@ import * as L from "leaflet";
 import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
 import "@turf/turf";
 import "turf-inside";
+import { NbStepChangeEvent } from "@nebular/theme";
 
 @Component({
   selector: "ngx-create-layer",
@@ -107,6 +108,9 @@ export class CreateLayerComponent implements OnInit {
 
   popup = L.popup();
 
+  //filter's map rendering ---------------------------------------------------------------->
+  private map: L.Map;
+
   //open street map tiles
   osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
@@ -117,23 +121,24 @@ export class CreateLayerComponent implements OnInit {
     Parks: this.faulty_bench,
   };
 
-  //map rendering
-  private initMap(): void {
-    const map = L.map("map", {
+  private initFiltersMap(): void {
+    this.map = L.map("map", {
       center: this.option,
       zoom: 12,
       layers: [this.osm],
     });
 
-    map.addLayer(this.faulty_bench);
-
-    const layerControl = L.control.layers(null, null).addTo(map);
+    //layer control lets you select which layers you want to see
+    const layerControl = L.control.layers(null, null).addTo(this.map);
 
     layerControl.addOverlay(this.faulty_bench, "Faulty benches");
 
+    //adding layers so that it is default active in the layerControl
+    this.map.addLayer(this.faulty_bench);
+
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
-    map.addLayer(editableLayers);
+    this.map.addLayer(editableLayers);
 
     // Initialise the draw control and pass it the FeatureGroup of editable layers
     var drawControl = new L.Control.Draw({
@@ -147,9 +152,10 @@ export class CreateLayerComponent implements OnInit {
         circlemarker: false,
       },
     });
-    map.addControl(drawControl);
+    this.map.addControl(drawControl);
 
-    map.on(L.Draw.Event.CREATED, function (e: any) {
+    //when drawing area in the map
+    this.map.on(L.Draw.Event.CREATED, function (e: any) {
       var layer = e.layer;
       //layer in which we are going to draw the selecion areas
       editableLayers.addLayer(layer);
@@ -215,11 +221,11 @@ export class CreateLayerComponent implements OnInit {
         );
 
         // Check if the distance is less than the radius
-        console.log(distance * 1000 <= radius);
         return distance * 1000 <= radius;
       }
 
-      console.log(editableLayers);
+      //da qui devo prendere le aree disegnate
+      //console.log(editableLayers);
     });
 
     // //popup showing cohordinates on click
@@ -227,15 +233,27 @@ export class CreateLayerComponent implements OnInit {
     //   this.popup
     //     .setLatLng(e.latlng)
     //     .setContent("You clicked the map at " + e.latlng.toString())
-    //     .openOn(map);
+    //     .openOn(this.map);
     // }
 
     // //function to make the popup with the coordinates appear
-    // map.on("click", onclick.bind(this));
+    // this.map.on("click", onclick.bind(this));
   }
 
   constructor(private fb: FormBuilder) {}
 
+  //final map rendering---------------------------------------------------------->
+  public finalMap: L.Map;
+
+  public initFinalMap(): void {
+    this.finalMap = L.map("finalMap", {
+      center: this.option,
+      zoom: 12,
+      layers: [this.osm],
+    });
+  }
+
+  //OnInit----------------------------------------------------------------------->
   ngOnInit() {
     //Step 1 radio validator
     this.firstForm = new FormGroup({
@@ -243,9 +261,7 @@ export class CreateLayerComponent implements OnInit {
       firstCtrl: new FormControl("", Validators.required),
     });
 
-    this.secondForm = this.fb.group({
-      secondCtrl: ["", Validators.required],
-    });
+    this.secondForm = this.fb.group({});
 
     this.thirdForm = this.fb.group({
       thirdCtrl: ["", Validators.required],
@@ -264,7 +280,27 @@ export class CreateLayerComponent implements OnInit {
     this.thirdForm.markAsDirty();
   }
 
-  viewMap() {
-    this.initMap();
+  //Stepper controls---------------------------------------------------------------->
+
+  @ViewChild("stepper") changeEvent: NbStepChangeEvent;
+
+  onStepChange(event: any) {
+    // The event object contains information about the current step and previous step.
+    // You can access them as follows:
+    this.changeEvent = event;
+
+    this.changeEvent.index === 1 &&
+      setTimeout(() => this.initFiltersMap(), 100);
+
+    this.changeEvent.index === 0 &&
+      console.log(this.map.eachLayer((layer) => this.map.removeLayer(layer)));
   }
+
+  //filters checkbox---------------------------------------------------------------->
+
+  onChange(f) {
+    console.log(f);
+  }
+
+  filters = ["parks", "cyclables", "benches"];
 }

@@ -1,6 +1,7 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import {
   NbCardModule,
+  NbCheckboxModule,
   NbMenuModule,
   NbRadioModule,
   NbStepperModule,
@@ -17,6 +18,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 @NgModule({
   imports: [
+    NbCheckboxModule,
     NbRadioModule,
     FormsModule,
     ReactiveFormsModule,
