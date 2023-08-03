@@ -1,6 +1,6 @@
 <nb-card>
   <nb-card-body>
-    <nb-stepper #stepper>
+    <nb-stepper #stepper (stepChange)="onStepChange($event)">
       <nb-step [stepControl]="firstForm" label="First step">
         <form [formGroup]="firstForm" class="step-container">
           <div
@@ -50,6 +50,13 @@
         </form>
       </nb-step>
       <nb-step [stepControl]="secondForm" label="Second step">
+        <div
+          class="form-check"
+          *ngFor="let filter of filters"
+          style="display: flex"
+        >
+          <nb-checkbox (change)="onChange(filter)">{{ filter }}</nb-checkbox>
+        </div>
         <form
           [formGroup]="secondForm"
           (ngSubmit)="onSecondSubmit()"
@@ -61,8 +68,6 @@
             </div>
           </div>
           <button nbButton nbStepperPrevious>prev</button>
-
-          <button nbButton (click)="viewMap()">map</button>
           <button nbButton nbStepperNext>next</button>
         </form>
       </nb-step>
@@ -76,20 +81,13 @@
             Things boom shackalack rhoncus yo. In fo shizzle my nizzle gangsta
             platea dictumst. Check it out pot.
           </p>
-          <div class="input-group">
-            <input
-              nbInput
-              type="text"
-              placeholder="Enter something"
-              class="form-control"
-              formControlName="thirdCtrl"
-              [ngClass]="{
-                'form-control-danger':
-                  thirdForm.invalid && (thirdForm.dirty || thirdForm.touched)
-              }"
-            />
+          <div class="map-container">
+            <div class="map-frame">
+              <div id="map"></div>
+            </div>
           </div>
           <button nbButton nbStepperPrevious>prev</button>
+          <button nbButton (click)="initMap()">map</button>
           <button nbButton nbStepperNext>Confirm</button>
         </form>
       </nb-step>
