@@ -3,17 +3,48 @@
     <nb-stepper #stepper>
       <nb-step [stepControl]="firstForm" label="First step">
         <form [formGroup]="firstForm" class="step-container">
-          <p class="lorem">
-            Lorizzle ipsum dolizzle stuff fizzle, consectetuer adipiscing break
-            it down. Nullizzle sapien velizzle, my shizz pimpin', shizzle my
-            nizzle crocodizzle shut the shizzle up, gravida vizzle, dang.
-          </p>
-          <div class="input-group">
-            <nb-radio-group formControlName="cityOptions" [(ngModel)]="option">
-              <nb-radio *ngFor="let option of options" [value]="option.value">
-                {{ option.label }}
-              </nb-radio>
-            </nb-radio-group>
+          <div
+            class="input-group"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-content: center;
+              align-items: center;
+            "
+          >
+            <div>
+              <p>Select the city to apply filters to:</p>
+              <nb-radio-group
+                formControlName="cityOptions"
+                [(ngModel)]="option"
+              >
+                <nb-radio *ngFor="let option of options" [value]="option.value">
+                  {{ option.label }}
+                </nb-radio>
+              </nb-radio-group>
+            </div>
+            <div>
+              <p>Project's name:</p>
+              <input
+                nbInput
+                type="text"
+                placeholder="Project's name"
+                class="form-control"
+                formControlName="firstCtrl"
+                [ngClass]="{
+                  'form-control-danger':
+                    firstForm.invalid && (firstForm.dirty || firstForm.touched)
+                }"
+              />
+            </div>
+            <div>
+              <p>Description:</p>
+              <textarea
+                nbInput
+                type="text"
+                placeholder="Description"
+              ></textarea>
+            </div>
           </div>
           <button nbButton nbStepperNext>next</button>
         </form>

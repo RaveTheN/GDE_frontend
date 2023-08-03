@@ -240,6 +240,7 @@ export class CreateLayerComponent implements OnInit {
     //Step 1 radio validator
     this.firstForm = new FormGroup({
       cityOptions: new FormControl(null, Validators.required),
+      firstCtrl: new FormControl("", Validators.required),
     });
 
     this.secondForm = this.fb.group({
