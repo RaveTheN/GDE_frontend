@@ -67,8 +67,8 @@
               <div id="map"></div>
             </div>
           </div>
-          <button nbButton nbStepperPrevious>prev</button>
-          <button nbButton nbStepperNext>next</button>
+          <button nbButton nbStepperPrevious (click)="(clearMap)">prev</button>
+          <button nbButton nbStepperNext (click)="(clearMap)">next</button>
         </form>
       </nb-step>
       <nb-step [stepControl]="thirdForm" label="Third step">

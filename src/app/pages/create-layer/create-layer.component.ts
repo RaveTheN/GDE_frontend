@@ -10,7 +10,7 @@ import * as L from "leaflet";
 import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
 import "@turf/turf";
 import "turf-inside";
-import { NbStepChangeEvent } from "@nebular/theme";
+import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
 
 @Component({
   selector: "ngx-create-layer",
@@ -145,10 +145,9 @@ export class CreateLayerComponent implements OnInit {
       edit: { featureGroup: editableLayers },
       position: "topright",
       draw: {
-        marker: false,
         polyline: false,
+        marker: false,
         rectangle: <any>{ showArea: false },
-        polygon: false,
         circlemarker: false,
       },
     });
@@ -246,11 +245,36 @@ export class CreateLayerComponent implements OnInit {
   public finalMap: L.Map;
 
   public initFinalMap(): void {
-    this.finalMap = L.map("finalMap", {
+    this.map = L.map("map", {
       center: this.option,
       zoom: 12,
       layers: [this.osm],
     });
+
+    //layer control lets you select which layers you want to see
+    const layerControl = L.control.layers(null, null).addTo(this.map);
+
+    layerControl.addOverlay(this.faulty_bench, "Faulty benches");
+
+    //adding layers so that it is default active in the layerControl
+    this.map.addLayer(this.faulty_bench);
+
+    // Initialise the FeatureGroup to store editable layers
+    var editableLayers = new L.FeatureGroup();
+    this.map.addLayer(editableLayers);
+
+    // Initialise the draw control and pass it the FeatureGroup of editable layers
+    var drawControl = new L.Control.Draw({
+      edit: { featureGroup: editableLayers },
+      position: "topright",
+      draw: {
+        polyline: false,
+        marker: false,
+        rectangle: <any>{ showArea: false },
+        circlemarker: false,
+      },
+    });
+    this.map.addControl(drawControl);
   }
 
   //OnInit----------------------------------------------------------------------->
@@ -268,9 +292,7 @@ export class CreateLayerComponent implements OnInit {
     });
   }
 
-  onFirstSubmit() {
-    this.firstForm.markAsDirty();
-  }
+  onFirstSubmit() {}
 
   onSecondSubmit() {
     this.secondForm.markAsDirty();
@@ -282,25 +304,44 @@ export class CreateLayerComponent implements OnInit {
 
   //Stepper controls---------------------------------------------------------------->
 
-  @ViewChild("stepper") changeEvent: NbStepChangeEvent;
+  @ViewChild("stepper")
+  stepper: NbStepperComponent;
+  changeEvent: NbStepChangeEvent;
+
+  public clearMap() {
+    this.map != undefined ? (this.map = this.map.remove()) : null;
+  }
 
   onStepChange(event: any) {
     // The event object contains information about the current step and previous step.
     // You can access them as follows:
     this.changeEvent = event;
 
-    this.changeEvent.index === 1 &&
-      setTimeout(() => this.initFiltersMap(), 100);
-
-    this.changeEvent.index === 0 &&
-      console.log(this.map.eachLayer((layer) => this.map.removeLayer(layer)));
+    switch (this.stepper.selectedIndex) {
+      case 1:
+        this.clearMap();
+        setTimeout(() => this.initFiltersMap(), 100);
+        break;
+      case 2:
+        this.clearMap();
+        setTimeout(() => this.initFinalMap(), 100);
+        break;
+      default:
+    }
   }
 
   //filters checkbox---------------------------------------------------------------->
 
-  onChange(f) {
-    console.log(f);
+  filters = ["parks", "cyclables", "benches"];
+
+  onChange(f: string) {
+    this.selectedFilters.includes(f)
+      ? (this.selectedFilters = this.selectedFilters.filter(
+          (filter) => filter !== f
+        ))
+      : this.selectedFilters.push(f);
+    console.log(this.selectedFilters);
   }
 
-  filters = ["parks", "cyclables", "benches"];
+  selectedFilters = [];
 }
