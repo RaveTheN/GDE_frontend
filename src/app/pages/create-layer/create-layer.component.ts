@@ -40,18 +40,6 @@ export class CreateLayerComponent implements OnInit {
   // dr_morales = [43.45525, -3.838943];
   // libertad = [43.470762, -3.808859];
 
-  // faulty_bench = [
-  //   this.stadspark,
-  //   this.hobokense_polder,
-  //   this.het_rot,
-  //   this.kaisaniemen,
-  //   this.tahtitornin,
-  //   this.luattasari,
-  //   this.mendicague,
-  //   this.dr_morales,
-  //   this.libertad,
-  // ];
-
   //list of parks
   stadspark: L.Marker = L.marker([51.21227, 4.41433], {
     icon: this.customIcon,
@@ -83,28 +71,34 @@ export class CreateLayerComponent implements OnInit {
 
   private faulty_bench: L.LayerGroup = L.layerGroup([
     this.stadspark,
-    this.hobokense_polder,
-    this.het_rot,
     this.kaisaniemen,
-    this.tahtitornin,
-    this.luattasari,
     this.mendicague,
+  ]);
+
+  private parks: L.LayerGroup = L.layerGroup([
+    this.hobokense_polder,
+    this.tahtitornin,
     this.dr_morales,
+  ]);
+
+  private churches: L.LayerGroup = L.layerGroup([
+    this.het_rot,
+    this.luattasari,
     this.libertad,
   ]);
 
-  //steps of the stepper
+  //forms declaration
   firstForm: FormGroup;
   secondForm: FormGroup;
   thirdForm: FormGroup;
 
-  //Radio options for step !
+  //Radio options for step 1
   options = [
     { value: [60.1699, 24.9384], label: "Helsinki" },
     { value: [51.2213, 4.4051], label: "Antwerp" },
     { value: [43.462776, -3.805], label: "Santander" },
   ];
-  option;
+  option: any;
 
   popup = L.popup();
 
@@ -117,24 +111,12 @@ export class CreateLayerComponent implements OnInit {
     attribution: "© OpenStreetMap",
   });
 
-  overlayMaps = {
-    Parks: this.faulty_bench,
-  };
-
   private initFiltersMap(): void {
     this.map = L.map("map", {
       center: this.option,
       zoom: 12,
       layers: [this.osm],
     });
-
-    //layer control lets you select which layers you want to see
-    const layerControl = L.control.layers(null, null).addTo(this.map);
-
-    layerControl.addOverlay(this.faulty_bench, "Faulty benches");
-
-    //adding layers so that it is default active in the layerControl
-    this.map.addLayer(this.faulty_bench);
 
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
@@ -173,7 +155,7 @@ export class CreateLayerComponent implements OnInit {
               y: layer._latlngs[i][j].lng,
             };
             edges.push(edge);
-            // Do something with lat and lng here...
+            // edges can then be stored and pushed to backend
           }
         }
         console.log(pointInsidePolygon(point, edges));
@@ -181,6 +163,7 @@ export class CreateLayerComponent implements OnInit {
         console.log(pointInsideCircle(point, layer._latlng, layer._radius));
       }
 
+      //questa parte non è necessaria poiché verrà fatta in backend
       function pointInsidePolygon(point, polygon) {
         // Extract x and y coordinates of the point
         const x = point[0];
@@ -254,35 +237,38 @@ export class CreateLayerComponent implements OnInit {
     //layer control lets you select which layers you want to see
     const layerControl = L.control.layers(null, null).addTo(this.map);
 
-    layerControl.addOverlay(this.faulty_bench, "Faulty benches");
+    this.projectDetails.filters.forEach((element) => {
+      layerControl.addOverlay(element[0], element[1]);
 
-    //adding layers so that it is default active in the layerControl
-    this.map.addLayer(this.faulty_bench);
+      //adding layers so that it is default active in the layerControl
+      this.map.addLayer(element[0]);
+    });
 
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
     this.map.addLayer(editableLayers);
-
-    // Initialise the draw control and pass it the FeatureGroup of editable layers
-    var drawControl = new L.Control.Draw({
-      edit: { featureGroup: editableLayers },
-      position: "topright",
-      draw: {
-        polyline: false,
-        marker: false,
-        rectangle: <any>{ showArea: false },
-        circlemarker: false,
-      },
-    });
-    this.map.addControl(drawControl);
   }
+
+  //object in which to store the data input by the user--------------------------->
+  projectDetails: {
+    city: string;
+    projectName: string;
+    description: string;
+    filters: number[] | string[];
+  } = {
+    city: "",
+    projectName: "",
+    description: "",
+    filters: [],
+  };
 
   //OnInit----------------------------------------------------------------------->
   ngOnInit() {
     //Step 1 radio validator
     this.firstForm = new FormGroup({
       cityOptions: new FormControl(null, Validators.required),
-      firstCtrl: new FormControl("", Validators.required),
+      projectName: new FormControl("", Validators.required),
+      description: new FormControl(""),
     });
 
     this.secondForm = this.fb.group({});
@@ -292,10 +278,19 @@ export class CreateLayerComponent implements OnInit {
     });
   }
 
-  onFirstSubmit() {}
+  //
+  onFirstSubmit() {
+    this.options.forEach((el): string =>
+      el.value === this.option ? (this.projectDetails.city = el.label) : null
+    );
+    this.projectDetails.projectName = this.firstForm.value.projectName;
+    this.projectDetails.description = this.firstForm.value.description;
+    console.log(this.projectDetails);
+  }
 
   onSecondSubmit() {
-    this.secondForm.markAsDirty();
+    this.projectDetails.filters = this.selectedFilters;
+    console.log(this.projectDetails);
   }
 
   onThirdSubmit() {
@@ -326,13 +321,17 @@ export class CreateLayerComponent implements OnInit {
         this.clearMap();
         setTimeout(() => this.initFinalMap(), 100);
         break;
-      default:
     }
   }
 
   //filters checkbox---------------------------------------------------------------->
 
-  filters = ["parks", "cyclables", "benches"];
+  //this array serves as a token for the one that will be received from the backend
+  filters = [
+    [this.parks, "parks"],
+    [this.churches, "churches"],
+    [this.faulty_bench, "Faulty benches"],
+  ];
 
   onChange(f: string) {
     this.selectedFilters.includes(f)

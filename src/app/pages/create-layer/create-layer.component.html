@@ -30,7 +30,7 @@
                 type="text"
                 placeholder="Project's name"
                 class="form-control"
-                formControlName="firstCtrl"
+                formControlName="projectName"
                 [ngClass]="{
                   'form-control-danger':
                     firstForm.invalid && (firstForm.dirty || firstForm.touched)
@@ -43,10 +43,18 @@
                 nbInput
                 type="text"
                 placeholder="Description"
+                formControlName="description"
               ></textarea>
             </div>
           </div>
-          <button nbButton nbStepperNext>next</button>
+          <button
+            type="button"
+            nbButton
+            nbStepperNext
+            (click)="onFirstSubmit()"
+          >
+            next
+          </button>
         </form>
       </nb-step>
       <nb-step [stepControl]="secondForm" label="Second step">
@@ -55,7 +63,7 @@
           *ngFor="let filter of filters"
           style="display: flex"
         >
-          <nb-checkbox (change)="onChange(filter)">{{ filter }}</nb-checkbox>
+          <nb-checkbox (change)="onChange(filter)">{{ filter[1] }}</nb-checkbox>
         </div>
         <form
           [formGroup]="secondForm"
@@ -67,8 +75,18 @@
               <div id="map"></div>
             </div>
           </div>
-          <button nbButton nbStepperPrevious (click)="(clearMap)">prev</button>
-          <button nbButton nbStepperNext (click)="(clearMap)">next</button>
+          <button type="button" nbButton nbStepperPrevious (click)="(clearMap)">
+            prev
+          </button>
+          <button
+            type="button"
+            nbButton
+            nbStepperNext
+            (click)="(clearMap)"
+            (click)="onSecondSubmit()"
+          >
+            next
+          </button>
         </form>
       </nb-step>
       <nb-step [stepControl]="thirdForm" label="Third step">
