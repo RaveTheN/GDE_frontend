@@ -3,15 +3,7 @@
     <nb-stepper #stepper (stepChange)="onStepChange($event)">
       <nb-step [stepControl]="firstForm" label="First step">
         <form [formGroup]="firstForm" class="step-container">
-          <div
-            class="input-group"
-            style="
-              display: flex;
-              flex-direction: column;
-              align-content: center;
-              align-items: center;
-            "
-          >
+          <div class="input-group">
             <div>
               <p>Select the city to apply filters to:</p>
               <nb-radio-group
@@ -77,7 +69,7 @@
           </div>
         </div>
         <button nbButton nbStepperPrevious>prev</button>
-        <button nbButton nbStepperNext>Confirm</button>
+        <button nbButton nbStepperNext>next</button>
       </nb-step>
       <nb-step [stepControl]="thirdForm" label="Fourth step"
         ><form
@@ -85,29 +77,33 @@
           (ngSubmit)="onThirdSubmit()"
           class="step-container"
         >
-          <div>
-            <p>Project's name:</p>
-            <input
-              nbInput
-              type="text"
-              placeholder="Project's name"
-              class="form-control"
-              formControlName="projectName"
-              [ngClass]="{
-                'form-control-danger':
-                  firstForm.invalid && (firstForm.dirty || firstForm.touched)
-              }"
-            />
+          <div class="input-group">
+            <div>
+              <p>Project's name:</p>
+              <input
+                nbInput
+                type="text"
+                placeholder="Project's name"
+                class="form-control"
+                formControlName="projectName"
+                [ngClass]="{
+                  'form-control-danger':
+                    firstForm.invalid && (firstForm.dirty || firstForm.touched)
+                }"
+              />
+            </div>
+            <div>
+              <p>Description:</p>
+              <textarea
+                nbInput
+                type="text"
+                placeholder="Description"
+                formControlName="description"
+              ></textarea>
+            </div>
           </div>
-          <div>
-            <p>Description:</p>
-            <textarea
-              nbInput
-              type="text"
-              placeholder="Description"
-              formControlName="description"
-            ></textarea>
-          </div>
+          <button nbButton nbStepperPrevious>prev</button>
+          <button nbButton nbStepperNext>Save</button>
         </form>
       </nb-step>
     </nb-stepper>

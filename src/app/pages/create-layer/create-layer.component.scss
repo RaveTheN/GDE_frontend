@@ -24,3 +24,10 @@
 #map {
   height: 100%;
 }
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+}
