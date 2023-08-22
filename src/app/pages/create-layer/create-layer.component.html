@@ -6,6 +6,14 @@
           <div class="input-group">
             <div>
               <p>Select the city to apply filters to:</p>
+              <p
+                [hidden]="
+                  firstForm.status === 'INVALID' ||
+                  firstForm.status !== 'PENDING'
+                "
+              >
+                Please select a city first:
+              </p>
               <nb-radio-group
                 formControlName="cityOptions"
                 [(ngModel)]="option"

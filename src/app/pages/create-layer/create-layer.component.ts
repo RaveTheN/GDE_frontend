@@ -279,7 +279,7 @@ export class CreateLayerComponent implements OnInit {
 
   //
   onFirstSubmit() {
-    this.firstForm.status === "INVALID" && alert("Please select a city");
+    this.firstForm.markAsPending();
 
     console.log(this.firstForm.status);
   }
