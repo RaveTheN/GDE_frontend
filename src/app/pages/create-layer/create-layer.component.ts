@@ -279,7 +279,9 @@ export class CreateLayerComponent implements OnInit {
 
   //
   onFirstSubmit() {
-    console.log(this.projectDetails);
+    this.firstForm.status === "INVALID" && alert("Please select a city");
+
+    console.log(this.firstForm.status);
   }
 
   onSecondSubmit() {
