@@ -267,24 +267,18 @@ export class CreateLayerComponent implements OnInit {
     //Step 1 radio validator
     this.firstForm = new FormGroup({
       cityOptions: new FormControl(null, Validators.required),
-      projectName: new FormControl("", Validators.required),
-      description: new FormControl(""),
     });
 
     this.secondForm = this.fb.group({});
 
-    this.thirdForm = this.fb.group({
-      thirdCtrl: ["", Validators.required],
+    this.thirdForm = new FormGroup({
+      projectName: new FormControl("", Validators.required),
+      description: new FormControl(""),
     });
   }
 
   //
   onFirstSubmit() {
-    this.options.forEach((el): string =>
-      el.value === this.option ? (this.projectDetails.city = el.label) : null
-    );
-    this.projectDetails.projectName = this.firstForm.value.projectName;
-    this.projectDetails.description = this.firstForm.value.description;
     console.log(this.projectDetails);
   }
 
@@ -294,7 +288,8 @@ export class CreateLayerComponent implements OnInit {
   }
 
   onThirdSubmit() {
-    this.thirdForm.markAsDirty();
+    this.projectDetails.projectName = this.firstForm.value.projectName;
+    this.projectDetails.description = this.firstForm.value.description;
   }
 
   //Stepper controls---------------------------------------------------------------->

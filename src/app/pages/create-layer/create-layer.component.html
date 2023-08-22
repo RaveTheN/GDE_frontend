@@ -23,29 +23,6 @@
                 </nb-radio>
               </nb-radio-group>
             </div>
-            <div>
-              <p>Project's name:</p>
-              <input
-                nbInput
-                type="text"
-                placeholder="Project's name"
-                class="form-control"
-                formControlName="projectName"
-                [ngClass]="{
-                  'form-control-danger':
-                    firstForm.invalid && (firstForm.dirty || firstForm.touched)
-                }"
-              />
-            </div>
-            <div>
-              <p>Description:</p>
-              <textarea
-                nbInput
-                type="text"
-                placeholder="Description"
-                formControlName="description"
-              ></textarea>
-            </div>
           </div>
           <button
             type="button"
@@ -89,30 +66,49 @@
           </button>
         </form>
       </nb-step>
-      <nb-step [stepControl]="thirdForm" label="Third step">
-        <form
+      <nb-step label="Third step">
+        <p class="lorem">
+          Things boom shackalack rhoncus yo. In fo shizzle my nizzle gangsta
+          platea dictumst. Check it out pot.
+        </p>
+        <div class="map-container">
+          <div class="map-frame">
+            <div id="map"></div>
+          </div>
+        </div>
+        <button nbButton nbStepperPrevious>prev</button>
+        <button nbButton nbStepperNext>Confirm</button>
+      </nb-step>
+      <nb-step [stepControl]="thirdForm" label="Fourth step"
+        ><form
           [formGroup]="thirdForm"
           (ngSubmit)="onThirdSubmit()"
           class="step-container"
         >
-          <p class="lorem">
-            Things boom shackalack rhoncus yo. In fo shizzle my nizzle gangsta
-            platea dictumst. Check it out pot.
-          </p>
-          <div class="map-container">
-            <div class="map-frame">
-              <div id="map"></div>
-            </div>
+          <div>
+            <p>Project's name:</p>
+            <input
+              nbInput
+              type="text"
+              placeholder="Project's name"
+              class="form-control"
+              formControlName="projectName"
+              [ngClass]="{
+                'form-control-danger':
+                  firstForm.invalid && (firstForm.dirty || firstForm.touched)
+              }"
+            />
           </div>
-          <button nbButton nbStepperPrevious>prev</button>
-          <button nbButton nbStepperNext>Confirm</button>
+          <div>
+            <p>Description:</p>
+            <textarea
+              nbInput
+              type="text"
+              placeholder="Description"
+              formControlName="description"
+            ></textarea>
+          </div>
         </form>
-      </nb-step>
-      <nb-step [stepControl]="thirdForm" [hidden]="true" label="Third step">
-        <div class="step-container">
-          <h3>Wizard completed!</h3>
-          <button nbButton (click)="stepper.reset()">Try again</button>
-        </div>
       </nb-step>
     </nb-stepper>
   </nb-card-body>
