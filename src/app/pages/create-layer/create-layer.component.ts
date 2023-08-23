@@ -25,21 +25,6 @@ export class CreateLayerComponent implements OnInit {
     iconSize: [15, 35], // size of the icon
   });
 
-  //esempio vecchi marker
-  // stadspark: L.Marker = L.marker([51.21227, 4.41433], {
-  //   icon: this.customIcon,
-  // }).bindPopup("This is Stadspark");
-
-  // stadspark = [51.21227, 4.41433];
-  // hobokense_polder = [51.19121, 4.34971];
-  // het_rot = [51.22318, 4.36092];
-  // kaisaniemen = [60.174718, 24.949741];
-  // tahtitornin = [60.162666, 24.950495];
-  // luattasari = [60.162292, 24.883466];
-  // mendicague = [43.463164, -3.826884];
-  // dr_morales = [43.45525, -3.838943];
-  // libertad = [43.470762, -3.808859];
-
   //list of parks
   stadspark: L.Marker = L.marker([51.21227, 4.41433], {
     icon: this.customIcon,
@@ -158,9 +143,8 @@ export class CreateLayerComponent implements OnInit {
             // edges can then be stored and pushed to backend
           }
         }
-        console.log(pointInsidePolygon(point, edges));
       } else {
-        console.log(pointInsideCircle(point, layer._latlng, layer._radius));
+        console.log(layer._latlngs);
       }
 
       //questa parte non è necessaria poiché verrà fatta in backend
@@ -192,34 +176,9 @@ export class CreateLayerComponent implements OnInit {
         return numIntersections % 2 === 1;
       }
 
-      function pointInsideCircle(point, circleCenter, radius) {
-        const pointX = point[0];
-        const pointY = point[1];
-        const { lat: centerX, lng: centerY } = circleCenter;
-
-        // Calculate the distance between the point and the center of the circle
-        const distance = Math.sqrt(
-          (pointX - centerX) ** 2 + (pointY - centerY) ** 2
-        );
-
-        // Check if the distance is less than the radius
-        return distance * 1000 <= radius;
-      }
-
       //da qui devo prendere le aree disegnate
       //console.log(editableLayers);
     });
-
-    // //popup showing cohordinates on click
-    // function onclick(e) {
-    //   this.popup
-    //     .setLatLng(e.latlng)
-    //     .setContent("You clicked the map at " + e.latlng.toString())
-    //     .openOn(this.map);
-    // }
-
-    // //function to make the popup with the coordinates appear
-    // this.map.on("click", onclick.bind(this));
   }
 
   constructor(private fb: FormBuilder) {}
@@ -269,22 +228,28 @@ export class CreateLayerComponent implements OnInit {
       cityOptions: new FormControl(null, Validators.required),
     });
 
-    this.secondForm = this.fb.group({});
-
+    this.secondForm = new FormGroup({
+      filters: new FormControl("", Validators.required),
+    });
     this.thirdForm = new FormGroup({
       projectName: new FormControl("", Validators.required),
       description: new FormControl(""),
     });
   }
 
-  //
-  onFirstSubmit() {
-    this.firstForm.markAsPending();
+  //functions activated clicking the buttons------------------------------------->
 
-    console.log(this.firstForm.status);
+  //variable to hide the alert when selecting a city
+  citySelected: boolean = true;
+  onFirstSubmit() {
+    this.citySelected = false;
+    console.log(this.firstForm);
   }
 
+  //variable to hide the alert when selecting a filter
+  filterSelected: boolean = true;
   onSecondSubmit() {
+    this.filterSelected = false;
     this.projectDetails.filters = this.selectedFilters;
     console.log(this.projectDetails);
   }
@@ -336,7 +301,11 @@ export class CreateLayerComponent implements OnInit {
           (filter) => filter !== f
         ))
       : this.selectedFilters.push(f);
-    console.log(this.selectedFilters);
+    //set form status to invalid when no filter is selected
+    this.selectedFilters.length === 0
+      ? this.secondForm.setErrors({ invalid: true })
+      : null;
+    console.log(this.secondForm.status);
   }
 
   selectedFilters = [];

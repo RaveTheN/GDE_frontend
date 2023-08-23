@@ -7,10 +7,7 @@
             <div>
               <p>Select the city to apply filters to:</p>
               <p
-                [hidden]="
-                  firstForm.status === 'INVALID' ||
-                  firstForm.status !== 'PENDING'
-                "
+                [hidden]="citySelected === true || firstForm.status === 'VALID'"
                 class="alert"
               >
                 Please select a city first:
@@ -36,18 +33,28 @@
         </form>
       </nb-step>
       <nb-step [stepControl]="secondForm" label="Second step">
-        <div
-          class="form-check"
-          *ngFor="let filter of filters"
-          style="display: flex"
-        >
-          <nb-checkbox (change)="onChange(filter)">{{ filter[1] }}</nb-checkbox>
-        </div>
         <form
           [formGroup]="secondForm"
           (ngSubmit)="onSecondSubmit()"
           class="step-container"
         >
+          <div
+            class="form-check"
+            *ngFor="let filter of filters"
+            style="display: flex"
+          >
+            <nb-checkbox
+              formControlName="filters"
+              (change)="onChange(filter)"
+              >{{ filter[1] }}</nb-checkbox
+            >
+          </div>
+          <p
+            [hidden]="filterSelected === true || secondForm.status === 'VALID'"
+            class="alert"
+          >
+            Select at least one of the above filters
+          </p>
           <div class="map-container">
             <div class="map-frame">
               <div id="map"></div>
