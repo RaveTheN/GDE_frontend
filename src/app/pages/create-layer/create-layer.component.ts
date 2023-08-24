@@ -11,6 +11,7 @@ import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
 import "@turf/turf";
 import "turf-inside";
 import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
+import { prototype } from "events";
 
 @Component({
   selector: "ngx-create-layer",
@@ -41,7 +42,7 @@ export class CreateLayerComponent implements OnInit {
   popup = L.popup();
 
   //filter's map rendering ---------------------------------------------------------------->
-  private map: L.Map;
+  public map: any;
 
   //open street map tiles
   osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -87,8 +88,8 @@ export class CreateLayerComponent implements OnInit {
         for (let i = 0; i < layer._latlngs.length; i++) {
           for (let j = 0; j < layer._latlngs[i].length; j++) {
             const edge = {
-              x: layer._latlngs[i][j].lat,
-              y: layer._latlngs[i][j].lng,
+              latitude: layer._latlngs[i][j].lat,
+              longitude: layer._latlngs[i][j].lng,
             };
             edges.push(edge);
             // edges can then be stored and pushed to backend
@@ -107,7 +108,7 @@ export class CreateLayerComponent implements OnInit {
   queryDetails = {
     city: "",
     filters: [],
-    point: {},
+    polygon: [],
   };
 
   //final map rendering---------------------------------------------------------->
@@ -120,19 +121,15 @@ export class CreateLayerComponent implements OnInit {
       layers: [this.osm],
     });
 
-    //layer control lets you select which layers you want to see
-    const layerControl = L.control.layers(null, null).addTo(this.map);
+    // //layer control lets you select which layers you want to see
+    // const layerControl = L.control.layers(null, null).addTo(this.map);
 
-    this.queryDetails.filters.forEach((element) => {
-      layerControl.addOverlay(element[0], element[1]);
+    // this.queryDetails.filters.forEach((element) => {
+    //   layerControl.addOverlay(element[0], element[1]);
 
-      //adding layers so that it is default active in the layerControl
-      this.map.addLayer(element[0]);
-    });
-
-    // Initialise the FeatureGroup to store editable layers
-    var editableLayers = new L.FeatureGroup();
-    this.map.addLayer(editableLayers);
+    //   //adding layers so that it is default active in the layerControl
+    //   this.map.addLayer(element[0]);
+    // });
   }
 
   //OnInit----------------------------------------------------------------------->
@@ -150,26 +147,6 @@ export class CreateLayerComponent implements OnInit {
       description: new FormControl(""),
     });
   }
-
-  //functions activated clicking the buttons------------------------------------->
-
-  //variable to hide the alert when selecting a city
-  citySelected: boolean = true;
-  onFirstSubmit() {
-    this.citySelected = false;
-    this.queryDetails.city = this.option[1];
-  }
-
-  //variable to hide the alert when selecting a filter
-  filterSelected: boolean = true;
-  onSecondSubmit() {
-    console.log(this.map);
-    this.filterSelected = false;
-    this.queryDetails.filters = this.selectedFilters;
-    console.log(this.queryDetails);
-  }
-
-  onThirdSubmit() {}
 
   //Stepper controls---------------------------------------------------------------->
 
@@ -197,6 +174,62 @@ export class CreateLayerComponent implements OnInit {
         break;
     }
   }
+
+  //functions activated clicking the buttons------------------------------------->
+
+  // URL dell'endpoint
+  url = "http://127.0.0.1:9090/api/polygondata/"; // Sostituisci con l'URL reale
+
+  // Opzioni per la richiesta POST
+  requestOptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(this.queryDetails),
+  };
+
+  //variable to hide the alert when selecting a city
+  citySelected: boolean = true;
+  onFirstSubmit() {
+    this.citySelected = false;
+    this.queryDetails.city = this.option[1];
+  }
+
+  //variable to hide the alert when selecting a filter
+  filterSelected: boolean = true;
+  onSecondSubmit() {
+    var layer: any;
+    for (layer of Object.values(this.map._layers)) {
+      // For polygons, layer._latlngs[i] is an array of LatLngs objects
+      if (Array.isArray(layer._latlngs)) {
+        for (let i = 0; i < layer._latlngs.length; i++) {
+          for (let j = 0; j < layer._latlngs[i].length; j++) {
+            const edge = {
+              latitude: layer._latlngs[i][j].lat,
+              longitude: layer._latlngs[i][j].lng,
+            };
+            this.queryDetails.polygon.push(edge);
+            // edges can then be stored and pushed to backend
+          }
+        }
+        console.log(layer._latlngs);
+      }
+    }
+    this.filterSelected = false;
+    this.queryDetails.filters = this.selectedFilters;
+    fetch(this.url, this.requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Risposta dalla richiesta POST:", data);
+      })
+      .catch((error) => {
+        console.error("Si è verificato un errore:", error);
+      });
+    this.stepper.next();
+  }
+
+  onThirdSubmit() {}
 
   //filters checkbox---------------------------------------------------------------->
 
