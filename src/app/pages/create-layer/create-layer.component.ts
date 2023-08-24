@@ -40,8 +40,6 @@ export class CreateLayerComponent implements OnInit {
 
   popup = L.popup();
 
-  public stocazzo = 0;
-
   //filter's map rendering ---------------------------------------------------------------->
   private map: L.Map;
 
@@ -57,13 +55,6 @@ export class CreateLayerComponent implements OnInit {
       zoom: 12,
       layers: [this.osm],
     });
-
-    var circleArea = {
-      point: { latitude: "", longitude: "" },
-      radius: 0,
-    };
-
-    this.stocazzo = 2;
 
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
@@ -91,8 +82,8 @@ export class CreateLayerComponent implements OnInit {
       //empty array, for storing polygons' edges' coordinates
       let edges = [];
 
+      // For polygons, layer._latlngs[i] is an array of LatLngs objects
       if (Array.isArray(layer._latlngs)) {
-        // For polygons, layer._latlngs[i] is an array of LatLngs objects
         for (let i = 0; i < layer._latlngs.length; i++) {
           for (let j = 0; j < layer._latlngs[i].length; j++) {
             const edge = {
@@ -104,16 +95,9 @@ export class CreateLayerComponent implements OnInit {
           }
         }
         console.log(layer._latlngs);
-        console.log();
       } else {
         console.log(layer._latlng);
-        circleArea.point.latitude = layer._latlng.lat;
-        circleArea.point.longitude = layer._latlng.lng;
-        circleArea.radius = layer._radius;
-        console.log(circleArea);
       }
-
-      console.log(editableLayers);
     });
   }
 
@@ -174,7 +158,6 @@ export class CreateLayerComponent implements OnInit {
   onFirstSubmit() {
     this.citySelected = false;
     this.queryDetails.city = this.option[1];
-    console.log(this.queryDetails);
   }
 
   //variable to hide the alert when selecting a filter
