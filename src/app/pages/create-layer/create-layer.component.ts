@@ -178,15 +178,34 @@ export class CreateLayerComponent implements OnInit {
   //functions activated clicking the buttons------------------------------------->
 
   // URL dell'endpoint
-  url = "http://127.0.0.1:9090/api/polygondata/"; // Sostituisci con l'URL reale
+  url = "http://localhost:9090/api/polygondata/"; // Sostituisci con l'URL reale
 
-  // Opzioni per la richiesta POST
-  requestOptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(this.queryDetails),
+  getMarkers = async () => {
+    try {
+      const response = await fetch(this.url, {
+        method: "POST",
+        mode: "cors", // Changed "navigate" to "cors" for proper CORS handling
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*", // Might not be necessary here
+          "Access-Control-Allow-Methods": "POST,PATCH,OPTIONS",
+        },
+        body: JSON.stringify({
+          city: this.queryDetails.city,
+          filter: this.queryDetails.filters,
+          polygon: this.queryDetails.polygon,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      // Handle the 'data' object here, which should contain the fetched markers
+    } catch (error) {
+      console.error("Error fetching markers:", error);
+    }
   };
 
   //variable to hide the alert when selecting a city
@@ -218,14 +237,7 @@ export class CreateLayerComponent implements OnInit {
     }
     this.filterSelected = false;
     this.queryDetails.filters = this.selectedFilters;
-    fetch(this.url, this.requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Risposta dalla richiesta POST:", data);
-      })
-      .catch((error) => {
-        console.error("Si è verificato un errore:", error);
-      });
+    this.getMarkers();
     this.stepper.next();
   }
 
