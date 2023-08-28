@@ -11,7 +11,7 @@ import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
 import "@turf/turf";
 import "turf-inside";
 import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
-import { prototype } from "events";
+import { ApiService } from "../../services/api.service";
 
 @Component({
   selector: "ngx-create-layer",
@@ -102,7 +102,7 @@ export class CreateLayerComponent implements OnInit {
     });
   }
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private apiServices: ApiService) {}
 
   //object in which to store the data input by the user--------------------------->
   queryDetails = {
@@ -175,39 +175,6 @@ export class CreateLayerComponent implements OnInit {
     }
   }
 
-  //functions activated clicking the buttons------------------------------------->
-
-  // URL dell'endpoint
-  url = "http://localhost:9090/api/polygondata/"; // Sostituisci con l'URL reale
-
-  getMarkers = async () => {
-    try {
-      const response = await fetch(this.url, {
-        method: "POST",
-        mode: "cors", // Changed "navigate" to "cors" for proper CORS handling
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*", // Might not be necessary here
-          "Access-Control-Allow-Methods": "POST,PATCH,OPTIONS",
-        },
-        body: JSON.stringify({
-          city: this.queryDetails.city,
-          filter: this.queryDetails.filters,
-          polygon: this.queryDetails.polygon,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const data = await response.json();
-      // Handle the 'data' object here, which should contain the fetched markers
-    } catch (error) {
-      console.error("Error fetching markers:", error);
-    }
-  };
-
   //variable to hide the alert when selecting a city
   citySelected: boolean = true;
   onFirstSubmit() {
@@ -237,7 +204,17 @@ export class CreateLayerComponent implements OnInit {
     }
     this.filterSelected = false;
     this.queryDetails.filters = this.selectedFilters;
-    this.getMarkers();
+    // this.apiServices.getPolygonData({
+    //   city: this.queryDetails.city,
+    //   filter: this.queryDetails.filters,
+    //   polygon: this.queryDetails.polygon,
+    // });
+    console.log(this.queryDetails);
+    this.apiServices.getPolygonData({
+      city: this.queryDetails.city,
+      filter: this.queryDetails.filters,
+      polygon: this.queryDetails.polygon,
+    });
     this.stepper.next();
   }
 
