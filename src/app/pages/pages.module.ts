@@ -15,6 +15,7 @@ import { PagesRoutingModule } from "./pages-routing.module";
 import { MiscellaneousModule } from "./miscellaneous/miscellaneous.module";
 import { CreateLayerComponent } from "./create-layer/create-layer.component";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { AvailableOptionsComponent } from './available-options/available-options.component';
 
 @NgModule({
   imports: [
@@ -31,7 +32,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
     ECommerceModule,
     MiscellaneousModule,
   ],
-  declarations: [PagesComponent, CreateLayerComponent],
+  declarations: [PagesComponent, CreateLayerComponent, AvailableOptionsComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class PagesModule {}

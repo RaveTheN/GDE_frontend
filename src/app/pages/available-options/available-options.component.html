@@ -1,0 +1,16 @@
+<div class="container">
+  <h1>Urbanage</h1>
+
+  <div class="mb-3">
+    <a class="btn btn-secondary" routerLink="/pages/create-layer"
+      >Create New Search (Link)</a
+    >
+  </div>
+
+  <h2>Previous Searches</h2>
+  <ul class="list-group">
+    <li class="list-group-item" *ngFor="let search of previousSearches">
+      {{ search }}
+    </li>
+  </ul>
+</div>
