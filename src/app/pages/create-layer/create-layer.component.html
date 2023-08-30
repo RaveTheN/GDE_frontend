@@ -22,7 +22,9 @@
               </nb-radio-group>
             </div>
           </div>
-          <a nbButton href="pages/available-options">prev</a>
+          <a href="pages/available-options"
+            ><button type="button" nbButton>prev</button></a
+          >
           <button
             type="button"
             nbButton
@@ -119,7 +121,15 @@
             </div>
           </div>
           <button nbButton nbStepperPrevious>prev</button>
-          <button nbButton nbStepperNext>Save</button>
+          <a href="pages/available-options"
+            ><button
+              [disabled]="thirdForm.value.projectName === ''"
+              type="button"
+              nbButton
+            >
+              Save
+            </button></a
+          >
         </form>
       </nb-step>
     </nb-stepper>

@@ -109,6 +109,8 @@ export class CreateLayerComponent implements OnInit {
     city: "",
     filters: [],
     polygon: [],
+    queryName: "",
+    queryDescription: "",
   };
 
   //final map rendering---------------------------------------------------------->
@@ -143,7 +145,7 @@ export class CreateLayerComponent implements OnInit {
       filters: new FormControl("", Validators.required),
     });
     this.thirdForm = new FormGroup({
-      projectName: new FormControl("", Validators.required),
+      projectName: new FormControl(""),
       description: new FormControl(""),
     });
   }
@@ -218,7 +220,11 @@ export class CreateLayerComponent implements OnInit {
     this.stepper.next();
   }
 
-  onThirdSubmit() {}
+  onThirdSubmit() {
+    this.queryDetails.queryName = this.thirdForm.value.projectName;
+    this.queryDetails.queryDescription = this.thirdForm.value.description;
+    console.log(this.queryDetails);
+  }
 
   //filters checkbox---------------------------------------------------------------->
 
