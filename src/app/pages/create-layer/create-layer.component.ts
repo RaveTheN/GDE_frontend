@@ -97,7 +97,7 @@ export class CreateLayerComponent implements OnInit {
         }
         console.log(layer._latlngs);
       } else {
-        console.log(layer._latlng);
+        console.log(layer);
       }
     });
   }
@@ -229,7 +229,7 @@ export class CreateLayerComponent implements OnInit {
   //filters checkbox---------------------------------------------------------------->
 
   //this array serves as a token for the one that will be received from the backend
-  filters = ["AirQualityObserved"];
+  filters = ["PointOfInterest"];
 
   onChange(f: string) {
     this.selectedFilters.includes(f)
