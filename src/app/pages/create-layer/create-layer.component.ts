@@ -102,7 +102,7 @@ export class CreateLayerComponent implements OnInit {
         }
         console.log(edges);
       } else {
-        console.log(layer._latlng);
+        console.log(layer);
       }
     });
   }
