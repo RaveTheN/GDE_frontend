@@ -94,8 +94,13 @@ export class CreateLayerComponent implements OnInit {
             edges.push(edge);
             // edges can then be stored and pushed to backend
           }
+          const edge = {
+            latitude: layer._latlngs[0][0].lat,
+            longitude: layer._latlngs[0][0].lng,
+          };
+          edges.push(edge);
         }
-        console.log(layer._latlngs);
+        console.log(edges);
       } else {
         console.log(layer._latlng);
       }
@@ -188,6 +193,7 @@ export class CreateLayerComponent implements OnInit {
   filterSelected: boolean = true;
   onSecondSubmit() {
     var layer: any;
+    let edges = [];
     for (layer of Object.values(this.map._layers)) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
       if (Array.isArray(layer._latlngs)) {
@@ -201,7 +207,12 @@ export class CreateLayerComponent implements OnInit {
             // edges can then be stored and pushed to backend
           }
         }
-        console.log(layer._latlngs);
+        const firstEdge = {
+          latitude: layer._latlngs[0][0].lat,
+          longitude: layer._latlngs[0][0].lng,
+        };
+        this.queryDetails.polygon.push(firstEdge);
+        console.log(this.queryDetails.polygon);
       }
     }
     this.filterSelected = false;
@@ -229,7 +240,7 @@ export class CreateLayerComponent implements OnInit {
   //filters checkbox---------------------------------------------------------------->
 
   //this array serves as a token for the one that will be received from the backend
-  filters = ["AirQualityObserved"];
+  filters = ["PointOfInterest"];
 
   onChange(f: string) {
     this.selectedFilters.includes(f)
