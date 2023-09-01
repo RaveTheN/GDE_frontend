@@ -100,7 +100,6 @@ export class CreateLayerComponent implements OnInit {
           };
           edges.push(edge);
         }
-        console.log(edges);
       } else {
         console.log(layer);
       }
@@ -199,6 +198,7 @@ export class CreateLayerComponent implements OnInit {
       if (Array.isArray(layer._latlngs)) {
         for (let i = 0; i < layer._latlngs.length; i++) {
           for (let j = 0; j < layer._latlngs[i].length; j++) {
+            //here I am repeating the first point, as RN it only works like this, and only making triangles
             const edge = {
               latitude: layer._latlngs[i][j].lat,
               longitude: layer._latlngs[i][j].lng,
@@ -212,7 +212,6 @@ export class CreateLayerComponent implements OnInit {
           longitude: layer._latlngs[0][0].lng,
         };
         this.queryDetails.polygon.push(firstEdge);
-        console.log(this.queryDetails.polygon);
       }
     }
     this.filterSelected = false;
@@ -222,19 +221,21 @@ export class CreateLayerComponent implements OnInit {
     //   filter: this.queryDetails.filters,
     //   polygon: this.queryDetails.polygon,
     // });
-    console.log(this.queryDetails);
-    this.apiServices.getPolygonData({
-      city: this.queryDetails.city,
-      filter: this.queryDetails.filters,
-      polygon: this.queryDetails.polygon,
-    });
+    this.queryDetails.filters.length !== 0 &&
+      this.queryDetails.polygon.length !== 0 &&
+      this.apiServices.getPolygonData({
+        city: this.queryDetails.city,
+        filter: this.queryDetails.filters,
+        //here I empty the polygon array or otherwise it will receive all the egdges again, if I want to reuse it
+        polygon: this.queryDetails.polygon,
+      });
+    this.queryDetails.polygon = [];
     this.stepper.next();
   }
 
   onThirdSubmit() {
     this.queryDetails.queryName = this.thirdForm.value.projectName;
     this.queryDetails.queryDescription = this.thirdForm.value.description;
-    console.log(this.queryDetails);
   }
 
   //filters checkbox---------------------------------------------------------------->
@@ -252,7 +253,6 @@ export class CreateLayerComponent implements OnInit {
     this.selectedFilters.length === 0
       ? this.secondForm.setErrors({ invalid: true })
       : null;
-    console.log(this.secondForm.status);
   }
 
   selectedFilters = [];
