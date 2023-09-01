@@ -7,6 +7,34 @@ import { Injectable } from "@angular/core";
 export class ApiService {
   constructor(private http: HttpClient) {}
 
+  public getFilters(body: { city: string }): any {
+    return new Promise((resolve, reject) => {
+      const url = "http://127.0.0.1:9090/api/filter/";
+      this.http
+        .post<any>(url, body, {
+          headers: new HttpHeaders({
+            "Content-Type": "application/json",
+          }),
+        })
+        .subscribe(
+          (data) => {
+            console.log(data);
+            resolve(data);
+            console.log(body);
+          },
+          (error) => {
+            console.log(error);
+            if (
+              error.status === "200" ||
+              error.error.text === "Request retrieved"
+            )
+              resolve(error.error.text);
+            else reject(error);
+          }
+        );
+    });
+  }
+
   public getPolygonData(body: {
     city: string;
     filter: string[];

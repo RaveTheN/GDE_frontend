@@ -180,19 +180,19 @@ export class CreateLayerComponent implements OnInit {
         break;
     }
   }
-
-  //variable to hide the alert when selecting a city
+  //variable for the alert when not selecting a city
   citySelected: boolean = true;
   onFirstSubmit() {
     this.citySelected = false;
     this.queryDetails.city = this.option[1];
+    this.queryDetails.city !== "" &&
+      this.apiServices.getFilters({ city: this.queryDetails.city });
+    console.log(this.queryDetails);
   }
-
-  //variable to hide the alert when selecting a filter
+  //variable for the alert when not selecting a filter
   filterSelected: boolean = true;
   onSecondSubmit() {
     var layer: any;
-    let edges = [];
     for (layer of Object.values(this.map._layers)) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
       if (Array.isArray(layer._latlngs)) {
@@ -226,9 +226,9 @@ export class CreateLayerComponent implements OnInit {
       this.apiServices.getPolygonData({
         city: this.queryDetails.city,
         filter: this.queryDetails.filters,
-        //here I empty the polygon array or otherwise it will receive all the egdges again, if I want to reuse it
         polygon: this.queryDetails.polygon,
       });
+    //here I empty the polygon array or otherwise it will receive all the egdges again, if I want to reuse it
     this.queryDetails.polygon = [];
     this.stepper.next();
   }
