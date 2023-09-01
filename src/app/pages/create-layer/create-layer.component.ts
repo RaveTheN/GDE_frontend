@@ -186,7 +186,7 @@ export class CreateLayerComponent implements OnInit {
     this.citySelected = false;
     this.queryDetails.city = this.option[1];
     this.queryDetails.city !== "" &&
-      this.apiServices.getFilters({ city: this.queryDetails.city });
+      this.apiServices.getFilters(this.queryDetails.city);
     console.log(this.queryDetails);
   }
   //variable for the alert when not selecting a filter

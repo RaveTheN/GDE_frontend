@@ -7,23 +7,33 @@ import { Injectable } from "@angular/core";
 export class ApiService {
   constructor(private http: HttpClient) {}
 
-  public getFilters(body: { city: string }): any {
+  filters = [];
+
+  setFilters(data: []) {
+    this.filters = data;
+  }
+
+  public getFilters(cityValue: string) {
     return new Promise((resolve, reject) => {
-      const url = "http://127.0.0.1:9090/api/filter/";
+      const url = "http://localhost:9090/api/filter/";
       this.http
-        .post<any>(url, body, {
-          headers: new HttpHeaders({
-            "Content-Type": "application/json",
-          }),
-        })
+        .post<any>(
+          url,
+          { city: "Helsinki" },
+          {
+            headers: new HttpHeaders({
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*",
+              "Access-Control-Allow-Methods": "POST,PATCH,OPTIONS",
+            }),
+          }
+        )
         .subscribe(
-          (data) => {
-            console.log(data);
-            resolve(data);
-            console.log(body);
+          (filters) => {
+            console.log(filters);
+            resolve(filters);
           },
           (error) => {
-            console.log(error);
             if (
               error.status === "200" ||
               error.error.text === "Request retrieved"
@@ -54,7 +64,6 @@ export class ApiService {
           (data) => {
             console.log(data);
             resolve(data);
-            console.log(body);
           },
           (error) => {
             console.log(error);
