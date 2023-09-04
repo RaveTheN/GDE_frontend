@@ -182,13 +182,25 @@ export class CreateLayerComponent implements OnInit {
   }
   //variable for the alert when not selecting a city
   citySelected: boolean = true;
-  onFirstSubmit() {
+  async onFirstSubmit() {
     this.citySelected = false;
     this.queryDetails.city = this.option[1];
-    this.queryDetails.city !== "" &&
-      this.apiServices.getFilters(this.queryDetails.city);
-    console.log(this.queryDetails);
+    if (this.queryDetails.city !== "") {
+      try {
+        await this.apiServices.getFilters(this.queryDetails.city);
+        //pushing fetch results in this.filters
+        this.apiServices.apiFilters.forEach((element) => {
+          this.filters.push(element);
+        });
+        //go to step 2
+        this.stepper.next();
+      } catch (error) {
+        //Show a message in case of error
+        console.error("API call failed:", error);
+      }
+    }
   }
+
   //variable for the alert when not selecting a filter
   filterSelected: boolean = true;
   onSecondSubmit() {
@@ -241,7 +253,7 @@ export class CreateLayerComponent implements OnInit {
   //filters checkbox---------------------------------------------------------------->
 
   //this array serves as a token for the one that will be received from the backend
-  filters = ["PointOfInterest"];
+  filters = [];
 
   onChange(f: string) {
     this.selectedFilters.includes(f)

@@ -7,35 +7,35 @@ import { Injectable } from "@angular/core";
 export class ApiService {
   constructor(private http: HttpClient) {}
 
-  filters = [];
+  apiFilters = [];
 
-  setFilters(data: []) {
-    this.filters = data;
+  setFilters(data: string[]) {
+    this.apiFilters = data;
   }
 
   public getFilters(cityValue: string) {
     return new Promise((resolve, reject) => {
       const url = "http://localhost:9090/api/filter/";
       this.http
-        .post<any>(
-          url,
-          { city: "Helsinki" },
-          {
-            headers: new HttpHeaders({
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": "*",
-              "Access-Control-Allow-Methods": "POST,PATCH,OPTIONS",
-            }),
-          }
-        )
+        .post(url, JSON.stringify({ city: cityValue }), {
+          headers: new HttpHeaders({
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST,PATCH,OPTIONS",
+          }),
+          responseType: "text",
+        })
         .subscribe(
-          (filters) => {
-            console.log(filters);
-            resolve(filters);
+          (data) => {
+            const cleanData = data.replace(/[\[\],]/g, "");
+            const dataArray = cleanData.split(" ");
+            resolve(this.setFilters(dataArray));
+            console.log(this.apiFilters);
           },
           (error) => {
+            console.log(error);
             if (
-              error.status === "200" ||
+              error.status === "400" ||
               error.error.text === "Request retrieved"
             )
               resolve(error.error.text);
