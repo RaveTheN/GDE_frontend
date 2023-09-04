@@ -26,6 +26,13 @@
             ><button type="button" nbButton>prev</button></a
           >
           <button type="button" nbButton (click)="onFirstSubmit()">next</button>
+          <nb-card
+            [nbSpinner]="true"
+            nbSpinnerSize="large"
+            nbSpinnerStatus="basic"
+          >
+            <nb-card-body> Some card content. </nb-card-body>
+          </nb-card>
         </form>
       </nb-step>
       <nb-step [stepControl]="secondForm" label="Second step">

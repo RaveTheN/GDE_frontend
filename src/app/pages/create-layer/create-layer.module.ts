@@ -1,12 +1,19 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { CreateLayerComponent } from "./create-layer.component";
-import { NbCardModule, NbStepperModule, NbThemeModule } from "@nebular/theme";
+import {
+  NbCardModule,
+  NbSpinnerModule,
+  NbStepperModule,
+  NbThemeModule,
+} from "@nebular/theme";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 @NgModule({
-  declarations: [
-    CreateLayerComponent,
+  declarations: [CreateLayerComponent],
+  imports: [
+    BrowserModule,
+    NbSpinnerModule,
     NbStepperModule,
     FormsModule,
     NbThemeModule,
@@ -14,7 +21,6 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
     NbStepperModule,
     NbCardModule,
   ],
-  imports: [BrowserModule],
   providers: [],
   bootstrap: [CreateLayerComponent],
 })

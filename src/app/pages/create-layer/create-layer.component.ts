@@ -180,9 +180,12 @@ export class CreateLayerComponent implements OnInit {
         break;
     }
   }
+  //variable for controlling the loading spinner
+  loading = false;
   //variable for the alert when not selecting a city
   citySelected: boolean = true;
   async onFirstSubmit() {
+    this.loading = true;
     this.citySelected = false;
     this.queryDetails.city = this.option[1];
     if (this.queryDetails.city !== "") {
