@@ -116,14 +116,7 @@ export class CreateLayerComponent implements OnInit {
   public finalMap: L.Map;
 
   overlayMaps = {
-    points: L.layerGroup([
-      L.marker([60.184488, 24.960317], {
-        icon: this.customIcon,
-      }).bindPopup("This is Het Rat"),
-      L.marker([60.163845, 24.921043], {
-        icon: this.customIcon,
-      }).bindPopup("This is Het Rat"),
-    ]),
+    points: L.layerGroup(),
   };
 
   public initFinalMap(): void {
@@ -185,10 +178,12 @@ export class CreateLayerComponent implements OnInit {
         break;
     }
   }
-  //variable for controlling the loading spinner
+
+  //variable for: controlling the loading spinner
   loading = false;
-  //variable for the alert when not selecting a city
+  //variable for: alert when not selecting a city
   citySelected: boolean = true;
+
   async onFirstSubmit() {
     this.citySelected = false;
     this.queryDetails.city = this.option[1];
@@ -201,6 +196,7 @@ export class CreateLayerComponent implements OnInit {
           this.filters.push(element);
         });
         //go to step 2
+        console.log(this.overlayMaps);
         this.stepper.next();
         this.loading = false;
       } catch (error) {
@@ -211,9 +207,10 @@ export class CreateLayerComponent implements OnInit {
     }
   }
 
-  //variable for the alert when not selecting a filter
+  //variable for: alert when not selecting a filter
   filterSelected: boolean = true;
-  onSecondSubmit() {
+
+  async onSecondSubmit() {
     var layer: any;
     for (layer of Object.values(this.map._layers)) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
@@ -237,21 +234,26 @@ export class CreateLayerComponent implements OnInit {
       }
     }
     this.filterSelected = false;
-    this.queryDetails.filters = this.selectedFilters;
-    if (
-      this.queryDetails.filters.length !== 0 &&
-      this.queryDetails.polygon.length !== 0
-    ) {
-      this.apiServices.getPolygonData({
-        city: this.queryDetails.city,
-        filter: this.queryDetails.filters,
-        polygon: this.queryDetails.polygon,
-      });
+    try {
+      if (
+        this.queryDetails.filters.length !== 0 &&
+        this.queryDetails.polygon.length !== 0
+      ) {
+        this.apiServices.getPolygonData({
+          city: this.queryDetails.city,
+          filter: this.queryDetails.filters,
+          polygon: this.queryDetails.polygon,
+        });
+      }
+      //here I empty the polygon array (in case I'll want to reuse it)
+      this.queryDetails.polygon = [];
+      this.overlayMaps = this.apiServices.apiPoints;
+      this.stepper.next();
+    } catch (error) {
+      this.loading = false;
+      //Show a message in case of error
+      console.error("API call failed:", error);
     }
-    //here I empty the polygon array or otherwise it will receive all the egdges again, if I want to reuse it
-    this.queryDetails.polygon = [];
-
-    this.stepper.next();
   }
 
   onThirdSubmit() {

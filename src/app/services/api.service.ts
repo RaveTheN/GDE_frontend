@@ -53,8 +53,8 @@ export class ApiService {
     });
   }
 
-  apiPoints: any = {
-    points: [],
+  apiPoints = {
+    points: L.layerGroup(),
   };
 
   public getPolygonData(body: {
@@ -87,7 +87,7 @@ export class ApiService {
                     }
                   ).bindPopup(`${element.properties.type}`)
                 )
-                .forEach((element) => this.apiPoints.points.push(element))
+                .forEach((element) => element.addTo(this.apiPoints.points))
             );
             console.log(this.apiPoints);
           },
