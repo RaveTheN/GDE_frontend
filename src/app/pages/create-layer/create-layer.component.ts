@@ -1,10 +1,5 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from "@angular/forms";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import * as L from "leaflet";
 import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
@@ -120,22 +115,32 @@ export class CreateLayerComponent implements OnInit {
   //final map rendering---------------------------------------------------------->
   public finalMap: L.Map;
 
+  overlayMaps = {
+    points: L.layerGroup([
+      L.marker([60.184488, 24.960317], {
+        icon: this.customIcon,
+      }).bindPopup("This is Het Rat"),
+      L.marker([60.163845, 24.921043], {
+        icon: this.customIcon,
+      }).bindPopup("This is Het Rat"),
+    ]),
+  };
+
   public initFinalMap(): void {
     this.map = L.map("map", {
       center: this.option[0],
       zoom: 12,
-      layers: [this.osm],
+      layers: [this.osm, this.overlayMaps.points],
     });
 
-    // //layer control lets you select which layers you want to see
-    // const layerControl = L.control.layers(null, null).addTo(this.map);
+    //layer control lets you select which layers you want to see
+    const layerControl = L.control
+      .layers(null, this.overlayMaps)
+      .addTo(this.map);
+  }
 
-    // this.queryDetails.filters.forEach((element) => {
-    //   layerControl.addOverlay(element[0], element[1]);
-
-    //   //adding layers so that it is default active in the layerControl
-    //   this.map.addLayer(element[0]);
-    // });
+  addMapLayers() {
+    this.queryDetails.filters.forEach((element) => {});
   }
 
   //OnInit----------------------------------------------------------------------->
@@ -164,7 +169,7 @@ export class CreateLayerComponent implements OnInit {
     this.map != undefined ? (this.map = this.map.remove()) : null;
   }
 
-  onStepChange(event: any) {
+  async onStepChange(event: any) {
     // The event object contains information about the current step and previous step.
     // You can access them as follows:
     this.changeEvent = event;
@@ -233,20 +238,19 @@ export class CreateLayerComponent implements OnInit {
     }
     this.filterSelected = false;
     this.queryDetails.filters = this.selectedFilters;
-    // this.apiServices.getPolygonData({
-    //   city: this.queryDetails.city,
-    //   filter: this.queryDetails.filters,
-    //   polygon: this.queryDetails.polygon,
-    // });
-    this.queryDetails.filters.length !== 0 &&
-      this.queryDetails.polygon.length !== 0 &&
+    if (
+      this.queryDetails.filters.length !== 0 &&
+      this.queryDetails.polygon.length !== 0
+    ) {
       this.apiServices.getPolygonData({
         city: this.queryDetails.city,
         filter: this.queryDetails.filters,
         polygon: this.queryDetails.polygon,
       });
+    }
     //here I empty the polygon array or otherwise it will receive all the egdges again, if I want to reuse it
     this.queryDetails.polygon = [];
+
     this.stepper.next();
   }
 
@@ -270,6 +274,7 @@ export class CreateLayerComponent implements OnInit {
     this.selectedFilters.length === 0
       ? this.secondForm.setErrors({ invalid: true })
       : null;
+    this.queryDetails.filters = this.selectedFilters;
   }
 
   selectedFilters = [];

@@ -1,10 +1,18 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import * as L from "leaflet";
 
 @Injectable({
   providedIn: "root",
 })
 export class ApiService {
+  customIcon = L.icon({
+    iconUrl:
+      "https://upload.wikimedia.org/wikipedia/commons/8/88/Map_marker.svg",
+
+    iconSize: [15, 35], // size of the icon
+  });
+
   constructor(private http: HttpClient) {}
 
   apiFilters = [];
@@ -45,6 +53,10 @@ export class ApiService {
     });
   }
 
+  apiPoints: any = {
+    points: [],
+  };
+
   public getPolygonData(body: {
     city: string;
     filter: string[];
@@ -62,8 +74,22 @@ export class ApiService {
         })
         .subscribe(
           (data) => {
-            console.log(data);
-            resolve(data);
+            resolve(
+              data[0].features
+                .map((element: any) =>
+                  L.marker(
+                    [
+                      element.geometry.coordinates[1],
+                      element.geometry.coordinates[0],
+                    ],
+                    {
+                      icon: this.customIcon,
+                    }
+                  ).bindPopup(`${element.properties.type}`)
+                )
+                .forEach((element) => this.apiPoints.points.push(element))
+            );
+            console.log(this.apiPoints);
           },
           (error) => {
             console.log(error);
