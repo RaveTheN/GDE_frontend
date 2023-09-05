@@ -29,8 +29,8 @@
     "postinstall": "ngcc --properties es2015 es5 browser module main --first-only --create-ivy-entry-points --tsconfig \"./src/tsconfig.app.json\""
   },
   "dependencies": {
-    "@angular/animations": "^14.2.12",
-    "@angular/cdk": "14.2.7",
+    "@angular/animations": "^14.3.0",
+    "@angular/cdk": "^14.2.7",
     "@angular/common": "^14.2.12",
     "@angular/compiler": "^14.2.12",
     "@angular/core": "^14.2.12",
@@ -44,7 +44,7 @@
     "@nebular/auth": "10.0.0",
     "@nebular/eva-icons": "10.0.0",
     "@nebular/security": "10.0.0",
-    "@nebular/theme": "10.0.0",
+    "@nebular/theme": "^10.0.0",
     "@swimlane/ngx-charts": "^14.0.0",
     "@turf/boolean-point-in-polygon": "^6.5.0",
     "@turf/turf": "^6.5.0",

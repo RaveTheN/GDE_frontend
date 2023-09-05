@@ -3,7 +3,7 @@
     <nb-stepper #stepper (stepChange)="onStepChange($event)">
       <nb-step [stepControl]="firstForm" label="First step">
         <form [formGroup]="firstForm" class="step-container">
-          <div class="input-group">
+          <div class="input-group" [class.spinner]="loading">
             <div>
               <p>Select the city to apply filters to:</p>
               <p
@@ -16,23 +16,29 @@
                 formControlName="cityOptions"
                 [(ngModel)]="option"
               >
-                <nb-radio *ngFor="let option of options" [value]="option.value">
+                <nb-radio
+                  [disabled]="loading"
+                  *ngFor="let option of options"
+                  [value]="option.value"
+                >
                   {{ option.label }}
                 </nb-radio>
               </nb-radio-group>
             </div>
           </div>
           <a href="pages/available-options"
-            ><button type="button" nbButton>prev</button></a
+            ><button type="button" nbButton [disabled]="loading">
+              prev
+            </button></a
           >
-          <button type="button" nbButton (click)="onFirstSubmit()">next</button>
-          <nb-card
-            [nbSpinner]="true"
-            nbSpinnerSize="large"
-            nbSpinnerStatus="basic"
+          <button
+            type="button"
+            nbButton
+            [disabled]="loading"
+            (click)="onFirstSubmit()"
           >
-            <nb-card-body> Some card content. </nb-card-body>
-          </nb-card>
+            next
+          </button>
         </form>
       </nb-step>
       <nb-step [stepControl]="secondForm" label="Second step">

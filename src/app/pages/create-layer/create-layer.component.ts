@@ -185,10 +185,10 @@ export class CreateLayerComponent implements OnInit {
   //variable for the alert when not selecting a city
   citySelected: boolean = true;
   async onFirstSubmit() {
-    this.loading = true;
     this.citySelected = false;
     this.queryDetails.city = this.option[1];
-    if (this.queryDetails.city !== "") {
+    if (this.queryDetails.city !== "" && this.firstForm.status !== "INVALID") {
+      this.loading = true;
       try {
         await this.apiServices.getFilters(this.queryDetails.city);
         //pushing fetch results in this.filters
@@ -197,7 +197,9 @@ export class CreateLayerComponent implements OnInit {
         });
         //go to step 2
         this.stepper.next();
+        this.loading = false;
       } catch (error) {
+        this.loading = false;
         //Show a message in case of error
         console.error("API call failed:", error);
       }
