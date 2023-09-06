@@ -75,6 +75,7 @@ export class CreateLayerComponent implements OnInit {
       //layer in which we are going to draw the selecion areas
       editableLayers.addLayer(layer);
 
+      //THE FOLLOWING PART IS TEMPORARY AND IT ONLY SERVES FOR DEV PURPOSES
       //empty array, for storing polygons' edges' coordinates
       let edges = [];
 
@@ -130,10 +131,6 @@ export class CreateLayerComponent implements OnInit {
       .addTo(this.map);
   }
 
-  addMapLayers() {
-    this.queryDetails.filters.forEach((element) => {});
-  }
-
   //OnInit----------------------------------------------------------------------->
   ngOnInit() {
     //Step 1 radio validator
@@ -166,7 +163,13 @@ export class CreateLayerComponent implements OnInit {
     this.changeEvent = event;
 
     switch (this.stepper.selectedIndex) {
+      case 0:
+        //emptying filters everytime the city selection step renders
+        this.filters = [];
+        break;
       case 1:
+        this.secondForm.reset();
+        this.filterSelected = false;
         this.clearMap();
         setTimeout(() => this.initFiltersMap(), 100);
         break;
@@ -205,53 +208,59 @@ export class CreateLayerComponent implements OnInit {
   }
 
   //variable for: alert when not selecting a filter
-  filterSelected: boolean = true;
+  filterSelected: boolean = false;
 
   async onSecondSubmit() {
     var layer: any;
+    console.log(this.map._layers);
     for (layer of Object.values(this.map._layers)) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
       if (Array.isArray(layer._latlngs)) {
-        for (let i = 0; i < layer._latlngs.length; i++) {
-          for (let j = 0; j < layer._latlngs[i].length; j++) {
-            //here I am repeating the first point, as RN it only works like this, and only making triangles
-            const edge = {
-              latitude: layer._latlngs[i][j].lat,
-              longitude: layer._latlngs[i][j].lng,
-            };
-            this.queryDetails.polygon.push(edge);
-            // edges can then be stored and pushed to backend
-          }
+        // Flatten the nested array and push edges to the polygon array
+        for (const latlng of layer._latlngs.flat()) {
+          const edge = {
+            latitude: latlng.lat,
+            longitude: latlng.lng,
+          };
+          this.queryDetails.polygon.push(edge);
         }
-        const firstEdge = {
-          latitude: layer._latlngs[0][0].lat,
-          longitude: layer._latlngs[0][0].lng,
-        };
-        this.queryDetails.polygon.push(firstEdge);
+        // Push the first edge again to complete the polygon
+        if (layer._latlngs[0]?.[0]) {
+          const firstEdge = {
+            latitude: layer._latlngs[0][0].lat,
+            longitude: layer._latlngs[0][0].lng,
+          };
+          this.queryDetails.polygon.push(firstEdge);
+        }
+      } else {
+        console.log("This is a circle: " + layer);
       }
     }
-    this.filterSelected = false;
+
+    this.filterSelected = true;
+
     try {
       if (
         this.queryDetails.filters.length !== 0 &&
         this.queryDetails.polygon.length !== 0
       ) {
+        // Make the API call with the prepared data
         await this.apiServices.getPolygonData({
           city: this.queryDetails.city,
           filter: this.queryDetails.filters,
           polygon: this.queryDetails.polygon,
         });
+
         this.overlayMaps = this.apiServices.apiPoints;
         this.apiServices.apiPoints = {};
         console.log(this.overlayMaps);
       }
-      //here I empty the polygon array (in case I'll want to reuse it)
-      this.queryDetails.polygon = [];
 
+      // Move the stepper.next() call here to ensure it's executed after the API call
       this.stepper.next();
     } catch (error) {
       this.loading = false;
-      //Show a message in case of error
+      // Show a message in case of error
       console.error("API call failed:", error);
     }
   }
