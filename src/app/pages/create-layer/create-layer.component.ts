@@ -115,15 +115,13 @@ export class CreateLayerComponent implements OnInit {
   //final map rendering---------------------------------------------------------->
   public finalMap: L.Map;
 
-  overlayMaps = {
-    points: L.layerGroup(),
-  };
+  overlayMaps = {};
 
   public initFinalMap(): void {
     this.map = L.map("map", {
       center: this.option[0],
       zoom: 12,
-      layers: [this.osm, this.overlayMaps.points],
+      layers: [this.osm],
     });
 
     //layer control lets you select which layers you want to see
@@ -196,7 +194,6 @@ export class CreateLayerComponent implements OnInit {
           this.filters.push(element);
         });
         //go to step 2
-        console.log(this.overlayMaps);
         this.stepper.next();
         this.loading = false;
       } catch (error) {
@@ -239,15 +236,21 @@ export class CreateLayerComponent implements OnInit {
         this.queryDetails.filters.length !== 0 &&
         this.queryDetails.polygon.length !== 0
       ) {
-        this.apiServices.getPolygonData({
+        await this.apiServices.getPolygonData({
           city: this.queryDetails.city,
           filter: this.queryDetails.filters,
           polygon: this.queryDetails.polygon,
         });
+        this.overlayMaps[this.queryDetails.filters[0]] =
+          this.apiServices.apiPoints.points;
+        this.apiServices.apiPoints = {
+          points: L.layerGroup(),
+        };
+        console.log(this.overlayMaps);
       }
       //here I empty the polygon array (in case I'll want to reuse it)
       this.queryDetails.polygon = [];
-      this.overlayMaps = this.apiServices.apiPoints;
+
       this.stepper.next();
     } catch (error) {
       this.loading = false;
