@@ -241,11 +241,8 @@ export class CreateLayerComponent implements OnInit {
           filter: this.queryDetails.filters,
           polygon: this.queryDetails.polygon,
         });
-        this.overlayMaps[this.queryDetails.filters[0]] =
-          this.apiServices.apiPoints.points;
-        this.apiServices.apiPoints = {
-          points: L.layerGroup(),
-        };
+        this.overlayMaps = this.apiServices.apiPoints;
+        this.apiServices.apiPoints = {};
         console.log(this.overlayMaps);
       }
       //here I empty the polygon array (in case I'll want to reuse it)
