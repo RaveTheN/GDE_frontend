@@ -61,18 +61,22 @@
             >
           </div>
           <p
-            [hidden]="filterSelected === false || secondForm.status === 'VALID'"
+            [hidden]="
+              hidingAlerts === true ? true : isFilterOn === true ? true : false
+            "
             class="alert"
           >
             Select at least one of the above filters
           </p>
           <p
-            [hidden]="filterSelected === false || secondForm.status === 'VALID'"
+            [hidden]="
+              hidingAlerts === true ? true : isDrawn === true ? true : false
+            "
             class="alert"
           >
             Draw area in which to search
           </p>
-          <div (click)="checkDrawing()" class="map-container">
+          <div (mouseup)="checkDrawing()" class="map-container">
             <div class="map-frame">
               <div id="map"></div>
             </div>
@@ -92,8 +96,8 @@
       </nb-step>
       <nb-step label="Results">
         <p class="lorem">
-          The markers in the map shows the points matching your search criteria.
-          Proceed to next step, to save this result.
+          The markers in the map show the points matching your search criteria.
+          Proceed to next step to save the results.
         </p>
         <div class="map-container">
           <div class="map-frame">

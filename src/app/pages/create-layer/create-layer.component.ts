@@ -7,6 +7,7 @@ import "@turf/turf";
 import "turf-inside";
 import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
 import { ApiService } from "../../services/api.service";
+import { __await } from "tslib";
 
 @Component({
   selector: "ngx-create-layer",
@@ -17,9 +18,11 @@ export class CreateLayerComponent implements OnInit {
   /**
    * Variables
    */
-  //alert when not selecting a filter
-  filterSelected: boolean = false;
-  //alert when not drawing shape
+  //hiding alerts by default
+  hidingAlerts: boolean = true;
+  //showing alert when not selecting a filter
+  isFilterOn: boolean = false;
+  //showing alert when not drawing shape
   isDrawn: boolean = false;
   //controlling the loading spinner
   loading = false;
@@ -100,7 +103,16 @@ export class CreateLayerComponent implements OnInit {
   }
 
   checkDrawing() {
-    console.log(this.map);
+    let i = 0;
+    for (let key in this.map._layers) {
+      i++;
+    }
+
+    //i must be > 2 as map._layers always have two keys by default.
+    i > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
+
+    console.log("isdrawn: " + this.isDrawn);
+    console.log(this.map._layers);
   }
 
   /**
@@ -167,6 +179,7 @@ export class CreateLayerComponent implements OnInit {
         this.queryDetails.polygon = [];
         this.queryDetails.point = {};
         this.queryDetails.radius = 0;
+        this.hidingAlerts = true;
         this.clearMap();
         setTimeout(() => this.initFiltersMap(), 100);
         break;
@@ -214,8 +227,8 @@ export class CreateLayerComponent implements OnInit {
       : this.selectedFilters.push(f);
     //set form status to invalid when no filter is selected
     this.selectedFilters.length === 0
-      ? this.secondForm.setErrors({ invalid: true })
-      : null;
+      ? (this.isFilterOn = false)
+      : (this.isFilterOn = true);
     this.queryDetails.filters = this.selectedFilters;
   }
 
@@ -259,8 +272,6 @@ export class CreateLayerComponent implements OnInit {
       }
     }
 
-    this.filterSelected = true;
-
     try {
       if (
         this.queryDetails.filters.length !== 0 &&
@@ -294,7 +305,9 @@ export class CreateLayerComponent implements OnInit {
         console.log(this.overlayMaps);
       }
       // Move the stepper.next() call here to ensure it's executed after the API call
-      this.stepper.next();
+      this.isDrawn && this.isFilterOn
+        ? this.stepper.next()
+        : (this.hidingAlerts = false);
     } catch (error) {
       this.loading = false;
       // Show a message in case of error
