@@ -69,8 +69,9 @@ export class ApiService {
   apiPoints = {};
 
   /**
-   * Retrieves polygon data for specified filters and adds markers to the map.
-   * @param body - An object containing city, filter, and polygon data.
+   * Retrieves circle data for specified filters and adds markers to the map.
+   * @param body - An object containing city, filter, point, radius end external.
+   * external - means whether to search inside or outside the shape.
    * @returns A Promise that resolves when data is retrieved and markers are added.
    */
   public async getPointRadiusData(body: {
@@ -78,7 +79,7 @@ export class ApiService {
     filter: string[];
     point: {};
     radius: Number;
-    external: boolean; //momentaneously true by default
+    external: boolean; //true by default, for now
   }): Promise<void> {
     try {
       // Create an array to store all the HTTP request promises
