@@ -73,6 +73,58 @@ export class ApiService {
    * @param body - An object containing city, filter, and polygon data.
    * @returns A Promise that resolves when data is retrieved and markers are added.
    */
+  public async getPointRadiusData(body: {
+    city: string;
+    filter: string[];
+    point: {};
+    radius: Number;
+    external: boolean; //momentaneously true by default
+  }): Promise<void> {
+    try {
+      // Create an array to store all the HTTP request promises
+      const requestPromises: Promise<any>[] = [];
+
+      // Iterate through each filter
+      for (const filter of body.filter) {
+        this.apiPoints[filter] = L.layerGroup();
+        const url = `http://localhost:9090/api/pointradiusdata/`;
+
+        // Create a promise for each HTTP request and push it to the array
+        const requestPromise = this.makeHttpRequest(url, {
+          city: body.city,
+          filter: [filter],
+          point: body.point,
+          radius: body.radius,
+          external: true,
+        });
+
+        requestPromises.push(requestPromise);
+      }
+
+      // Wait for all HTTP requests to complete
+      const responseDataArray = await Promise.all(requestPromises);
+
+      // Process and add markers to the map
+      responseDataArray.forEach((responseData, index) => {
+        const filter = body.filter[index];
+        const markers = this.processFigureData(responseData);
+
+        // Add markers to the corresponding layer group
+        markers.forEach((marker) => marker.addTo(this.apiPoints[filter]));
+      });
+
+      console.log(this.apiPoints);
+    } catch (error) {
+      console.error(error);
+      throw error; // Re-throw the error for proper handling elsewhere
+    }
+  }
+
+  /**
+   * Retrieves polygon data for specified filters and adds markers to the map.
+   * @param body - An object containing city, filter, and polygon data.
+   * @returns A Promise that resolves when data is retrieved and markers are added.
+   */
   public async getPolygonData(body: {
     city: string;
     filter: string[];
@@ -103,7 +155,7 @@ export class ApiService {
       // Process and add markers to the map
       responseDataArray.forEach((responseData, index) => {
         const filter = body.filter[index];
-        const markers = this.processPolygonData(responseData);
+        const markers = this.processFigureData(responseData);
 
         // Add markers to the corresponding layer group
         markers.forEach((marker) => marker.addTo(this.apiPoints[filter]));
@@ -144,7 +196,7 @@ export class ApiService {
    * @param responseData - The response data from the HTTP request.
    * @returns An array of markers.
    */
-  private processPolygonData(responseData: any): L.Marker[] {
+  private processFigureData(responseData: any): L.Marker[] {
     return responseData[0].features.map((element: any) => {
       const coordinates =
         element.geometry === null

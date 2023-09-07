@@ -14,6 +14,15 @@ import { ApiService } from "../../services/api.service";
   styleUrls: ["./create-layer.component.scss"],
 })
 export class CreateLayerComponent implements OnInit {
+  //variable for: alert when not selecting a filter
+  filterSelected: boolean = false;
+  //variable for: alert when not drawing shape
+  isDrawn: boolean = false;
+  //variable for: controlling the loading spinner
+  loading = false;
+  //variable for: alert when not selecting a city
+  citySelected: boolean = false;
+
   customIcon = L.icon({
     iconUrl:
       "https://upload.wikimedia.org/wikipedia/commons/8/88/Map_marker.svg",
@@ -109,6 +118,9 @@ export class CreateLayerComponent implements OnInit {
     city: "",
     filters: [],
     polygon: [],
+    point: {},
+    radius: 0,
+    external: true,
     queryName: "",
     queryDescription: "",
   };
@@ -169,7 +181,10 @@ export class CreateLayerComponent implements OnInit {
         break;
       case 1:
         this.secondForm.reset();
-        this.filterSelected = false;
+        this.selectedFilters = [];
+        this.queryDetails.polygon = [];
+        this.queryDetails.point = {};
+        this.queryDetails.radius = 0;
         this.clearMap();
         setTimeout(() => this.initFiltersMap(), 100);
         break;
@@ -180,13 +195,8 @@ export class CreateLayerComponent implements OnInit {
     }
   }
 
-  //variable for: controlling the loading spinner
-  loading = false;
-  //variable for: alert when not selecting a city
-  citySelected: boolean = true;
-
   async onFirstSubmit() {
-    this.citySelected = false;
+    this.citySelected = true;
     this.queryDetails.city = this.option[1];
     if (this.queryDetails.city !== "" && this.firstForm.status !== "INVALID") {
       this.loading = true;
@@ -206,9 +216,6 @@ export class CreateLayerComponent implements OnInit {
       }
     }
   }
-
-  //variable for: alert when not selecting a filter
-  filterSelected: boolean = false;
 
   async onSecondSubmit() {
     var layer: any;
@@ -232,8 +239,16 @@ export class CreateLayerComponent implements OnInit {
           };
           this.queryDetails.polygon.push(firstEdge);
         }
-      } else {
-        console.log("This is a circle: " + layer);
+      } else if (layer._latlng && layer._radius) {
+        this.queryDetails.point = layer._latlng;
+        this.queryDetails.radius = layer._radius;
+
+        console.log(
+          "This is a circle: " +
+            this.queryDetails.point +
+            " " +
+            this.queryDetails.radius
+        );
       }
     }
 
@@ -254,8 +269,23 @@ export class CreateLayerComponent implements OnInit {
         this.overlayMaps = this.apiServices.apiPoints;
         this.apiServices.apiPoints = {};
         console.log(this.overlayMaps);
-      }
+      } else if (
+        this.queryDetails.filters.length !== 0 &&
+        Object.keys(this.queryDetails.point).length !== 0 &&
+        this.queryDetails.radius !== 0
+      ) {
+        await this.apiServices.getPointRadiusData({
+          city: this.queryDetails.city,
+          filter: this.queryDetails.filters,
+          point: this.queryDetails.point,
+          radius: this.queryDetails.radius,
+          external: true,
+        });
 
+        this.overlayMaps = this.apiServices.apiPoints;
+        this.apiServices.apiPoints = {};
+        console.log(this.overlayMaps);
+      }
       // Move the stepper.next() call here to ensure it's executed after the API call
       this.stepper.next();
     } catch (error) {
