@@ -91,12 +91,16 @@ export class CreateLayerComponent implements OnInit {
     });
     this.map.addControl(drawControl);
 
-    //when drawing area in the map
+    //initialize function to draw areas inside the map
     this.map.on(L.Draw.Event.CREATED, function (e: any) {
-      let layer = e.layer;
+      let drawingLayer = e.layer;
       //layer in which we are going to draw the selecion areas
-      editableLayers.addLayer(layer);
+      editableLayers.addLayer(drawingLayer);
     });
+  }
+
+  checkDrawing() {
+    console.log(this.map);
   }
 
   /**
