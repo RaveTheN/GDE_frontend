@@ -14,28 +14,38 @@ import { ApiService } from "../../services/api.service";
   styleUrls: ["./create-layer.component.scss"],
 })
 export class CreateLayerComponent implements OnInit {
-  //variable for: alert when not selecting a filter
+  /**
+   * Variables
+   */
+  //alert when not selecting a filter
   filterSelected: boolean = false;
-  //variable for: alert when not drawing shape
+  //alert when not drawing shape
   isDrawn: boolean = false;
-  //variable for: controlling the loading spinner
+  //controlling the loading spinner
   loading = false;
-  //variable for: alert when not selecting a city
+  //alert when not selecting a city
   citySelected: boolean = false;
-
-  customIcon = L.icon({
-    iconUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/8/88/Map_marker.svg",
-
-    iconSize: [15, 35], // size of the icon
-  });
 
   //forms declaration
   firstForm: FormGroup;
   secondForm: FormGroup;
   thirdForm: FormGroup;
 
-  //Radio options for step 1
+  //object in which to store the data input by the user
+  queryDetails = {
+    city: "",
+    filters: [],
+    polygon: [],
+    point: {},
+    radius: 0,
+    external: true,
+    queryName: "",
+    queryDescription: "",
+  };
+
+  /**
+   * Radio options for step 1
+   */
   options = [
     { value: [[60.1699, 24.9384], "Helsinki"], label: "Helsinki" },
     { value: [[51.2213, 4.4051], "Antwerp"], label: "Antwerp" },
@@ -43,9 +53,11 @@ export class CreateLayerComponent implements OnInit {
   ];
   option: any;
 
-  popup = L.popup();
+  constructor(private apiServices: ApiService) {}
 
-  //filter's map rendering ---------------------------------------------------------------->
+  /**
+   * Step 2 map rendering
+   */
   public map: any;
 
   //open street map tiles
@@ -54,6 +66,7 @@ export class CreateLayerComponent implements OnInit {
     attribution: "© OpenStreetMap",
   });
 
+  //map for step 2
   private initFiltersMap(): void {
     this.map = L.map("map", {
       center: this.option[0],
@@ -80,56 +93,20 @@ export class CreateLayerComponent implements OnInit {
 
     //when drawing area in the map
     this.map.on(L.Draw.Event.CREATED, function (e: any) {
-      var layer = e.layer;
+      let layer = e.layer;
       //layer in which we are going to draw the selecion areas
       editableLayers.addLayer(layer);
-
-      //THE FOLLOWING PART IS TEMPORARY AND IT ONLY SERVES FOR DEV PURPOSES
-      //empty array, for storing polygons' edges' coordinates
-      let edges = [];
-
-      // For polygons, layer._latlngs[i] is an array of LatLngs objects
-      if (Array.isArray(layer._latlngs)) {
-        for (let i = 0; i < layer._latlngs.length; i++) {
-          for (let j = 0; j < layer._latlngs[i].length; j++) {
-            const edge = {
-              latitude: layer._latlngs[i][j].lat,
-              longitude: layer._latlngs[i][j].lng,
-            };
-            edges.push(edge);
-            // edges can then be stored and pushed to backend
-          }
-          const edge = {
-            latitude: layer._latlngs[0][0].lat,
-            longitude: layer._latlngs[0][0].lng,
-          };
-          edges.push(edge);
-        }
-      } else {
-        console.log(layer);
-      }
     });
   }
 
-  constructor(private apiServices: ApiService) {}
-
-  //object in which to store the data input by the user--------------------------->
-  queryDetails = {
-    city: "",
-    filters: [],
-    polygon: [],
-    point: {},
-    radius: 0,
-    external: true,
-    queryName: "",
-    queryDescription: "",
-  };
-
-  //final map rendering---------------------------------------------------------->
+  /**
+   * Step3 map rendering
+   */
   public finalMap: L.Map;
 
   overlayMaps = {};
 
+  //map for step3
   public initFinalMap(): void {
     this.map = L.map("map", {
       center: this.option[0],
@@ -143,7 +120,6 @@ export class CreateLayerComponent implements OnInit {
       .addTo(this.map);
   }
 
-  //OnInit----------------------------------------------------------------------->
   ngOnInit() {
     //Step 1 radio validator
     this.firstForm = new FormGroup({
@@ -159,7 +135,9 @@ export class CreateLayerComponent implements OnInit {
     });
   }
 
-  //Stepper controls---------------------------------------------------------------->
+  /**
+   * Stepper controls
+   */
 
   @ViewChild("stepper")
   stepper: NbStepperComponent;
@@ -195,6 +173,9 @@ export class CreateLayerComponent implements OnInit {
     }
   }
 
+  /**
+   * Step1 submit
+   */
   async onFirstSubmit() {
     this.citySelected = true;
     this.queryDetails.city = this.option[1];
@@ -217,6 +198,28 @@ export class CreateLayerComponent implements OnInit {
     }
   }
 
+  //filters checkbox
+  //this array serves as a token for the one that will be received from the backend
+  filters = [];
+
+  onChange(f: string) {
+    this.selectedFilters.includes(f)
+      ? (this.selectedFilters = this.selectedFilters.filter(
+          (filter) => filter !== f
+        ))
+      : this.selectedFilters.push(f);
+    //set form status to invalid when no filter is selected
+    this.selectedFilters.length === 0
+      ? this.secondForm.setErrors({ invalid: true })
+      : null;
+    this.queryDetails.filters = this.selectedFilters;
+  }
+
+  selectedFilters = [];
+
+  /**
+   * Step2 submit
+   */
   async onSecondSubmit() {
     var layer: any;
     console.log(this.map._layers);
@@ -295,28 +298,11 @@ export class CreateLayerComponent implements OnInit {
     }
   }
 
+  /**
+   * Step3 submit
+   */
   onThirdSubmit() {
     this.queryDetails.queryName = this.thirdForm.value.projectName;
     this.queryDetails.queryDescription = this.thirdForm.value.description;
   }
-
-  //filters checkbox---------------------------------------------------------------->
-
-  //this array serves as a token for the one that will be received from the backend
-  filters = [];
-
-  onChange(f: string) {
-    this.selectedFilters.includes(f)
-      ? (this.selectedFilters = this.selectedFilters.filter(
-          (filter) => filter !== f
-        ))
-      : this.selectedFilters.push(f);
-    //set form status to invalid when no filter is selected
-    this.selectedFilters.length === 0
-      ? this.secondForm.setErrors({ invalid: true })
-      : null;
-    this.queryDetails.filters = this.selectedFilters;
-  }
-
-  selectedFilters = [];
 }
