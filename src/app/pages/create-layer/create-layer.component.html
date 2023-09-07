@@ -1,13 +1,15 @@
 <nb-card>
   <nb-card-body>
     <nb-stepper #stepper (stepChange)="onStepChange($event)">
-      <nb-step [stepControl]="firstForm" label="First step">
+      <nb-step [stepControl]="firstForm" label="Select city">
         <form [formGroup]="firstForm" class="step-container">
           <div class="input-group" [class.spinner]="loading">
             <div>
               <p>Select the city to apply filters to:</p>
               <p
-                [hidden]="citySelected === true || firstForm.status === 'VALID'"
+                [hidden]="
+                  citySelected === false || firstForm.status === 'VALID'
+                "
                 class="alert"
               >
                 Please select a city first:
@@ -41,7 +43,7 @@
           </button>
         </form>
       </nb-step>
-      <nb-step [stepControl]="secondForm" label="Second step">
+      <nb-step [stepControl]="secondForm" label="Apply filters">
         <form
           [formGroup]="secondForm"
           (ngSubmit)="onSecondSubmit()"
@@ -82,7 +84,7 @@
           </button>
         </form>
       </nb-step>
-      <nb-step label="Third step">
+      <nb-step label="Results">
         <p class="lorem">
           Things boom shackalack rhoncus yo. In fo shizzle my nizzle gangsta
           platea dictumst. Check it out pot.
@@ -95,7 +97,7 @@
         <button nbButton nbStepperPrevious>prev</button>
         <button nbButton nbStepperNext>next</button>
       </nb-step>
-      <nb-step [stepControl]="thirdForm" label="Fourth step"
+      <nb-step [stepControl]="thirdForm" label="Save search"
         ><form
           [formGroup]="thirdForm"
           (ngSubmit)="onThirdSubmit()"
