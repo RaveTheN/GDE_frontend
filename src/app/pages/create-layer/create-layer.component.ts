@@ -104,15 +104,16 @@ export class CreateLayerComponent implements OnInit {
 
   checkDrawing() {
     let i = 0;
-    for (let key in this.map._layers) {
-      i++;
-    }
+    setTimeout(() => {
+      for (let key in this.map._layers) {
+        i++;
+      }
 
-    //i must be > 2 as map._layers always have two keys by default.
-    i > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
-
-    console.log("isdrawn: " + this.isDrawn);
-    console.log(this.map._layers);
+      //i must be > 3 as map._layers will always have at least 4 layers, if at least one drawing is present.
+      i > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
+      console.log("isdrawn: " + this.isDrawn);
+      console.log(this.map._layers);
+    }, 100);
   }
 
   /**
@@ -134,6 +135,14 @@ export class CreateLayerComponent implements OnInit {
     const layerControl = L.control
       .layers(null, this.overlayMaps)
       .addTo(this.map);
+
+    // Loop through your overlayMaps and add them to the map
+    for (const key in this.overlayMaps) {
+      if (this.overlayMaps.hasOwnProperty(key)) {
+        this.overlayMaps[key] = this.overlayMaps[key];
+        this.overlayMaps[key].addTo(this.map); // Add each overlay to the map
+      }
+    }
   }
 
   ngOnInit() {
@@ -180,6 +189,8 @@ export class CreateLayerComponent implements OnInit {
         this.queryDetails.point = {};
         this.queryDetails.radius = 0;
         this.hidingAlerts = true;
+        this.isDrawn = false;
+        this.isFilterOn = false;
         this.clearMap();
         setTimeout(() => this.initFiltersMap(), 100);
         break;
