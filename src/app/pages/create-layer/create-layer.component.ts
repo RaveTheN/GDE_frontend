@@ -104,6 +104,8 @@ export class CreateLayerComponent implements OnInit {
 
   checkDrawing() {
     let i = 0;
+
+    //the settimout is to make sue that leaflet has added/removed the layers before we are counting them
     setTimeout(() => {
       for (let key in this.map._layers) {
         i++;
