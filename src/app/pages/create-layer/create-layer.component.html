@@ -60,22 +60,22 @@
               >{{ filter }}</nb-checkbox
             >
           </div>
-          <p
+          <div
             [hidden]="
               hidingAlerts === true ? true : isFilterOn === true ? true : false
             "
             class="alert"
           >
             Select at least one of the above filters
-          </p>
-          <p
+          </div>
+          <div
             [hidden]="
               hidingAlerts === true ? true : isDrawn === true ? true : false
             "
             class="alert"
           >
             Draw area in which to search
-          </p>
+          </div>
           <div (mouseup)="checkDrawing()" class="map-container">
             <div class="map-frame">
               <div id="map"></div>
