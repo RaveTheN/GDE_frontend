@@ -1,15 +1,31 @@
 <div class="container">
-  <h1>Projects</h1>
+  <div style="display: flex; justify-content: space-between">
+    <h1>Projects</h1>
+    <button class="btn-primary" routerLink="/pages/create-layer">
+      Create New Project
+    </button>
+  </div>
   <div class="divider"></div>
 
-  <button class="btn-primary" routerLink="/pages/create-layer">
-    Create New Project
-  </button>
-
-  <h2>Previous Projects</h2>
   <ul class="list-group">
     <li class="list-group-item" *ngFor="let search of previousSearches">
-      {{ search }}
+      <div>
+        <p class="project-name">
+          {{ search.name }}
+        </p>
+        <p>{{ search.id }}</p>
+      </div>
+      <div>
+        <p class="project-name">
+          {{ search.date }}
+        </p>
+        <p [hidden]="search.completed === true">Pending</p>
+        <p [hidden]="search.completed === false">Completed</p>
+      </div>
+      <div>
+        <a>view</a>&nbsp; <a>edit</a>&nbsp;
+        <a>delete</a>
+      </div>
     </li>
   </ul>
 </div>
