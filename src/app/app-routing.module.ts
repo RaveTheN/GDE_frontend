@@ -9,13 +9,6 @@ export const routes: Routes = [
   },
   { path: "", redirectTo: "pages", pathMatch: "full" },
   { path: "**", redirectTo: "pages" },
-  {
-    path: "map-creation",
-    loadChildren: () =>
-      import("./map-creation/map-creation.module").then(
-        (m) => m.MapCreationModule
-      ),
-  },
 ];
 
 const config: ExtraOptions = {
