@@ -21,7 +21,7 @@ const routes: Routes = [
       },
       {
         path: "",
-        redirectTo: "available-options",
+        redirectTo: "dashboard",
         pathMatch: "full",
       },
       {
