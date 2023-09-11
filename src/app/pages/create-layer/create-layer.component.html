@@ -29,13 +29,13 @@
             </div>
           </div>
           <a href="pages/available-options"
-            ><button type="button" nbButton [disabled]="loading">
+            ><button type="button" class="btn-primary" [disabled]="loading">
               prev
             </button></a
           >
           <button
             type="button"
-            nbButton
+            class="btn-primary"
             [disabled]="loading"
             (click)="onFirstSubmit()"
           >
@@ -81,14 +81,19 @@
               <div id="map"></div>
             </div>
           </div>
-          <button type="button" nbButton nbStepperPrevious (click)="(clearMap)">
+          <button
+            type="button"
+            class="btn-primary"
+            nbStepperPrevious
+            (click)="(clearMap)"
+          >
             prev
           </button>
           <button
             type="button"
+            class="btn-primary"
             (click)="onSecondSubmit()"
             (click)="(clearMap)"
-            nbButton
           >
             next
           </button>
@@ -104,8 +109,8 @@
             <div id="map"></div>
           </div>
         </div>
-        <button nbButton nbStepperPrevious>prev</button>
-        <button nbButton nbStepperNext>next</button>
+        <button class="btn-primary" nbStepperPrevious>prev</button>
+        <button class="btn-primary" nbStepperNext>next</button>
       </nb-step>
       <nb-step [stepControl]="thirdForm" label="Save search"
         ><form
@@ -138,12 +143,12 @@
               ></textarea>
             </div>
           </div>
-          <button nbButton nbStepperPrevious>prev</button>
+          <button class="btn-primary" nbStepperPrevious>prev</button>
           <a href="pages/available-options"
             ><button
               [disabled]="thirdForm.value.projectName === ''"
               type="button"
-              nbButton
+              class="btn-primary"
             >
               Save
             </button></a
