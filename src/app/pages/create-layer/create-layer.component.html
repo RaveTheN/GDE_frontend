@@ -1,5 +1,5 @@
 <nb-card>
-  <nb-card-body>
+  <nb-card-body class="card-body">
     <nb-stepper #stepper (stepChange)="onStepChange($event)">
       <nb-step [stepControl]="firstForm" label="Select city">
         <form [formGroup]="firstForm" class="step-container">
@@ -49,54 +49,63 @@
           (ngSubmit)="onSecondSubmit()"
           class="step-container"
         >
-          <div
-            class="form-check"
-            *ngFor="let filter of filters"
-            style="display: flex"
-          >
-            <nb-checkbox
-              formControlName="filters"
-              (change)="onChange(filter)"
-              >{{ filter }}</nb-checkbox
+          <div id="second-step-ui">
+            <div class="filters-checkbox-out">
+              <div class="filters-checkbox-in" *ngFor="let filter of filters">
+                <nb-checkbox
+                  formControlName="filters"
+                  (change)="onChange(filter)"
+                  >{{ filter }}</nb-checkbox
+                >
+              </div>
+              <div
+                [hidden]="
+                  hidingAlerts === true
+                    ? true
+                    : isFilterOn === true
+                    ? true
+                    : false
+                "
+                class="alert"
+              >
+                !! Select at least one filter
+              </div>
+            </div>
+            <div
+              (mouseup)="checkDrawing()"
+              (touchend)="checkDrawing()"
+              class="map-container"
             >
-          </div>
-          <div
-            [hidden]="
-              hidingAlerts === true ? true : isFilterOn === true ? true : false
-            "
-            class="alert"
-          >
-            Select at least one of the above filters
-          </div>
-          <div
-            [hidden]="
-              hidingAlerts === true ? true : isDrawn === true ? true : false
-            "
-            class="alert"
-          >
-            Draw area in which to search
-          </div>
-          <div (mouseup)="checkDrawing()" class="map-container">
-            <div class="map-frame">
-              <div id="map"></div>
+              <div class="map-frame">
+                <div id="map"></div>
+              </div>
+
+              <div
+                [hidden]="
+                  hidingAlerts === true ? true : isDrawn === true ? true : false
+                "
+                class="alert"
+              >
+                !! Draw area of interest
+              </div>
+              <button
+                type="button"
+                class="btn-primary"
+                nbStepperPrevious
+                (click)="(clearMap)"
+              >
+                prev
+              </button>
+              <button
+                type="button"
+                class="btn-primary"
+                (click)="onSecondSubmit()"
+                (click)="(clearMap)"
+              >
+                next
+              </button>
             </div>
           </div>
-          <button
-            type="button"
-            class="btn-primary"
-            nbStepperPrevious
-            (click)="(clearMap)"
-          >
-            prev
-          </button>
-          <button
-            type="button"
-            class="btn-primary"
-            (click)="onSecondSubmit()"
-            (click)="(clearMap)"
-          >
-            next
-          </button>
         </form>
       </nb-step>
       <nb-step label="Results">

@@ -7,13 +7,25 @@
   }
 }
 
+.input-group {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+}
+
+#second-step-ui {
+  display: flex;
+}
+
 .map-container {
   position: relative;
+  flex-grow: 1;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  margin: 30px;
+  margin: 0px 30px;
 }
 
 .map-frame {
@@ -23,13 +35,6 @@
 
 #map {
   height: 100%;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  align-content: center;
-  align-items: center;
 }
 
 @keyframes spinner {
