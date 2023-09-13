@@ -1,0 +1,128 @@
+<nb-card>
+  <nb-card-body class="card-body">
+    <nb-stepper #stepper (stepChange)="onStepChange($event)">
+      <nb-step [stepControl]="firstForm" label="Apply filters">
+        <form
+          [formGroup]="firstForm"
+          (ngSubmit)="onFirstSubmit()"
+          class="step-container"
+        >
+          <p>
+            Select one or more of the filters and draw the area in which you
+            want to perform the research.
+          </p>
+          <div id="second-step-ui">
+            <div class="filters-checkbox-out">
+              <div class="filters-checkbox-in" *ngFor="let filter of filters">
+                <nb-checkbox
+                  formControlName="filters"
+                  (change)="onChange(filter)"
+                  >{{ filter }}</nb-checkbox
+                >
+              </div>
+              <div
+                [hidden]="
+                  hidingAlerts === true
+                    ? true
+                    : isFilterOn === true
+                    ? true
+                    : false
+                "
+                class="alert"
+              >
+                !! Select at least one filter
+              </div>
+            </div>
+            <div
+              (mouseup)="checkDrawing()"
+              (touchend)="checkDrawing()"
+              class="map-container"
+            >
+              <div
+                [hidden]="
+                  hidingAlerts === true ? true : isDrawn === true ? true : false
+                "
+                class="alert"
+              >
+                !! Draw area of interest
+              </div>
+              <div class="map-frame">
+                <div id="map"></div>
+              </div>
+            </div>
+          </div>
+        </form>
+        <a href="pages/available-options"
+          ><button type="button" class="btn-primary" [disabled]="loading">
+            prev
+          </button></a
+        >
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="onFirstSubmit()"
+          (click)="(clearMap)"
+        >
+          next
+        </button>
+      </nb-step>
+
+      <nb-step label="Results">
+        <p class="lorem">
+          The markers in the map show the points matching your search criteria.
+          Proceed to next step to save the results.
+        </p>
+        <div class="map-container">
+          <div class="map-frame">
+            <div id="map"></div>
+          </div>
+        </div>
+        <button class="btn-primary" nbStepperPrevious>prev</button>
+        <button class="btn-primary" nbStepperNext>next</button>
+      </nb-step>
+      <nb-step [stepControl]="secondForm" label="Save search"
+        ><form
+          [formGroup]="secondForm"
+          (ngSubmit)="onThirdSubmit()"
+          class="step-container"
+        >
+          <div class="input-group">
+            <div>
+              <p>Project's name:</p>
+              <input
+                nbInput
+                type="text"
+                placeholder="Project's name"
+                class="form-control"
+                formControlName="projectName"
+                [ngClass]="{
+                  'form-control-danger':
+                    firstForm.invalid && (firstForm.dirty || firstForm.touched)
+                }"
+              />
+            </div>
+            <div>
+              <p>Description:</p>
+              <textarea
+                nbInput
+                type="text"
+                placeholder="Description"
+                formControlName="description"
+              ></textarea>
+            </div>
+          </div>
+          <button class="btn-primary" nbStepperPrevious>prev</button>
+          <a href="pages/available-options"
+            ><button
+              [disabled]="secondForm.value.projectName === ''"
+              type="button"
+              class="btn-primary"
+            >
+              Save
+            </button></a
+          >
+        </form>
+      </nb-step>
+    </nb-stepper>
+  </nb-card-body>
+</nb-card>

@@ -96,6 +96,21 @@ h6 {
   padding: 20px;
 }
 
+//stepper
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+}
+
+#second-step-ui {
+  display: flex;
+}
+
+//button style
+
 button {
   border: 0px !important;
   text-transform: none;

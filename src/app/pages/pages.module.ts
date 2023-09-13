@@ -15,6 +15,7 @@ import { CreateLayerComponent } from "./create-layer/create-layer.component";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { AvailableOptionsComponent } from "./available-options/available-options.component";
 import { ViewLayerComponent } from './view-layer/view-layer.component';
+import { EditLayerComponent } from './edit-layer/edit-layer.component';
 
 @NgModule({
   imports: [
@@ -34,6 +35,7 @@ import { ViewLayerComponent } from './view-layer/view-layer.component';
     CreateLayerComponent,
     AvailableOptionsComponent,
     ViewLayerComponent,
+    EditLayerComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

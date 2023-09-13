@@ -6,6 +6,7 @@ import { NotFoundComponent } from "./miscellaneous/not-found/not-found.component
 import { CreateLayerComponent } from "./create-layer/create-layer.component";
 import { AvailableOptionsComponent } from "./available-options/available-options.component";
 import { ViewLayerComponent } from "./view-layer/view-layer.component";
+import { EditLayerComponent } from "./edit-layer/edit-layer.component";
 
 const routes: Routes = [
   {
@@ -23,6 +24,10 @@ const routes: Routes = [
       {
         path: "view-layer",
         component: ViewLayerComponent,
+      },
+      {
+        path: "edit-layer",
+        component: EditLayerComponent,
       },
       {
         path: "",
