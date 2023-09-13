@@ -3,8 +3,6 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import * as L from "leaflet";
 import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
-import "@turf/turf";
-import "turf-inside";
 import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
 import { ApiService } from "../../services/api.service";
 import { __await } from "tslib";
@@ -103,16 +101,16 @@ export class CreateLayerComponent implements OnInit {
   }
 
   checkDrawing() {
-    let i = 0;
+    let layerCount = 0;
 
     //the settimout is to make sue that leaflet has added/removed the layers before we are counting them
     setTimeout(() => {
       for (let key in this.map._layers) {
-        i++;
+        layerCount++;
       }
 
       //i must be > 3 as map._layers will always have at least 4 layers, if at least one drawing is present.
-      i > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
+      layerCount > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
       console.log("isdrawn: " + this.isDrawn);
       console.log(this.map._layers);
     }, 100);

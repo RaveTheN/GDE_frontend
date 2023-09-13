@@ -18,24 +18,6 @@
   display: flex;
 }
 
-.map-container {
-  flex-grow: 1;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  margin: 0px 30px;
-}
-
-.map-frame {
-  border: 1px solid black;
-  height: 25em;
-}
-
-#map {
-  height: 100%;
-}
-
 @keyframes spinner {
   to {
     transform: rotate(360deg);

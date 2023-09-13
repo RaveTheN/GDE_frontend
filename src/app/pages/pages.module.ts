@@ -14,6 +14,7 @@ import { MiscellaneousModule } from "./miscellaneous/miscellaneous.module";
 import { CreateLayerComponent } from "./create-layer/create-layer.component";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { AvailableOptionsComponent } from "./available-options/available-options.component";
+import { ViewLayerComponent } from './view-layer/view-layer.component';
 
 @NgModule({
   imports: [
@@ -32,6 +33,7 @@ import { AvailableOptionsComponent } from "./available-options/available-options
     PagesComponent,
     CreateLayerComponent,
     AvailableOptionsComponent,
+    ViewLayerComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
