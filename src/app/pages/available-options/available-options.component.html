@@ -23,9 +23,11 @@
         <p [hidden]="search.completed === false">Completed</p>
       </div>
       <div>
-        <a routerLink="/pages/view-layer">view</a>&nbsp;
-        <a routerLink="/pages/edit-layer">edit</a>&nbsp;
-        <a>delete</a>
+        <button class="btn-primary" routerLink="/pages/view-layer">View</button>
+        &nbsp;
+        <button class="btn-primary" routerLink="/pages/edit-layer">Edit</button>
+        &nbsp;
+        <button class="btn-primary">Delete</button>
       </div>
     </li>
   </ul>
