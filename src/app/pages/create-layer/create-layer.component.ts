@@ -250,6 +250,7 @@ export class CreateLayerComponent implements OnInit {
    */
   async onSecondSubmit() {
     var layer: any;
+    this.queryDetails.polygon = [];
     console.log(this.map._layers);
     for (layer of Object.values(this.map._layers)) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
@@ -261,14 +262,6 @@ export class CreateLayerComponent implements OnInit {
             longitude: latlng.lng,
           };
           this.queryDetails.polygon.push(edge);
-        }
-        // Push the first edge again to complete the polygon
-        if (layer._latlngs[0]?.[0]) {
-          const firstEdge = {
-            latitude: layer._latlngs[0][0].lat,
-            longitude: layer._latlngs[0][0].lng,
-          };
-          this.queryDetails.polygon.push(firstEdge);
         }
       } else if (layer._latlng && layer._radius) {
         this.queryDetails.point = layer._latlng;
@@ -282,6 +275,15 @@ export class CreateLayerComponent implements OnInit {
         );
       }
     }
+    // Push the first edge again to complete the polygon
+    if (this.queryDetails.polygon?.[0]) {
+      const firstEdge = {
+        latitude: this.queryDetails.polygon[0].latitude,
+        longitude: this.queryDetails.polygon[0].longitude,
+      };
+      this.queryDetails.polygon.push(firstEdge);
+    }
+    console.log(this.queryDetails.polygon);
 
     try {
       if (
@@ -324,6 +326,34 @@ export class CreateLayerComponent implements OnInit {
       // Show a message in case of error
       console.error("API call failed:", error);
     }
+  }
+
+  pointInsidePolygon(point, polygon) {
+    // Extract x and y coordinates of the point
+    const x = point.latitude;
+    const y = point.longitude;
+
+    // Initialize a variable to keep track of the number of intersections
+    let numIntersections = 0;
+
+    // Iterate through each edge of the polygon
+    for (let i = 0; i < polygon.length; i++) {
+      const p1 = polygon[i];
+      const p2 = polygon[(i + 1) % polygon.length];
+
+      // Check if the point is on the same y-coordinate as the edge
+      if (y > Math.min(p1.y, p2.y) && y <= Math.max(p1.y, p2.y)) {
+        // Check if the point is to the left of the edge (use cross product)
+        const crossProduct =
+          (x - p1.x) / (p2.x - p1.x) - (y - p1.y) / (p2.y - p1.y);
+        if (crossProduct < 0) {
+          numIntersections++;
+        }
+      }
+    }
+
+    // If the number of intersections is odd, the point is inside the polygon
+    return numIntersections % 2 === 1;
   }
 
   /**
