@@ -70,7 +70,8 @@ export class CreateLayerComponent implements OnInit {
   //map for step 2
   private initFiltersMap(): void {
     this.map = L.map("map", {
-      center: this.option[0],
+      //center: this.option[0],
+      center: [60.1699, 24.9384], //set to Helsinki for developing purposes
       zoom: 12,
       layers: [this.osm],
     });
@@ -206,29 +207,31 @@ export class CreateLayerComponent implements OnInit {
    */
   async onFirstSubmit() {
     this.citySelected = true;
-    this.queryDetails.city = this.option[1];
-    if (this.queryDetails.city !== "" && this.firstForm.status !== "INVALID") {
-      this.loading = true;
-      try {
-        await this.apiServices.getFilters(this.queryDetails.city);
-        //pushing fetch results in this.filters
-        this.apiServices.apiFilters.forEach((element) => {
-          this.filters.push(element);
-        });
-        //go to step 2
-        this.stepper.next();
-        this.loading = false;
-      } catch (error) {
-        this.loading = false;
-        //Show a message in case of error
-        console.error("API call failed:", error);
-      }
-    }
+    // this.queryDetails.city = this.option[1]; //commented for dev purposes
+    this.queryDetails.city = "Helsinki"; //set to helsinki for dev purposes
+    // if (this.queryDetails.city !== "" && this.firstForm.status !== "INVALID") { //commented or dev purposes
+    //   this.loading = true;
+    //   try {
+    //     await this.apiServices.getFilters(this.queryDetails.city);
+    //     //pushing fetch results in this.filters
+    //     this.apiServices.apiFilters.forEach((element) => {
+    //       this.filters.push(element);
+    //     });
+    //     //go to step 2
+    //     this.stepper.next();
+    //     this.loading = false;
+    //   } catch (error) {
+    //     this.loading = false;
+    //     //Show a message in case of error
+    //     console.error("API call failed:", error);
+    //   }
+    // }
+    this.stepper.next(); //dev purposes
   }
 
   //filters checkbox
-  //this array serves as a token for the one that will be received from the backend
-  filters = [];
+  //filters = []; //dev purposes
+  filters = ["Open311ServiceRequest", "Open311ServiceType", "PointOfInterest"]; //dev purposes
 
   onChange(f: string) {
     this.selectedFilters.includes(f)
@@ -360,7 +363,15 @@ export class CreateLayerComponent implements OnInit {
    * Step3 submit
    */
   onThirdSubmit() {
+    console.log(this.queryDetails);
+  }
+
+  /**
+   * Step4 submit
+   */
+  onFourthSubmit() {
     this.queryDetails.queryName = this.thirdForm.value.projectName;
     this.queryDetails.queryDescription = this.thirdForm.value.description;
+    console.log(this.queryDetails);
   }
 }

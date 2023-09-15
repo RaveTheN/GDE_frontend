@@ -123,12 +123,14 @@
           </div>
         </div>
         <button class="btn-primary" nbStepperPrevious>prev</button>
-        <button class="btn-primary" nbStepperNext>next</button>
+        <button class="btn-primary" (click)="onThirdSubmit()" nbStepperNext>
+          next
+        </button>
       </nb-step>
       <nb-step [stepControl]="thirdForm" label="Save search"
         ><form
           [formGroup]="thirdForm"
-          (ngSubmit)="onThirdSubmit()"
+          (ngSubmit)="onFourthSubmit()"
           class="step-container"
         >
           <div class="input-group">
@@ -157,11 +159,11 @@
             </div>
           </div>
           <button class="btn-primary" nbStepperPrevious>prev</button>
-          <a href="pages/available-options"
+          <a
             ><button
-              [disabled]="thirdForm.value.projectName === ''"
               type="button"
               class="btn-primary"
+              (click)="onFourthSubmit()"
             >
               Save
             </button></a
