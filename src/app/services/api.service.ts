@@ -1,5 +1,8 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { rejects } from "assert";
+import { error } from "console";
+import { resolve } from "dns";
 import * as L from "leaflet";
 
 @Injectable({
@@ -208,5 +211,59 @@ export class ApiService {
         icon: this.customIcon,
       }).bindPopup(`${element.properties.type}`);
     });
+  }
+
+  public async saveData(queryDetails: any) {
+    return new Promise((resolve, reject) => {
+      console.log(queryDetails);
+      for (const filter of queryDetails.filters) {
+        const url = "http://127.0.0.1:9090/api/document/save/";
+        const body = {
+          city: queryDetails.city,
+          filter: [filter],
+          name: queryDetails.queryName,
+          description: queryDetails.queryDescription,
+          geoJson: {
+            type: "Feature",
+            geometry: {
+              type: "Polygon",
+              coordinates: [this.coordinatesArr(queryDetails.polygon)],
+            },
+            properties: {
+              name: queryDetails.queryName,
+            },
+          },
+        };
+        this.http
+          .post(url, JSON.stringify(body), {
+            headers: new HttpHeaders({
+              "Content-Type": "application/json",
+            }),
+            responseType: "text",
+          })
+          .subscribe((data) => {
+            resolve(console.log(data));
+          }),
+          (error) => {
+            console.log(error);
+            if (
+              error.status === 400 ||
+              error.error.text === "Request retrieved"
+            )
+              // Resolve with an error message if the request is successful but contains an error message
+              resolve(error.error.text);
+            // Reject the Promise with the error
+            else reject(error);
+          };
+      }
+    });
+  }
+
+  coordinatesArr(array: any[]) {
+    let temp = [];
+    for (let point of array) {
+      temp.push([point.latitude, point.longitude]);
+    }
+    return temp;
   }
 }

@@ -369,9 +369,19 @@ export class CreateLayerComponent implements OnInit {
   /**
    * Step4 submit
    */
-  onFourthSubmit() {
+  async onFourthSubmit() {
     this.queryDetails.queryName = this.thirdForm.value.projectName;
     this.queryDetails.queryDescription = this.thirdForm.value.description;
     console.log(this.queryDetails);
+    try {
+      if (this.queryDetails.queryName.length !== 0) {
+        // Make the API call with the prepared data
+        await this.apiServices.saveData(this.queryDetails);
+      }
+    } catch (error) {
+      this.loading = false;
+      // Show a message in case of error
+      console.error("API call failed:", error);
+    }
   }
 }
