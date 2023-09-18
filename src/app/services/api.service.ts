@@ -116,8 +116,6 @@ export class ApiService {
         // Add markers to the corresponding layer group
         markers.forEach((marker) => marker.addTo(this.apiPoints[filter]));
       });
-
-      console.log(this.apiPoints);
     } catch (error) {
       console.error(error);
       throw error; // Re-throw the error for proper handling elsewhere
@@ -155,6 +153,8 @@ export class ApiService {
 
       // Wait for all HTTP requests to complete
       const responseDataArray = await Promise.all(requestPromises);
+
+      console.log(responseDataArray);
 
       // Process and add markers to the map
       responseDataArray.forEach((responseData, index) => {
@@ -223,19 +223,28 @@ export class ApiService {
           filter: [filter],
           name: queryDetails.queryName,
           description: queryDetails.queryDescription,
-          geoJson: {
+          requestJson: {
+            type: "Polygon/PointRadius/Multipolygon",
+            value: queryDetails,
+          },
+          geojson: {
             type: "Feature",
-            geometry: {
-              type: "Polygon",
-              coordinates: [this.coordinatesArr(queryDetails.polygon)],
-            },
-            properties: {
-              name: queryDetails.queryName,
-            },
+            features: [
+              {
+                type: "Feature",
+                geometry: {
+                  type: "Point",
+                  coordinates: [this.coordinatesArr(queryDetails.polygon)],
+                },
+                properties: {
+                  name: queryDetails.queryName,
+                },
+              },
+            ],
           },
         };
         this.http
-          .post(url, JSON.stringify(body), {
+          .post(url, body, {
             headers: new HttpHeaders({
               "Content-Type": "application/json",
             }),

@@ -122,7 +122,7 @@ export class CreateLayerComponent implements OnInit {
    */
   public finalMap: L.Map;
 
-  overlayMaps = {};
+  overlayMaps: any = {};
 
   //map for step3
   public initFinalMap(): void {
@@ -302,7 +302,14 @@ export class CreateLayerComponent implements OnInit {
 
         this.overlayMaps = this.apiServices.apiPoints;
         this.apiServices.apiPoints = {};
-        console.log(this.overlayMaps);
+
+        //qui adesso devo capire come prendere i _latlngs a prescindere dal numero di filtri
+        //e mandare tutto al service (o mandare direttamente overlayMaps e fare le operazioni lì)
+        for (let obj of Object.entries<any>(
+          this.overlayMaps.Open311ServiceRequest._layers
+        )) {
+          console.log(obj[1]._latlng);
+        }
       } else if (
         this.queryDetails.filters.length !== 0 &&
         Object.keys(this.queryDetails.point).length !== 0 &&
@@ -329,34 +336,6 @@ export class CreateLayerComponent implements OnInit {
       // Show a message in case of error
       console.error("API call failed:", error);
     }
-  }
-
-  pointInsidePolygon(point, polygon) {
-    // Extract x and y coordinates of the point
-    const x = point.latitude;
-    const y = point.longitude;
-
-    // Initialize a variable to keep track of the number of intersections
-    let numIntersections = 0;
-
-    // Iterate through each edge of the polygon
-    for (let i = 0; i < polygon.length; i++) {
-      const p1 = polygon[i];
-      const p2 = polygon[(i + 1) % polygon.length];
-
-      // Check if the point is on the same y-coordinate as the edge
-      if (y > Math.min(p1.y, p2.y) && y <= Math.max(p1.y, p2.y)) {
-        // Check if the point is to the left of the edge (use cross product)
-        const crossProduct =
-          (x - p1.x) / (p2.x - p1.x) - (y - p1.y) / (p2.y - p1.y);
-        if (crossProduct < 0) {
-          numIntersections++;
-        }
-      }
-    }
-
-    // If the number of intersections is odd, the point is inside the polygon
-    return numIntersections % 2 === 1;
   }
 
   /**
