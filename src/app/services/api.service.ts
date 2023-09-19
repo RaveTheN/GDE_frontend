@@ -217,6 +217,12 @@ export class ApiService {
     return new Promise((resolve, reject) => {
       console.log(queryDetails);
       for (const filter of queryDetails.filters) {
+        //extracting coordinates from marker points
+        let coordinates = [];
+        for (let obj of Object.entries<any>(this.apiPoints[filter]._layers)) {
+          coordinates.push([obj[1]._latlng.lat, obj[1]._latlng.lng]);
+          console.log(coordinates);
+        }
         const url = "http://127.0.0.1:9090/api/document/save/";
         const body = {
           city: queryDetails.city,
@@ -234,7 +240,7 @@ export class ApiService {
                 type: "Feature",
                 geometry: {
                   type: "Point",
-                  coordinates: [this.coordinatesArr(queryDetails.polygon)],
+                  coordinates: [coordinates],
                 },
                 properties: {
                   name: queryDetails.queryName,
@@ -266,13 +272,5 @@ export class ApiService {
           };
       }
     });
-  }
-
-  coordinatesArr(array: any[]) {
-    let temp = [];
-    for (let point of array) {
-      temp.push([point.latitude, point.longitude]);
-    }
-    return temp;
   }
 }

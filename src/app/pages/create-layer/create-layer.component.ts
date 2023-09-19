@@ -254,6 +254,7 @@ export class CreateLayerComponent implements OnInit {
   async onSecondSubmit() {
     var layer: any;
     this.queryDetails.polygon = [];
+    this.apiServices.apiPoints = {};
     console.log(this.map._layers);
     for (layer of Object.values(this.map._layers)) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
@@ -301,15 +302,6 @@ export class CreateLayerComponent implements OnInit {
         });
 
         this.overlayMaps = this.apiServices.apiPoints;
-        this.apiServices.apiPoints = {};
-
-        //qui adesso devo capire come prendere i _latlngs a prescindere dal numero di filtri
-        //e mandare tutto al service (o mandare direttamente overlayMaps e fare le operazioni lì)
-        for (let obj of Object.entries<any>(
-          this.overlayMaps.Open311ServiceRequest._layers
-        )) {
-          console.log(obj[1]._latlng);
-        }
       } else if (
         this.queryDetails.filters.length !== 0 &&
         Object.keys(this.queryDetails.point).length !== 0 &&
@@ -324,7 +316,6 @@ export class CreateLayerComponent implements OnInit {
         });
 
         this.overlayMaps = this.apiServices.apiPoints;
-        this.apiServices.apiPoints = {};
         console.log(this.overlayMaps);
       }
       // Move the stepper.next() call here to ensure it's executed after the API call
