@@ -106,7 +106,7 @@ export class CreateLayerComponent implements OnInit {
 
     //the settimout is to make sue that leaflet has added/removed the layers before we are counting them
     setTimeout(() => {
-      for (let key in this.map._layers) {
+      for (let _ in this.map._layers) {
         layerCount++;
       }
 
@@ -137,7 +137,7 @@ export class CreateLayerComponent implements OnInit {
       .layers(null, this.overlayMaps)
       .addTo(this.map);
 
-    // Loop through your overlayMaps and add them to the map
+    // Loop through your overlayMaps keys and add them to the map
     for (const key in this.overlayMaps) {
       if (this.overlayMaps.hasOwnProperty(key)) {
         this.overlayMaps[key] = this.overlayMaps[key];
@@ -346,7 +346,7 @@ export class CreateLayerComponent implements OnInit {
     try {
       if (this.queryDetails.queryName.length !== 0) {
         // Make the API call with the prepared data
-        await this.apiServices.saveData(this.queryDetails);
+        await this.apiServices.saveSearch(this.queryDetails);
       }
     } catch (error) {
       this.loading = false;

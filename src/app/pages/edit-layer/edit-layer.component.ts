@@ -74,7 +74,6 @@ export class EditLayerComponent implements OnInit {
       position: "topright",
       draw: {
         polyline: false,
-        marker: false,
         rectangle: <any>{ showArea: false },
         circlemarker: false,
       },
@@ -134,7 +133,7 @@ export class EditLayerComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.firstForm = new FormGroup({
       filters: new FormControl("", Validators.required),
     });
@@ -142,6 +141,14 @@ export class EditLayerComponent implements OnInit {
       projectName: new FormControl(""),
       description: new FormControl(""),
     });
+
+    try {
+      await this.apiServices.getSearch(this.apiServices.currentId);
+    } catch (error) {
+      this.loading = false;
+      // Show a message in case of error
+      console.error("API call failed:", error);
+    }
 
     setTimeout(() => this.initFiltersMap(), 100);
   }
@@ -206,80 +213,11 @@ export class EditLayerComponent implements OnInit {
    * Step1 submit
    */
   async onFirstSubmit() {
-    var layer: any;
-    console.log(this.map._layers);
-    for (layer of Object.values(this.map._layers)) {
-      // For polygons, layer._latlngs[i] is an array of LatLngs objects
-      if (Array.isArray(layer._latlngs)) {
-        // Flatten the nested array and push edges to the polygon array
-        for (const latlng of layer._latlngs.flat()) {
-          const edge = {
-            latitude: latlng.lat,
-            longitude: latlng.lng,
-          };
-          this.queryDetails.polygon.push(edge);
-        }
-        // Push the first edge again to complete the polygon
-        if (layer._latlngs[0]?.[0]) {
-          const firstEdge = {
-            latitude: layer._latlngs[0][0].lat,
-            longitude: layer._latlngs[0][0].lng,
-          };
-          this.queryDetails.polygon.push(firstEdge);
-        }
-      } else if (layer._latlng && layer._radius) {
-        this.queryDetails.point = layer._latlng;
-        this.queryDetails.radius = layer._radius;
-
-        console.log(
-          "This is a circle: " +
-            this.queryDetails.point +
-            " " +
-            this.queryDetails.radius
-        );
-      }
-    }
-
-    try {
-      if (
-        this.queryDetails.filters.length !== 0 &&
-        this.queryDetails.polygon.length !== 0
-      ) {
-        // Make the API call with the prepared data
-        await this.apiServices.getPolygonData({
-          city: this.queryDetails.city,
-          filter: this.queryDetails.filters,
-          polygon: this.queryDetails.polygon,
-        });
-
-        this.overlayMaps = this.apiServices.apiPoints;
-        this.apiServices.apiPoints = {};
-        console.log(this.overlayMaps);
-      } else if (
-        this.queryDetails.filters.length !== 0 &&
-        Object.keys(this.queryDetails.point).length !== 0 &&
-        this.queryDetails.radius !== 0
-      ) {
-        await this.apiServices.getPointRadiusData({
-          city: this.queryDetails.city,
-          filter: this.queryDetails.filters,
-          point: this.queryDetails.point,
-          radius: this.queryDetails.radius,
-          external: true,
-        });
-
-        this.overlayMaps = this.apiServices.apiPoints;
-        this.apiServices.apiPoints = {};
-        console.log(this.overlayMaps);
-      }
+    if (this.queryDetails.filters.length !== 0) {
       // Move the stepper.next() call here to ensure it's executed after the API call
       this.isDrawn && this.isFilterOn
         ? this.stepper.next()
         : (this.hidingAlerts = false);
-    } catch (error) {
-      this.loading = false;
-      // Show a message in case of error
-      console.error("API call failed:", error);
     }
   }
 

@@ -1,8 +1,5 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { rejects } from "assert";
-import { error } from "console";
-import { resolve } from "dns";
 import * as L from "leaflet";
 
 @Injectable({
@@ -72,6 +69,56 @@ export class ApiService {
   apiPoints = {};
 
   /**
+   * Retrieves polygon data for specified filters and adds markers to the map.
+   * @param body - An object containing city, filter, and polygon data.
+   * @returns A Promise that resolves when data is retrieved and markers are added.
+   */
+  public async getPolygonData(body: {
+    city: string;
+    filter: string[];
+    polygon: {}[];
+  }): Promise<void> {
+    try {
+      // Create an array to store all the HTTP request promises
+      const requestPromises: Promise<any>[] = [];
+
+      // Iterate through each filter
+      for (const filter of body.filter) {
+        this.apiPoints[filter] = L.layerGroup();
+        const url = `http://localhost:9090/api/polygondata/`;
+
+        // Create a promise for each HTTP request and push it to the array
+        const requestPromise = this.makeHttpRequest(url, {
+          city: body.city,
+          filter: [filter],
+          polygon: body.polygon,
+        });
+
+        requestPromises.push(requestPromise);
+      }
+
+      // Wait for all HTTP requests to complete
+      const responseDataArray = await Promise.all(requestPromises);
+
+      // Process and add markers to the map (see bottom for responseData example)
+      responseDataArray.forEach((responseData, index) => {
+        const filter = body.filter[index];
+        const markers = this.processMarkersCoordinates(
+          responseData[0].features
+        );
+
+        // Add markers to the corresponding layer group
+        markers.forEach((marker) => marker.addTo(this.apiPoints[filter]));
+      });
+
+      console.log(this.apiPoints);
+    } catch (error) {
+      console.error(error);
+      throw error; // Re-throw the error for proper handling elsewhere
+    }
+  }
+
+  /**
    * Retrieves circle data for specified filters and adds markers to the map.
    * @param body - An object containing city, filter, point, radius end external.
    * external - means whether to search inside or outside the shape.
@@ -108,64 +155,16 @@ export class ApiService {
       // Wait for all HTTP requests to complete
       const responseDataArray = await Promise.all(requestPromises);
 
-      // Process and add markers to the map
+      // Process and add markers to the map (see bottom for responseData example)
       responseDataArray.forEach((responseData, index) => {
         const filter = body.filter[index];
-        const markers = this.processFigureData(responseData);
+        const markers = this.processMarkersCoordinates(
+          responseData[0].features
+        );
 
         // Add markers to the corresponding layer group
         markers.forEach((marker) => marker.addTo(this.apiPoints[filter]));
       });
-    } catch (error) {
-      console.error(error);
-      throw error; // Re-throw the error for proper handling elsewhere
-    }
-  }
-
-  /**
-   * Retrieves polygon data for specified filters and adds markers to the map.
-   * @param body - An object containing city, filter, and polygon data.
-   * @returns A Promise that resolves when data is retrieved and markers are added.
-   */
-  public async getPolygonData(body: {
-    city: string;
-    filter: string[];
-    polygon: {}[];
-  }): Promise<void> {
-    try {
-      // Create an array to store all the HTTP request promises
-      const requestPromises: Promise<any>[] = [];
-
-      // Iterate through each filter
-      for (const filter of body.filter) {
-        this.apiPoints[filter] = L.layerGroup();
-        const url = `http://localhost:9090/api/polygondata/`;
-
-        // Create a promise for each HTTP request and push it to the array
-        const requestPromise = this.makeHttpRequest(url, {
-          city: body.city,
-          filter: [filter],
-          polygon: body.polygon,
-        });
-
-        requestPromises.push(requestPromise);
-      }
-
-      // Wait for all HTTP requests to complete
-      const responseDataArray = await Promise.all(requestPromises);
-
-      console.log(responseDataArray);
-
-      // Process and add markers to the map
-      responseDataArray.forEach((responseData, index) => {
-        const filter = body.filter[index];
-        const markers = this.processFigureData(responseData);
-
-        // Add markers to the corresponding layer group
-        markers.forEach((marker) => marker.addTo(this.apiPoints[filter]));
-      });
-
-      console.log(this.apiPoints);
     } catch (error) {
       console.error(error);
       throw error; // Re-throw the error for proper handling elsewhere
@@ -200,8 +199,8 @@ export class ApiService {
    * @param responseData - The response data from the HTTP request.
    * @returns An array of markers.
    */
-  private processFigureData(responseData: any): L.Marker[] {
-    return responseData[0].features.map((element: any) => {
+  private processMarkersCoordinates(responseData: any): L.Marker[] {
+    return responseData.map((element: any) => {
       const coordinates =
         element.geometry === null
           ? element.properties.location.value.coordinates
@@ -213,11 +212,12 @@ export class ApiService {
     });
   }
 
-  public async saveData(queryDetails: any) {
+  public async saveSearch(queryDetails: any) {
     return new Promise((resolve, reject) => {
       console.log(queryDetails);
       for (const filter of queryDetails.filters) {
-        //extracting coordinates from marker points
+        //extracting coordinates from apiPoints (which contains all the points obtained from the last search)
+        //in alternative to apiPoints I could use overlayMaps from create-layer, which after a research contains the same data of apiPoints
         let coordinates = [];
         for (let obj of Object.entries<any>(this.apiPoints[filter]._layers)) {
           coordinates.push([obj[1]._latlng.lat, obj[1]._latlng.lng]);
@@ -273,4 +273,83 @@ export class ApiService {
       }
     });
   }
+
+  public currentId = [];
+
+  public getSearch(id: string[]) {
+    return new Promise((resolve, reject) => {
+      this.http
+        .get(`http://127.0.0.1:9090/api/document/${id}`)
+        .subscribe((data: any) => {
+          let filter = data.filter;
+          this.apiPoints[filter] = L.layerGroup();
+          console.log(this.apiPoints);
+          let geoJson = data.geojson;
+          this.processCoordinates(geoJson, data.filter);
+          resolve(console.log(data));
+        }),
+        (error) => {
+          console.log(error);
+          if (error.status === 400 || error.error.text === "Request retrieved")
+            // Resolve with an error message if the request is successful but contains an error message
+            resolve(error.error.text);
+          // Reject the Promise with the error
+          else reject(error);
+        };
+    });
+  }
+
+  private processCoordinates(responseData: any, type): L.Marker[] {
+    return responseData.map((element: any) => {
+      const coordinates =
+        element.geometry === null
+          ? element.properties.location.value.coordinates
+          : element.geometry.coordinates;
+
+      return L.marker([coordinates[1], coordinates[0]], {
+        icon: this.customIcon,
+      }).bindPopup(`${type}`);
+    });
+  }
 }
+
+// responseData example =
+//   [
+//     {
+//       type: "FeatureCollection",
+//       features: [
+//         {
+//           id: "urn:ngsi-ld:Open311ServiceRequest:Helsinki:iot10",
+//           type: "Feature",
+//           properties: {
+//             type: "Open311ServiceRequest",
+//             comment: { type: "Property", value: "" },
+//             created_at: {
+//               type: "Property",
+//               value: {
+//                 type: "DateTime",
+//                 value: "2023-09-19T06:32:26.488Z",
+//               },
+//             },
+//             device_id: { type: "Property", value: "" },
+//             image: { type: "Property", value: "" },
+//             tags: { type: "Property", value: [] },
+//             location: {
+//               type: "GeoProperty",
+//               value: {
+//                 type: "Point",
+//                 coordinates: [24.944594, 60.161347],
+//               },
+//             },
+//           },
+//           "@context":
+//             "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+//           geometry: {
+//             type: "Point",
+//             coordinates: [24.944594, 60.161347],
+//           },
+//         },
+//       ],
+//     },
+//   ],
+// ];

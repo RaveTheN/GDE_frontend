@@ -25,7 +25,13 @@
       <div>
         <button class="btn-primary" routerLink="/pages/view-layer">View</button>
         &nbsp;
-        <button class="btn-primary" routerLink="/pages/edit-layer">Edit</button>
+        <button
+          class="btn-primary"
+          routerLink="/pages/edit-layer"
+          (click)="storeIds(search.id)"
+        >
+          Edit
+        </button>
         &nbsp;
         <button class="btn-primary">Delete</button>
       </div>
