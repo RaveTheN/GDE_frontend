@@ -1,11 +1,7 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
-
+import { Component, OnInit } from "@angular/core";
 import * as L from "leaflet";
 import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
-import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
 import { ApiService } from "../../services/api.service";
-import { __await } from "tslib";
 
 @Component({
   selector: "ngx-view-layer",
@@ -13,44 +9,56 @@ import { __await } from "tslib";
   styleUrls: ["./view-layer.component.scss"],
 })
 export class ViewLayerComponent implements OnInit {
-  constructor() {}
+  // Define map and overlayMaps as class properties with appropriate types.
+  private map: L.Map;
+  private overlayMaps: { [key: string]: L.Layer } = {};
+
+  // Define the OpenStreetMap (osm) layer.
+  private osm: L.TileLayer = L.tileLayer(
+    "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+      maxZoom: 19,
+      attribution: "© OpenStreetMap",
+    }
+  );
+
+  constructor(private apiServices: ApiService) {}
 
   /**
-   * map rendering
+   * Initializes the map.
    */
-
-  public map: any;
-
-  overlayMaps = {};
-
-  //open street map tiles
-  osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: "© OpenStreetMap",
-  });
-
-  public initMap(): void {
+  private initMap(): void {
     this.map = L.map("map", {
       center: [60.1699, 24.9384],
       zoom: 12,
       layers: [this.osm],
     });
 
-    //layer control lets you select which layers you want to see
-    const layerControl = L.control
-      .layers(null, this.overlayMaps)
-      .addTo(this.map);
+    // Layer control lets you select which layers you want to see.
+    L.control.layers(null, this.overlayMaps).addTo(this.map);
 
-    // Loop through your overlayMaps and add them to the map
+    // Add each overlay to the map.
     for (const key in this.overlayMaps) {
       if (this.overlayMaps.hasOwnProperty(key)) {
-        this.overlayMaps[key] = this.overlayMaps[key];
-        this.overlayMaps[key].addTo(this.map); // Add each overlay to the map
+        this.overlayMaps[key].addTo(this.map);
       }
     }
   }
 
-  ngOnInit(): void {
+  /**
+   * Initializes the component.
+   */
+  async ngOnInit() {
+    try {
+      // Fetch data from the API.
+      await this.apiServices.getSearch(this.apiServices.currentId);
+      this.overlayMaps = this.apiServices.apiPoints;
+    } catch (error) {
+      // Handle API call failure.
+      console.error("API call failed:", error);
+    }
+
+    // Initialize the map after fetching data.
     this.initMap();
   }
 }

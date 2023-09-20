@@ -45,7 +45,7 @@ export class CreateLayerComponent implements OnInit {
   };
 
   /**
-   * Radio options for step 1
+   * Step 1 - radio options
    */
   options = [
     { value: [[60.1699, 24.9384], "Helsinki"], label: "Helsinki" },
@@ -101,21 +101,36 @@ export class CreateLayerComponent implements OnInit {
     });
   }
 
+  /**
+   * Check if there are more than 3 layers in the Leaflet map.
+   * This function sets the 'isDrawn' property to true if there are more than 3 layers,
+   * indicating that drawings are present on the map.
+   */
   checkDrawing() {
+    // Initialize layerCount to 0.
     let layerCount = 0;
 
-    //the settimout is to make sue that leaflet has added/removed the layers before we are counting them
-    setTimeout(() => {
-      for (let _ in this.map._layers) {
-        layerCount++;
-      }
+    // Use setTiemout to wait a bit, to ensure the Leaflet layers are ready.
+    const waitForLayers = new Promise((resolve) => {
+      setTimeout(() => {
+        for (const key in this.map._layers) {
+          if (this.map._layers.hasOwnProperty(key)) {
+            layerCount++;
+          }
+        }
+        resolve(layerCount);
+      }, 100);
+    });
 
-      //i must be > 3 as map._layers will always have at least 4 layers, if at least one drawing is present.
-      layerCount > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
-      console.log("isdrawn: " + this.isDrawn);
+    // Wait for the layers to be counted, then update isDrawn accordingly.
+    waitForLayers.then((count: any) => {
+      this.isDrawn = count > 3;
+      console.log(`isDrawn: ${this.isDrawn}`);
       console.log(this.map._layers);
-    }, 100);
+    });
   }
+
+  // Usage: call checkDrawing() to check if there are drawings on the map.
 
   /**
    * Step3 map rendering
@@ -133,9 +148,7 @@ export class CreateLayerComponent implements OnInit {
     });
 
     //layer control lets you select which layers you want to see
-    const layerControl = L.control
-      .layers(null, this.overlayMaps)
-      .addTo(this.map);
+    L.control.layers(null, this.overlayMaps).addTo(this.map);
 
     // Loop through your overlayMaps keys and add them to the map
     for (const key in this.overlayMaps) {
@@ -207,31 +220,28 @@ export class CreateLayerComponent implements OnInit {
    */
   async onFirstSubmit() {
     this.citySelected = true;
-    // this.queryDetails.city = this.option[1]; //commented for dev purposes
-    this.queryDetails.city = "Helsinki"; //set to helsinki for dev purposes
-    // if (this.queryDetails.city !== "" && this.firstForm.status !== "INVALID") { //commented or dev purposes
-    //   this.loading = true;
-    //   try {
-    //     await this.apiServices.getFilters(this.queryDetails.city);
-    //     //pushing fetch results in this.filters
-    //     this.apiServices.apiFilters.forEach((element) => {
-    //       this.filters.push(element);
-    //     });
-    //     //go to step 2
-    //     this.stepper.next();
-    //     this.loading = false;
-    //   } catch (error) {
-    //     this.loading = false;
-    //     //Show a message in case of error
-    //     console.error("API call failed:", error);
-    //   }
-    // }
-    this.stepper.next(); //dev purposes
+    this.queryDetails.city = this.option[1];
+    if (this.queryDetails.city !== "" && this.firstForm.status !== "INVALID") {
+      this.loading = true;
+      try {
+        await this.apiServices.getFilters(this.queryDetails.city);
+        //pushing fetch results in this.filters
+        this.apiServices.apiFilters.forEach((element) => {
+          this.filters.push(element);
+        });
+        //go to step 2
+        this.stepper.next();
+        this.loading = false;
+      } catch (error) {
+        this.loading = false;
+        //Show a message in case of error
+        console.error("API call failed:", error);
+      }
+    }
   }
 
   //filters checkbox
-  //filters = []; //dev purposes
-  filters = ["Open311ServiceRequest", "Open311ServiceType", "PointOfInterest"]; //dev purposes
+  filters = [];
 
   onChange(f: string) {
     this.selectedFilters.includes(f)

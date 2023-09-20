@@ -10,7 +10,7 @@ export class AvailableOptionsComponent {
   previousSearches: any = [
     {
       name: "Project 1",
-      id: "650965459ac49057c250fb88",
+      id: "650aef11e0230f16e48c69df",
       date: "2023-09-11",
       completed: true,
     },

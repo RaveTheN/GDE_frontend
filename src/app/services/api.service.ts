@@ -221,7 +221,6 @@ export class ApiService {
         let coordinates = [];
         for (let obj of Object.entries<any>(this.apiPoints[filter]._layers)) {
           coordinates.push([obj[1]._latlng.lat, obj[1]._latlng.lng]);
-          console.log(coordinates);
         }
         const url = "http://127.0.0.1:9090/api/document/save/";
         const body = {
@@ -276,17 +275,26 @@ export class ApiService {
 
   public currentId = [];
 
+  /**
+   * This function performs a search for documents based on the provided IDs.
+   * @param id - An array of document IDs to search for.
+   * @returns A Promise that resolves with markers representing the search results on a map or an error message.
+   */
   public getSearch(id: string[]) {
     return new Promise((resolve, reject) => {
+      // Send an HTTP GET request to the API to retrieve search results for the provided IDs
       this.http
         .get(`http://127.0.0.1:9090/api/document/${id}`)
         .subscribe((data: any) => {
+          // Extract the 'filter' property from the API response
           let filter = data.filter;
           this.apiPoints[filter] = L.layerGroup();
 
+          // Extract the coordinates of the search results and create markers for each
           let markers =
             data.geojson.properties.features[0].geometry.coordinates[0].map(
-              (coordinate) => {
+              (coordinate: [number, number]) => {
+                // Create markers using the custom icon declared at the beginning and bind a popup with the filter name
                 return L.marker([coordinate[0], coordinate[1]], {
                   icon: this.customIcon,
                 }).bindPopup(`${filter}`);
@@ -295,7 +303,9 @@ export class ApiService {
 
           resolve(
             // Add markers to the corresponding layer group
-            markers.forEach((marker) => marker.addTo(this.apiPoints[filter]))
+            markers.forEach((marker: L.Marker) =>
+              marker.addTo(this.apiPoints[filter])
+            )
           );
         }),
         (error) => {
