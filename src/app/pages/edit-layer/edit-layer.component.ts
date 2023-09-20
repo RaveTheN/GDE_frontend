@@ -64,6 +64,17 @@ export class EditLayerComponent implements OnInit {
       layers: [this.osm],
     });
 
+    //layer control lets you select which layers you want to see
+    const _ = L.control.layers(null, this.overlayMaps).addTo(this.map);
+
+    // Loop through your overlayMaps keys and add them to the map
+    for (const key in this.overlayMaps) {
+      if (this.overlayMaps.hasOwnProperty(key)) {
+        this.overlayMaps[key] = this.overlayMaps[key];
+        this.overlayMaps[key].addTo(this.map); // Add each overlay to the map
+      }
+    }
+
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
     this.map.addLayer(editableLayers);
@@ -144,6 +155,7 @@ export class EditLayerComponent implements OnInit {
 
     try {
       await this.apiServices.getSearch(this.apiServices.currentId);
+      this.overlayMaps = this.apiServices.apiPoints;
     } catch (error) {
       this.loading = false;
       // Show a message in case of error

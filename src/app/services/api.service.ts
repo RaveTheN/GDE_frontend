@@ -283,10 +283,20 @@ export class ApiService {
         .subscribe((data: any) => {
           let filter = data.filter;
           this.apiPoints[filter] = L.layerGroup();
-          console.log(this.apiPoints);
-          let geoJson = data.geojson;
-          this.processCoordinates(geoJson, data.filter);
-          resolve(console.log(data));
+
+          let markers =
+            data.geojson.properties.features[0].geometry.coordinates[0].map(
+              (coordinate) => {
+                return L.marker([coordinate[0], coordinate[1]], {
+                  icon: this.customIcon,
+                }).bindPopup(`${filter}`);
+              }
+            );
+
+          resolve(
+            // Add markers to the corresponding layer group
+            markers.forEach((marker) => marker.addTo(this.apiPoints[filter]))
+          );
         }),
         (error) => {
           console.log(error);
@@ -296,19 +306,6 @@ export class ApiService {
           // Reject the Promise with the error
           else reject(error);
         };
-    });
-  }
-
-  private processCoordinates(responseData: any, type): L.Marker[] {
-    return responseData.map((element: any) => {
-      const coordinates =
-        element.geometry === null
-          ? element.properties.location.value.coordinates
-          : element.geometry.coordinates;
-
-      return L.marker([coordinates[1], coordinates[0]], {
-        icon: this.customIcon,
-      }).bindPopup(`${type}`);
     });
   }
 }
