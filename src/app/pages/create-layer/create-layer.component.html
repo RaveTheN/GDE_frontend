@@ -54,26 +54,38 @@
             want to perform the research.
           </p>
           <div id="second-step-ui">
-            <div class="filters-checkbox-out">
-              <div class="filters-checkbox-in" *ngFor="let filter of filters">
-                <nb-checkbox
-                  formControlName="filters"
-                  (change)="onChange(filter)"
-                  >{{ filter }}</nb-checkbox
+            <div class="options-box">
+              <div class="filters-checkbox-out">
+                <div class="filters-checkbox-in" *ngFor="let filter of filters">
+                  <nb-checkbox
+                    formControlName="filters"
+                    (change)="onChange(filter)"
+                    >{{ filter }}</nb-checkbox
+                  >
+                </div>
+                <div
+                  [hidden]="
+                    hidingAlerts === true
+                      ? true
+                      : isFilterOn === true
+                      ? true
+                      : false
+                  "
+                  class="alert"
                 >
+                  !! Select at least one filter
+                </div>
               </div>
-              <div
-                [hidden]="
-                  hidingAlerts === true
-                    ? true
-                    : isFilterOn === true
-                    ? true
-                    : false
-                "
-                class="alert"
+              <nb-select
+                class="custom-select"
+                [hidden]="queryDetails.city !== 'Helsinki'"
               >
-                !! Select at least one filter
-              </div>
+                <nb-option
+                  *ngFor="let student of students; let i = index"
+                  [value]="student.id"
+                  >{{ student.display }}</nb-option
+                >
+              </nb-select>
             </div>
             <div
               (mouseup)="checkDrawing()"

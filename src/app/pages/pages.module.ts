@@ -4,6 +4,7 @@ import {
   NbCheckboxModule,
   NbMenuModule,
   NbRadioModule,
+  NbSelectModule,
   NbStepperModule,
 } from "@nebular/theme";
 
@@ -14,8 +15,8 @@ import { MiscellaneousModule } from "./miscellaneous/miscellaneous.module";
 import { CreateLayerComponent } from "./create-layer/create-layer.component";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { AvailableOptionsComponent } from "./available-options/available-options.component";
-import { ViewLayerComponent } from './view-layer/view-layer.component';
-import { EditLayerComponent } from './edit-layer/edit-layer.component';
+import { ViewLayerComponent } from "./view-layer/view-layer.component";
+import { EditLayerComponent } from "./edit-layer/edit-layer.component";
 
 @NgModule({
   imports: [
@@ -29,6 +30,7 @@ import { EditLayerComponent } from './edit-layer/edit-layer.component';
     ThemeModule,
     NbMenuModule,
     MiscellaneousModule,
+    NbSelectModule,
   ],
   declarations: [
     PagesComponent,

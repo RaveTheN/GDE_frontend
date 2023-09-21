@@ -178,6 +178,8 @@ a:hover {
   margin-bottom: 24px;
 }
 
+//available-options' list style
+
 .list-group li {
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
@@ -205,6 +207,32 @@ a:hover {
   color: var(--primary-color);
 }
 
+//create new > step 2 style
+
+.options-box {
+  display: flex;
+  flex-direction: column-reverse;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+
+.custom-select {
+  border: 1px solid black !important;
+  background-color: var(--background-color);
+
+  padding: 4% !important;
+  margin: 0 !important;
+}
+
+.custom-select .select-button {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  align-items: center;
+  font-size: 14px !important;
+  font-weight: 100 !important;
+}
+
 .alert {
   color: var(--warning-color);
   font-size: 14px !important;
@@ -214,9 +242,10 @@ a:hover {
 }
 
 .filters-checkbox-out {
+  flex-grow: 1;
   border: 1px solid black;
   background-color: var(--background-color);
-  padding: 1%;
+  padding: 4%;
 }
 
 .filters-checkbox-in {
@@ -231,7 +260,7 @@ a:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  margin: 0px 30px;
+  margin: 0 2%;
 }
 
 .map-frame {
