@@ -76,11 +76,17 @@ export class CreateLayerComponent implements OnInit {
       layers: [this.osm],
     });
 
-    this.apiServices.currentLayer.forEach((element) => element.addTo(this.map));
-
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
     this.map.addLayer(editableLayers);
+
+    console.log(editableLayers);
+
+    this.apiServices.currentLayer.forEach((element) =>
+      editableLayers.addLayer(element)
+    );
+
+    console.log(editableLayers);
 
     // Initialise the draw control and pass it the FeatureGroup of editable layers
     var drawControl = new L.Control.Draw({
