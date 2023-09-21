@@ -76,6 +76,8 @@ export class CreateLayerComponent implements OnInit {
       layers: [this.osm],
     });
 
+    this.apiServices.currentLayer.forEach((element) => element.addTo(this.map));
+
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
     this.map.addLayer(editableLayers);
@@ -102,35 +104,34 @@ export class CreateLayerComponent implements OnInit {
   }
 
   /**
-   * Check if there are more than 3 layers in the Leaflet map.
-   * This function sets the 'isDrawn' property to true if there are more than 3 layers,
+   * Check if the keys in the _layers.options are: stroke, color, weight, opacity, fill, fillColor, fillOpacity, clickable.
+   * If it does the functions sets 'isDrawn' to true,
    * indicating that drawings are present on the map.
    */
   checkDrawing() {
-    // Initialize layerCount to 0.
-    let layerCount = 0;
-
-    // Use setTiemout to wait a bit, to ensure the Leaflet layers are ready.
-    const waitForLayers = new Promise((resolve) => {
-      setTimeout(() => {
-        for (const key in this.map._layers) {
-          if (this.map._layers.hasOwnProperty(key)) {
-            layerCount++;
-          }
-        }
-        resolve(layerCount);
-      }, 100);
-    });
-
-    // Wait for the layers to be counted, then update isDrawn accordingly.
-    waitForLayers.then((count: any) => {
-      this.isDrawn = count > 3;
+    //the settimout is to make sue that leaflet has added/removed the layers before we are checking them
+    setTimeout(() => {
+      Object.values(this.map._layers).forEach(
+        (e: any) =>
+          (this.isDrawn =
+            Object.keys(e.options).toString() ===
+            "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable")
+      );
       console.log(`isDrawn: ${this.isDrawn}`);
-      console.log(this.map._layers);
-    });
+    }, 100);
   }
 
   // Usage: call checkDrawing() to check if there are drawings on the map.
+
+  saveDrawings() {
+    Object.values(this.map._layers).forEach(
+      (e: any) =>
+        Object.keys(e.options).toString() ===
+          "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable" &&
+        this.apiServices.currentLayer.push(e)
+    );
+    console.log(this.apiServices.currentLayer);
+  }
 
   /**
    * Step3 map rendering
@@ -328,7 +329,7 @@ export class CreateLayerComponent implements OnInit {
         this.overlayMaps = this.apiServices.apiPoints;
         console.log(this.overlayMaps);
       }
-      // Move the stepper.next() call here to ensure it's executed after the API call
+      this.saveDrawings();
       this.isDrawn && this.isFilterOn
         ? this.stepper.next()
         : (this.hidingAlerts = false);

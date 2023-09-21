@@ -39,6 +39,7 @@ export class EditLayerComponent implements OnInit {
     external: true,
     queryName: "",
     queryDescription: "",
+    layer: [],
   };
 
   constructor(private apiServices: ApiService) {}
@@ -73,6 +74,8 @@ export class EditLayerComponent implements OnInit {
       }
     }
 
+    this.apiServices.currentLayer.forEach((layer) => layer.addTo(this.map));
+
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
     this.map.addLayer(editableLayers);
@@ -82,6 +85,7 @@ export class EditLayerComponent implements OnInit {
       edit: { featureGroup: editableLayers },
       position: "topright",
       draw: {
+        marker: false,
         polyline: false,
         rectangle: <any>{ showArea: false },
         circlemarker: false,
@@ -98,32 +102,22 @@ export class EditLayerComponent implements OnInit {
   }
 
   /**
-   * Check if there are more than 3 layers in the Leaflet map.
-   * This function sets the 'isDrawn' property to true if there are more than 3 layers,
+   * Check if the keys in the _layers.options are: stroke, color, weight, opacity, fill, fillColor, fillOpacity, clickable.
+   * If it does the functions sets 'isDrawn' to true,
    * indicating that drawings are present on the map.
    */
   checkDrawing() {
-    // Initialize layerCount to 0.
-    let layerCount = 0;
+    //the settimout is to make sue that leaflet has added/removed the layers before we are checking them
+    setTimeout(() => {
+      Object.values(this.map._layers).forEach(
+        (e: any) =>
+          (this.isDrawn =
+            Object.keys(e.options).toString() ===
+            "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable")
+      );
 
-    // Use a Promise-based approach to ensure the Leaflet layers are ready.
-    const waitForLayers = new Promise((resolve) => {
-      setTimeout(() => {
-        for (const key in this.map._layers) {
-          if (this.map._layers.hasOwnProperty(key)) {
-            layerCount++;
-          }
-        }
-        resolve(layerCount);
-      }, 100);
-    });
-
-    // Wait for the layers to be counted, then update isDrawn accordingly.
-    waitForLayers.then((count: any) => {
-      this.isDrawn = count > 3;
       console.log(`isDrawn: ${this.isDrawn}`);
-      console.log(this.map._layers);
-    });
+    }, 100);
   }
 
   // Usage: call checkDrawing() to check if there are drawings on the map.

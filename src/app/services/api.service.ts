@@ -275,6 +275,8 @@ export class ApiService {
 
   public currentId = [];
 
+  public currentLayer = []; //dev purposes only
+
   /**
    * This function performs a search for documents based on the provided IDs.
    * @param id - An array of document IDs to search for.
