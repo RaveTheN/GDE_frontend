@@ -110,10 +110,7 @@ export class EditLayerComponent implements OnInit {
     //the settimout is to make sue that leaflet has added/removed the layers before we are checking them
     setTimeout(() => {
       Object.values(this.map._layers).forEach(
-        (e: any) =>
-          (this.isDrawn =
-            Object.keys(e.options).toString() ===
-            "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable")
+        (e: any) => (this.isDrawn = e.options.color === "#3388ff")
       );
 
       console.log(`isDrawn: ${this.isDrawn}`);

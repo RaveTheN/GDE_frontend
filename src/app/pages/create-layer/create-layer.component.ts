@@ -203,7 +203,7 @@ export class CreateLayerComponent implements OnInit {
     this.map != undefined ? (this.map = this.map.remove()) : null;
   }
 
-  async onStepChange(event: any) {
+  onStepChange(event: any) {
     // The event object contains information about the current step and previous step.
     // You can access them as follows:
     this.changeEvent = event;
