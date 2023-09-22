@@ -76,14 +76,12 @@
                   !! Select at least one filter
                 </div>
               </div>
-              <nb-select
-                class="custom-select"
-                [hidden]="queryDetails.city !== 'Helsinki'"
-              >
+              <!-- This select is hidden by deafult for now -->
+              <nb-select class="custom-select" [hidden]="true">
                 <nb-option
-                  *ngFor="let student of students; let i = index"
-                  [value]="student.id"
-                  >{{ student.display }}</nb-option
+                  *ngFor="let area of areas; let i = index"
+                  [value]="area.id"
+                  >{{ area.display }}</nb-option
                 >
               </nb-select>
             </div>

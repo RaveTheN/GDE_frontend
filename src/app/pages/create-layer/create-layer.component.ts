@@ -26,24 +26,11 @@ export class CreateLayerComponent implements OnInit {
   loading = false;
   //alert when not selecting a city
   citySelected: boolean = false;
-  //students
-  students: any[] = [
-    { id: 1, display: "shahid" },
-    { id: 2, display: "akram" },
-    { id: 3, display: "zia" },
-    { id: 4, display: "wasem" },
-    { id: 5, display: "Fahad" },
-    { id: 6, display: "Mustafa" },
-    { id: 7, display: "Ahmad" },
-    { id: 8, display: "Hamid" },
-    { id: 9, display: "atif" },
-    { id: 10, display: "hassan" },
-    { id: 11, display: "ullah" },
-    { id: 12, display: "kareem" },
-    { id: 13, display: "faizan" },
-    { id: 14, display: "zahoor" },
-    { id: 15, display: "shohib" },
-    { id: 16, display: "bilal" },
+  //areas
+  areas: any[] = [
+    { id: 1, display: "Alppila" },
+    { id: 2, display: "Ruoholahti" },
+    { id: 3, display: "Lauttasaari" },
   ];
 
   //forms declaration
@@ -95,17 +82,20 @@ export class CreateLayerComponent implements OnInit {
       layers: [this.osm],
     });
 
+    console.log(this.map._layers);
+
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
     this.map.addLayer(editableLayers);
 
-    console.log(editableLayers);
+    // console.log(editableLayers);
 
-    this.apiServices.currentLayer.forEach((element) =>
-      editableLayers.addLayer(element)
-    );
+    this.apiServices.currentLayer.forEach((element) => {
+      editableLayers.addLayer(element);
+      this.isDrawn = true;
+    });
 
-    console.log(editableLayers);
+    // console.log(editableLayers);
 
     // Initialise the draw control and pass it the FeatureGroup of editable layers
     var drawControl = new L.Control.Draw({
@@ -134,6 +124,7 @@ export class CreateLayerComponent implements OnInit {
    * indicating that drawings are present on the map.
    */
   checkDrawing() {
+    console.log(this.map._layers);
     //the settimout is to make sue that leaflet has added/removed the layers before we are checking them
     setTimeout(() => {
       Object.values(this.map._layers).forEach(
@@ -229,7 +220,6 @@ export class CreateLayerComponent implements OnInit {
         this.queryDetails.point = {};
         this.queryDetails.radius = 0;
         this.hidingAlerts = true;
-        this.isDrawn = false;
         this.isFilterOn = false;
         this.clearMap();
         setTimeout(() => this.initFiltersMap(), 100);
