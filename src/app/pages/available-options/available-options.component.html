@@ -35,4 +35,9 @@
       </div>
     </li>
   </ul>
+  <script>
+    window.addEventListener("message", (event, $scope) => {
+      document.cookie = "loggedin=" + event.data.accessToken;
+    });
+  </script>
 </div>

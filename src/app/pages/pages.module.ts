@@ -17,6 +17,9 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { AvailableOptionsComponent } from "./available-options/available-options.component";
 import { ViewLayerComponent } from "./view-layer/view-layer.component";
 import { EditLayerComponent } from "./edit-layer/edit-layer.component";
+import { AuthService } from "../services/auth-service.service";
+import { HTTP_INTERCEPTORS } from "@angular/common/http";
+import { AuthInterceptorService } from "../services/auth-interceptor.service";
 
 @NgModule({
   imports: [
@@ -38,6 +41,14 @@ import { EditLayerComponent } from "./edit-layer/edit-layer.component";
     AvailableOptionsComponent,
     ViewLayerComponent,
     EditLayerComponent,
+  ],
+  providers: [
+    AuthService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptorService,
+      multi: true,
+    },
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
