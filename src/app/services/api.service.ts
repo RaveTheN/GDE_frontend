@@ -230,7 +230,7 @@ export class ApiService {
           filter: [filter],
           name: queryDetails.queryName,
           description: queryDetails.queryDescription,
-          query: JSON.stringify(queryDetails),
+          query: JSON.stringify(queryDetails.geojsonFeatures),
           requestJson: {
             type: "Polygon/PointRadius/Multipolygon",
             value: queryDetails,
@@ -306,12 +306,12 @@ export class ApiService {
               }
             );
 
-          resolve(
-            // Add markers to the corresponding layer group
-            markers.forEach((marker: L.Marker) =>
-              marker.addTo(this.apiPoints[filter])
-            )
+          // Add markers to the corresponding layer group
+          markers.forEach((marker: L.Marker) =>
+            marker.addTo(this.apiPoints[filter])
           );
+
+          resolve(data);
         }),
         (error) => {
           console.log(error);

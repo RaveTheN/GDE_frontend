@@ -6,6 +6,7 @@ import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
 import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
 import { ApiService } from "../../services/api.service";
 import { __await } from "tslib";
+import { GeoJsonObject } from "geojson";
 
 @Component({
   selector: "ngx-edit-layer",
@@ -145,6 +146,7 @@ export class EditLayerComponent implements OnInit {
   }
 
   async ngOnInit() {
+    let data: any;
     this.firstForm = new FormGroup({
       filters: new FormControl("", Validators.required),
     });
@@ -154,14 +156,28 @@ export class EditLayerComponent implements OnInit {
     });
 
     try {
-      await this.apiServices.getSearch(this.apiServices.currentId);
-      this.overlayMaps = this.apiServices.apiPoints;
+      data = await this.apiServices.getSearch(this.apiServices.currentId);
+      this.initFiltersMap();
     } catch (error) {
       // Show a message in case of error
       console.error("API call failed:", error);
     }
 
-    setTimeout(() => this.initFiltersMap(), 100);
+    console.log(data.query);
+
+    let geojsonFeatures: any = JSON.parse(data.query);
+
+    const style: any = {
+      color: "#3388ff",
+      opacity: 0.5,
+      weight: 4,
+    };
+
+    var newPolygons = L.geoJSON(null);
+
+    newPolygons = L.geoJSON(geojsonFeatures, {
+      style,
+    }).addTo(this.map);
   }
 
   /**

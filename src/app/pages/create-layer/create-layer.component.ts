@@ -48,6 +48,10 @@ export class CreateLayerComponent implements OnInit {
     external: true,
     queryName: "",
     queryDescription: "",
+    geojsonFeatures: {
+      type: "FeatureCollection",
+      features: [],
+    },
   };
 
   /**
@@ -104,6 +108,7 @@ export class CreateLayerComponent implements OnInit {
     //initialize function to draw areas inside the map
     this.map.on(L.Draw.Event.CREATED, function (e: any) {
       let drawingLayer = e.layer;
+      console.log(drawingLayer);
       //layer in which we are going to draw the selecion areas
       editableLayers.addLayer(drawingLayer);
     });
@@ -115,8 +120,7 @@ export class CreateLayerComponent implements OnInit {
    * indicating that drawings are present on the map.
    */
   checkDrawing() {
-    console.log(this.map._layers);
-    //the settimout is to make sue that leaflet has added/removed the layers before we are checking them
+    //the settimeout is to make sure that leaflet has added/removed the layers before we are checking them
     setTimeout(() => {
       Object.values(this.map._layers).forEach(
         (e: any) =>
@@ -124,7 +128,7 @@ export class CreateLayerComponent implements OnInit {
             Object.keys(e.options).toString() ===
             "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable")
       );
-      console.log(`isDrawn: ${this.isDrawn}`);
+      //console.log(`isDrawn: ${this.isDrawn}`);
     }, 100);
   }
 
@@ -295,7 +299,24 @@ export class CreateLayerComponent implements OnInit {
       };
       this.queryDetails.polygon.push(firstEdge);
     }
+
+    this.queryDetails.geojsonFeatures.features.push(
+      Object({
+        type: "Feature",
+        geometry: {
+          type: "MultiPolygon",
+          coordinates: [
+            [this.queryDetails.polygon.map((e) => [e.longitude, e.latitude])],
+          ],
+        },
+      })
+    );
+
+    var test = this.map;
+
+    console.log(test);
     console.log(this.queryDetails.polygon);
+    console.log(this.queryDetails.geojsonFeatures);
 
     try {
       if (
