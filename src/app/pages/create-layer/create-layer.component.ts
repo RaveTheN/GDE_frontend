@@ -88,15 +88,6 @@ export class CreateLayerComponent implements OnInit {
     var editableLayers = new L.FeatureGroup();
     this.map.addLayer(editableLayers);
 
-    // console.log(editableLayers);
-
-    this.apiServices.currentLayer.forEach((element) => {
-      editableLayers.addLayer(element);
-      this.isDrawn = true;
-    });
-
-    // console.log(editableLayers);
-
     // Initialise the draw control and pass it the FeatureGroup of editable layers
     var drawControl = new L.Control.Draw({
       edit: { featureGroup: editableLayers },
@@ -138,16 +129,6 @@ export class CreateLayerComponent implements OnInit {
   }
 
   // Usage: call checkDrawing() to check if there are drawings on the map.
-
-  saveDrawings() {
-    Object.values(this.map._layers).forEach(
-      (e: any) =>
-        Object.keys(e.options).toString() ===
-          "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable" &&
-        this.apiServices.currentLayer.push(e)
-    );
-    console.log(this.apiServices.currentLayer);
-  }
 
   /**
    * Step3 map rendering
@@ -219,6 +200,7 @@ export class CreateLayerComponent implements OnInit {
         this.queryDetails.polygon = [];
         this.queryDetails.point = {};
         this.queryDetails.radius = 0;
+        this.isDrawn = false;
         this.hidingAlerts = true;
         this.isFilterOn = false;
         this.clearMap();
@@ -344,7 +326,6 @@ export class CreateLayerComponent implements OnInit {
         this.overlayMaps = this.apiServices.apiPoints;
         console.log(this.overlayMaps);
       }
-      this.saveDrawings();
       this.isDrawn && this.isFilterOn
         ? this.stepper.next()
         : (this.hidingAlerts = false);

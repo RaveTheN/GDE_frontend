@@ -74,8 +74,6 @@ export class EditLayerComponent implements OnInit {
       }
     }
 
-    this.apiServices.currentLayer.forEach((layer) => layer.addTo(this.map));
-
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
     this.map.addLayer(editableLayers);
