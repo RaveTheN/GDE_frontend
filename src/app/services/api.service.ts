@@ -338,7 +338,7 @@ export class ApiService {
         .subscribe((data: any) => {
           console.log(data);
           data
-            .map((e) =>
+            .map((e: any) =>
               Object({
                 name: e.name,
                 id: e.id,
@@ -346,8 +346,26 @@ export class ApiService {
                 completed: true,
               })
             )
-            .forEach((e) => this.allProjects.push(e));
+            .forEach((e: any) => this.allProjects.push(e));
           console.log(this.allProjects);
+        }),
+        (error) => {
+          console.log(error);
+          if (error.status === 400 || error.error.text === "Request retrieved")
+            // Resolve with an error message if the request is successful but contains an error message
+            resolve(error.error.text);
+          // Reject the Promise with the error
+          else reject(error);
+        };
+    });
+  }
+
+  public deleteEntry(id: string) {
+    return new Promise((resolve, reject) => {
+      this.http
+        .delete(`http://127.0.0.1:9090/api/document/${id}`)
+        .subscribe((data: any) => {
+          resolve("entry deleted");
         }),
         (error) => {
           console.log(error);

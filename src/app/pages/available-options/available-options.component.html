@@ -31,7 +31,13 @@
           View
         </button>
         &nbsp;
-        <button class="btn-primary">Delete</button>
+        <button
+          class="btn-primary"
+          (click)="deleteSearch(search.id)"
+          routerLink="/pages/available-options"
+        >
+          Delete
+        </button>
       </div>
     </li>
   </ul>

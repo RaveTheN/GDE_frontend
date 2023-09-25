@@ -17,6 +17,15 @@ export class AvailableOptionsComponent implements OnInit {
     this.apiServices.currentId.push(id);
   }
 
+  async deleteSearch(id: string) {
+    try {
+      await this.apiServices.deleteEntry(id);
+    } catch (error) {
+      //Show a message in case of error
+      console.error("API call failed:", error);
+    }
+  }
+
   async ngOnInit() {
     try {
       await this.apiServices.getAll();
