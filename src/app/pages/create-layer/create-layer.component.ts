@@ -312,12 +312,6 @@ export class CreateLayerComponent implements OnInit {
       })
     );
 
-    var test = this.map;
-
-    console.log(test);
-    console.log(this.queryDetails.polygon);
-    console.log(this.queryDetails.geojsonFeatures);
-
     try {
       if (
         this.queryDetails.filters.length !== 0 &&

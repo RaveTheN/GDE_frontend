@@ -30,7 +30,6 @@ export class EditLayerComponent implements OnInit {
   firstForm: FormGroup;
   secondForm: FormGroup;
 
-  //object in which to store the data input by the user
   queryDetails = {
     city: "",
     filters: [],
@@ -40,7 +39,10 @@ export class EditLayerComponent implements OnInit {
     external: true,
     queryName: "",
     queryDescription: "",
-    layer: [],
+    geojsonFeatures: {
+      type: "FeatureCollection",
+      features: [],
+    },
   };
 
   constructor(private apiServices: ApiService) {}
@@ -63,17 +65,6 @@ export class EditLayerComponent implements OnInit {
       zoom: 12,
       layers: [this.osm],
     });
-
-    //layer control lets you select which layers you want to see
-    L.control.layers(null, this.overlayMaps).addTo(this.map);
-
-    // Loop through your overlayMaps keys and add them to the map
-    for (const key in this.overlayMaps) {
-      if (this.overlayMaps.hasOwnProperty(key)) {
-        this.overlayMaps[key] = this.overlayMaps[key];
-        this.overlayMaps[key].addTo(this.map); // Add each overlay to the map
-      }
-    }
 
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
@@ -178,6 +169,11 @@ export class EditLayerComponent implements OnInit {
 
     try {
       data = await this.apiServices.getSearch(this.apiServices.currentId);
+      await this.apiServices.getFilters("Helsinki");
+      //pushing fetch results in this.filters
+      this.apiServices.apiFilters.forEach((element) => {
+        this.filters.push(element);
+      });
       this.initFiltersMap(data);
     } catch (error) {
       // Show a message in case of error
@@ -224,7 +220,7 @@ export class EditLayerComponent implements OnInit {
 
   //filters checkbox
   //this array serves as a token for the one that will be received from the backend
-  filters = ["PointOfInterest", "2", "3"];
+  filters = [];
 
   onChange(f: string) {
     this.selectedFilters.includes(f)
@@ -245,19 +241,109 @@ export class EditLayerComponent implements OnInit {
    * Step1 submit
    */
   async onFirstSubmit() {
-    if (this.queryDetails.filters.length !== 0) {
-      // Move the stepper.next() call here to ensure it's executed after the API call
+    var layer: any;
+    this.queryDetails.polygon = [];
+    this.apiServices.apiPoints = {};
+    console.log(this.map._layers);
+    for (layer of Object.values(this.map._layers)) {
+      // For polygons, layer._latlngs[i] is an array of LatLngs objects
+      if (Array.isArray(layer._latlngs)) {
+        // Flatten the nested array and push edges to the polygon array
+        for (const latlng of layer._latlngs.flat()) {
+          const edge = {
+            latitude: latlng.lat,
+            longitude: latlng.lng,
+          };
+          this.queryDetails.polygon.push(edge);
+        }
+      } else if (layer._latlng && layer._radius) {
+        this.queryDetails.point = layer._latlng;
+        this.queryDetails.radius = layer._radius;
+
+        console.log(
+          "This is a circle: " +
+            this.queryDetails.point +
+            " " +
+            this.queryDetails.radius
+        );
+      }
+    }
+    // Push the first edge again to complete the polygon
+    if (this.queryDetails.polygon?.[0]) {
+      const firstEdge = {
+        latitude: this.queryDetails.polygon[0].latitude,
+        longitude: this.queryDetails.polygon[0].longitude,
+      };
+      this.queryDetails.polygon.push(firstEdge);
+    }
+
+    this.queryDetails.geojsonFeatures.features.push(
+      Object({
+        type: "Feature",
+        geometry: {
+          type: "MultiPolygon",
+          coordinates: [
+            [this.queryDetails.polygon.map((e) => [e.longitude, e.latitude])],
+          ],
+        },
+      })
+    );
+
+    try {
+      if (
+        this.queryDetails.filters.length !== 0 &&
+        this.queryDetails.polygon.length !== 0
+      ) {
+        // Make the API call with the prepared data
+        await this.apiServices.getPolygonData({
+          city: this.queryDetails.city,
+          filter: this.queryDetails.filters,
+          polygon: this.queryDetails.polygon,
+        });
+
+        this.overlayMaps = this.apiServices.apiPoints;
+      } else if (
+        this.queryDetails.filters.length !== 0 &&
+        Object.keys(this.queryDetails.point).length !== 0 &&
+        this.queryDetails.radius !== 0
+      ) {
+        await this.apiServices.getPointRadiusData({
+          city: this.queryDetails.city,
+          filter: this.queryDetails.filters,
+          point: this.queryDetails.point,
+          radius: this.queryDetails.radius,
+          external: true,
+        });
+
+        this.overlayMaps = this.apiServices.apiPoints;
+        console.log(this.overlayMaps);
+      }
       this.isDrawn && this.isFilterOn
         ? this.stepper.next()
         : (this.hidingAlerts = false);
+    } catch (error) {
+      // Show a message in case of error
+      console.error("API call failed:", error);
     }
   }
 
   /**
    * Step2 submit
    */
-  onThirdSubmit() {
+  async onThirdSubmit() {
     this.queryDetails.queryName = this.secondForm.value.projectName;
     this.queryDetails.queryDescription = this.secondForm.value.description;
+    try {
+      if (this.queryDetails.queryName.length !== 0) {
+        // Make the API call with the prepared data
+        await this.apiServices.updateSearch(
+          this.queryDetails,
+          this.apiServices.currentId
+        );
+      }
+    } catch (error) {
+      // Show a message in case of error
+      console.error("API call failed:", error);
+    }
   }
 }
