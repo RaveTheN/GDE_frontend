@@ -57,7 +57,7 @@ export class EditLayerComponent implements OnInit {
   });
 
   //map for step 1
-  private initFiltersMap(): void {
+  private initFiltersMap(data: any = null): void {
     this.map = L.map("map", {
       center: [60.1699, 24.9384], //!!! Temporary
       zoom: 12,
@@ -98,6 +98,22 @@ export class EditLayerComponent implements OnInit {
       //layer in which we are going to draw the selecion areas
       editableLayers.addLayer(drawingLayer);
     });
+
+    console.log(data.query);
+
+    let geojsonFeatures: any = JSON.parse(data.query);
+
+    const style: any = {
+      color: "#3388ff",
+      opacity: 0.5,
+      weight: 4,
+    };
+
+    var newPolygons = L.geoJSON(null);
+
+    newPolygons = L.geoJSON(geojsonFeatures, {
+      style,
+    }).addTo(editableLayers);
   }
 
   /**
@@ -157,27 +173,11 @@ export class EditLayerComponent implements OnInit {
 
     try {
       data = await this.apiServices.getSearch(this.apiServices.currentId);
-      this.initFiltersMap();
+      this.initFiltersMap(data);
     } catch (error) {
       // Show a message in case of error
       console.error("API call failed:", error);
     }
-
-    console.log(data.query);
-
-    let geojsonFeatures: any = JSON.parse(data.query);
-
-    const style: any = {
-      color: "#3388ff",
-      opacity: 0.5,
-      weight: 4,
-    };
-
-    var newPolygons = L.geoJSON(null);
-
-    newPolygons = L.geoJSON(geojsonFeatures, {
-      style,
-    }).addTo(this.map);
   }
 
   /**
