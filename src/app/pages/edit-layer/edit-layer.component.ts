@@ -122,13 +122,18 @@ export class EditLayerComponent implements OnInit {
    * indicating that drawings are present on the map.
    */
   checkDrawing() {
-    //the settimout is to make sue that leaflet has added/removed the layers before we are checking them
-    setTimeout(() => {
-      Object.values(this.map._layers).forEach(
-        (e: any) => (this.isDrawn = e.options.color === "#3388ff")
-      );
+    let layerCount = 0;
 
-      console.log(`isDrawn: ${this.isDrawn}`);
+    //the settimout is to make sue that leaflet has added/removed the layers before we are counting them
+    setTimeout(() => {
+      for (let key in this.map._layers) {
+        layerCount++;
+      }
+
+      //i must be > 3 as map._layers will always have at least 4 layers, if at least one drawing is present.
+      layerCount > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
+      console.log("isdrawn: " + this.isDrawn);
+      console.log(this.map._layers);
     }, 100);
   }
 
@@ -205,7 +210,7 @@ export class EditLayerComponent implements OnInit {
         this.queryDetails.point = {};
         this.queryDetails.radius = 0;
         this.hidingAlerts = true;
-        this.isDrawn = false;
+        this.isDrawn = true;
         this.isFilterOn = false;
         this.clearMap();
         setTimeout(() => this.initFiltersMap(), 100);
