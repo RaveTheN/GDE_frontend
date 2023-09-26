@@ -120,15 +120,18 @@ export class CreateLayerComponent implements OnInit {
    * indicating that drawings are present on the map.
    */
   checkDrawing() {
-    //the settimeout is to make sure that leaflet has added/removed the layers before we are checking them
+    let layerCount = 0;
+
+    //the settimout is to make sue that leaflet has added/removed the layers before we are counting them
     setTimeout(() => {
-      Object.values(this.map._layers).forEach(
-        (e: any) =>
-          (this.isDrawn =
-            Object.keys(e.options).toString() ===
-            "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable")
-      );
-      //console.log(`isDrawn: ${this.isDrawn}`);
+      for (let key in this.map._layers) {
+        layerCount++;
+      }
+
+      //i must be > 3 as map._layers will always have at least 4 layers, if at least one drawing is present.
+      layerCount > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
+      console.log("isdrawn: " + this.isDrawn);
+      console.log(this.map._layers);
     }, 100);
   }
 
@@ -283,12 +286,19 @@ export class CreateLayerComponent implements OnInit {
         this.queryDetails.point = layer._latlng;
         this.queryDetails.radius = layer._radius;
 
-        console.log(
-          "This is a circle: " +
-            this.queryDetails.point +
-            " " +
-            this.queryDetails.radius
+        this.queryDetails.geojsonFeatures.features.push(
+          Object({
+            type: "Feature",
+            properties: {
+              radius: this.queryDetails.radius,
+            },
+            geometry: {
+              type: "Point",
+              coordinates: Object.values(this.queryDetails.point),
+            },
+          })
         );
+        console.log(this.queryDetails.geojsonFeatures);
       }
     }
     // Push the first edge again to complete the polygon
