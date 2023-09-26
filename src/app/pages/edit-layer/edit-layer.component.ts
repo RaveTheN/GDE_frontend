@@ -109,9 +109,7 @@ export class EditLayerComponent implements OnInit {
   }
 
   /**
-   * Check if the keys in the _layers.options are: stroke, color, weight, opacity, fill, fillColor, fillOpacity, clickable.
-   * If it does the functions sets 'isDrawn' to true,
-   * indicating that drawings are present on the map.
+   * Check
    */
   checkDrawing() {
     let layerCount = 0;

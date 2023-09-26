@@ -115,20 +115,21 @@ export class CreateLayerComponent implements OnInit {
   }
 
   /**
-   * Check if the keys in the _layers.options are: stroke, color, weight, opacity, fill, fillColor, fillOpacity, clickable.
-   * If it does the functions sets 'isDrawn' to true,
-   * indicating that drawings are present on the map.
+   * Check
    */
   checkDrawing() {
-    //the settimeout is to make sure that leaflet has added/removed the layers before we are checking them
+    let layerCount = 0;
+
+    //the settimout is to make sue that leaflet has added/removed the layers before we are counting them
     setTimeout(() => {
-      Object.values(this.map._layers).forEach(
-        (e: any) =>
-          (this.isDrawn =
-            Object.keys(e.options).toString() ===
-            "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable")
-      );
-      //console.log(`isDrawn: ${this.isDrawn}`);
+      for (let key in this.map._layers) {
+        layerCount++;
+      }
+
+      //i must be > 3 as map._layers will always have at least 4 layers, if at least one drawing is present.
+      layerCount > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
+      console.log("isdrawn: " + this.isDrawn);
+      console.log(this.map._layers);
     }, 100);
   }
 
@@ -280,8 +281,11 @@ export class CreateLayerComponent implements OnInit {
           this.queryDetails.polygon.push(edge);
         }
       } else if (layer._latlng && layer._radius) {
-        this.queryDetails.point = layer._latlng;
-        this.queryDetails.radius = layer._radius;
+        this.queryDetails.point = {
+          latitude: layer._latlng.lat,
+          longitude: layer._latlng.lng,
+        };
+        this.queryDetails.radius = layer._mRadius;
 
         console.log(
           "This is a circle: " +
