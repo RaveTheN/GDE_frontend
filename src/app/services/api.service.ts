@@ -128,7 +128,7 @@ export class ApiService {
   public async getPointRadiusData(body: {
     city: string;
     filter: string[];
-    point: any;
+    point: {};
     radius: Number;
     external: boolean; //true by default, for now
   }): Promise<void> {
@@ -145,12 +145,11 @@ export class ApiService {
         const requestPromise = this.makeHttpRequest(url, {
           city: body.city,
           filter: [filter],
-          point: { latitude: body.point.lat, longitude: body.point.lng },
+          point: body.point,
           radius: body.radius,
           external: true,
         });
 
-        console.log(JSON.stringify(body));
         requestPromises.push(requestPromise);
       }
 
@@ -159,6 +158,7 @@ export class ApiService {
 
       // Process and add markers to the map (see bottom for responseData example)
       responseDataArray.forEach((responseData, index) => {
+        console.log(JSON.stringify(body));
         const filter = body.filter[index];
         const markers = this.processMarkersCoordinates(
           responseData[0].features

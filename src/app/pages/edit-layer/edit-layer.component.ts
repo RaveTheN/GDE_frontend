@@ -105,15 +105,7 @@ export class EditLayerComponent implements OnInit {
 
     newPolygons = L.geoJSON(geojsonFeatures, {
       style,
-      onEachFeature: onEachFeature,
-    });
-
-    function onEachFeature(feature, layer) {
-      console.log(feature);
-      console.log(layer);
-      console.log(editableLayers);
-      editableLayers.addLayer(layer.layer);
-    }
+    }).addTo(editableLayers);
   }
 
   /**
