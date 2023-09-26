@@ -31,6 +31,7 @@ export class EditLayerComponent implements OnInit {
   secondForm: FormGroup;
 
   queryDetails = {
+    id: "",
     city: "",
     filters: [],
     polygon: [],
@@ -169,12 +170,19 @@ export class EditLayerComponent implements OnInit {
 
     try {
       data = await this.apiServices.getSearch(this.apiServices.currentId);
-      await this.apiServices.getFilters("Helsinki");
+      await this.apiServices.getFilters("Helsinki"); //set to Helsinki for dev purposes
       //pushing fetch results in this.filters
       this.apiServices.apiFilters.forEach((element) => {
         this.filters.push(element);
       });
       this.initFiltersMap(data);
+      console.log(data);
+      this.queryDetails.id = data.id;
+      this.queryDetails.queryName = data.name;
+      this.queryDetails.city = data.city;
+      this.queryDetails.queryDescription = data.description;
+      data.filter.forEach((e) => this.queryDetails.filters.push(e));
+      this.queryDetails.geojsonFeatures = JSON.parse(data.query);
     } catch (error) {
       // Show a message in case of error
       console.error("API call failed:", error);
@@ -275,19 +283,19 @@ export class EditLayerComponent implements OnInit {
         longitude: this.queryDetails.polygon[0].longitude,
       };
       this.queryDetails.polygon.push(firstEdge);
+      this.queryDetails.geojsonFeatures.features = [];
+      this.queryDetails.geojsonFeatures.features.push(
+        Object({
+          type: "Feature",
+          geometry: {
+            type: "MultiPolygon",
+            coordinates: [
+              [this.queryDetails.polygon.map((e) => [e.longitude, e.latitude])],
+            ],
+          },
+        })
+      );
     }
-
-    this.queryDetails.geojsonFeatures.features.push(
-      Object({
-        type: "Feature",
-        geometry: {
-          type: "MultiPolygon",
-          coordinates: [
-            [this.queryDetails.polygon.map((e) => [e.longitude, e.latitude])],
-          ],
-        },
-      })
-    );
 
     try {
       if (
@@ -336,10 +344,7 @@ export class EditLayerComponent implements OnInit {
     try {
       if (this.queryDetails.queryName.length !== 0) {
         // Make the API call with the prepared data
-        await this.apiServices.updateSearch(
-          this.queryDetails,
-          this.apiServices.currentId
-        );
+        await this.apiServices.updateSearch(this.queryDetails);
       }
     } catch (error) {
       // Show a message in case of error

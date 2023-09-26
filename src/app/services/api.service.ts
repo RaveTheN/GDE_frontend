@@ -378,9 +378,9 @@ export class ApiService {
     });
   }
 
-  public async updateSearch(queryDetails: any, id: any) {
+  public async updateSearch(queryDetails: any) {
+    console.log(queryDetails);
     return new Promise((resolve, reject) => {
-      console.log(queryDetails);
       for (const filter of queryDetails.filters) {
         //extracting coordinates from apiPoints (which contains all the points obtained from the last search)
         //in alternative to apiPoints I could use overlayMaps from create-layer, which after a research contains the same data of apiPoints
@@ -390,7 +390,7 @@ export class ApiService {
         }
         const url = "http://127.0.0.1:9090/api/document/save/";
         const body = {
-          id: id,
+          id: queryDetails.id,
           userEmail: '"rita.gaeta@eng.it"',
           userID: '"f623a506-f803-4969-a5a2-5b9825643167"',
           city: queryDetails.city,

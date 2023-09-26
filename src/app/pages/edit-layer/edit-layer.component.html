@@ -97,6 +97,7 @@
                   'form-control-danger':
                     firstForm.invalid && (firstForm.dirty || firstForm.touched)
                 }"
+                [value]="queryDetails.queryName"
               />
             </div>
             <div>
@@ -106,6 +107,7 @@
                 type="text"
                 placeholder="Description"
                 formControlName="description"
+                [value]="queryDetails.queryDescription"
               ></textarea>
             </div>
           </div>
@@ -115,7 +117,7 @@
               [disabled]="secondForm.value.projectName === ''"
               type="button"
               class="btn-primary"
-              routerLink="pages\available-options"
+              (click)="onThirdSubmit()"
             >
               Save
             </button></a
