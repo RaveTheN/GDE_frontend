@@ -2,6 +2,8 @@ import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import * as L from "leaflet";
+import "leaflet-draw";
+import "leaflet-editable";
 import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
 import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
 import { ApiService } from "../../services/api.service";
@@ -86,8 +88,6 @@ export class CreateLayerComponent implements OnInit {
       layers: [this.osm],
     });
 
-    console.log(this.map._layers);
-
     // Initialise the FeatureGroup to store editable layers
     var editableLayers = new L.FeatureGroup();
     this.map.addLayer(editableLayers);
@@ -106,11 +106,29 @@ export class CreateLayerComponent implements OnInit {
     this.map.addControl(drawControl);
 
     //initialize function to draw areas inside the map
-    this.map.on(L.Draw.Event.CREATED, function (e: any) {
+    this.map.on("draw:created", function (e: any) {
       let drawingLayer = e.layer;
-      console.log(drawingLayer);
+      console.log(drawingLayer.editing);
       //layer in which we are going to draw the selecion areas
       editableLayers.addLayer(drawingLayer);
+    });
+
+    this.apiServices.currentLayer.forEach((element) => {
+      const style: any = {
+        color: "#3388ff",
+        opacity: 0.5,
+        weight: 4,
+      };
+
+      L.geoJSON(element, {
+        style,
+        onEachFeature(feature, layer) {
+          console.log(feature);
+          layer.addTo(editableLayers);
+        },
+      });
+
+      this.isDrawn = true;
     });
   }
 
@@ -129,11 +147,20 @@ export class CreateLayerComponent implements OnInit {
       //i must be > 3 as map._layers will always have at least 4 layers, if at least one drawing is present.
       layerCount > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
       console.log("isdrawn: " + this.isDrawn);
-      console.log(this.map._layers);
     }, 100);
   }
 
   // Usage: call checkDrawing() to check if there are drawings on the map.
+
+  saveDrawings() {
+    Object.values(this.map._layers).forEach(
+      (e: any) =>
+        Object.keys(e.options).toString() ===
+          "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable" &&
+        this.apiServices.currentLayer.push(e.toGeoJSON())
+    );
+    console.log(this.apiServices.currentLayer);
+  }
 
   /**
    * Step3 map rendering
@@ -345,6 +372,7 @@ export class CreateLayerComponent implements OnInit {
         this.overlayMaps = this.apiServices.apiPoints;
         console.log(this.overlayMaps);
       }
+      this.saveDrawings();
       this.isDrawn && this.isFilterOn
         ? this.stepper.next()
         : (this.hidingAlerts = false);

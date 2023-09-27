@@ -214,6 +214,8 @@ export class ApiService {
     });
   }
 
+  public currentLayer = []; //dev purposes only
+
   public async saveSearch(queryDetails: any) {
     return new Promise((resolve, reject) => {
       console.log(queryDetails);

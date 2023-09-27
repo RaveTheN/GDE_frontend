@@ -63,6 +63,7 @@
     "leaflet": "1.9.4",
     "leaflet-area-select": "^1.0.5",
     "leaflet-draw": "^1.0.4",
+    "leaflet-editable": "^1.2.0",
     "nebular-icons": "1.1.0",
     "ng2-ckeditor": "~1.2.9",
     "ng2-completer": "^9.0.1",
