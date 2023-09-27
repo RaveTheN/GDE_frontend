@@ -214,7 +214,7 @@ export class ApiService {
     });
   }
 
-  public currentLayer = []; //dev purposes only
+  public storedLayers = [];
 
   public async saveSearch(queryDetails: any) {
     return new Promise((resolve, reject) => {
@@ -232,7 +232,7 @@ export class ApiService {
           filter: [filter],
           name: queryDetails.queryName,
           description: queryDetails.queryDescription,
-          query: JSON.stringify(queryDetails.geojsonFeatures),
+          layers: queryDetails.layers,
           requestJson: {
             type: "Polygon/PointRadius/Multipolygon",
             value: queryDetails,

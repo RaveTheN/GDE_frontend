@@ -50,10 +50,7 @@ export class CreateLayerComponent implements OnInit {
     external: true,
     queryName: "",
     queryDescription: "",
-    geojsonFeatures: {
-      type: "FeatureCollection",
-      features: [],
-    },
+    layers: [],
   };
 
   /**
@@ -113,7 +110,7 @@ export class CreateLayerComponent implements OnInit {
       editableLayers.addLayer(drawingLayer);
     });
 
-    this.apiServices.currentLayer.forEach((element) => {
+    this.apiServices.storedLayers.forEach((element) => {
       const style: any = {
         color: "#3388ff",
         opacity: 0.5,
@@ -157,9 +154,9 @@ export class CreateLayerComponent implements OnInit {
       (e: any) =>
         Object.keys(e.options).toString() ===
           "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable" &&
-        this.apiServices.currentLayer.push(e.toGeoJSON())
+        this.apiServices.storedLayers.push(e.toGeoJSON())
     );
-    console.log(this.apiServices.currentLayer);
+    console.log(this.apiServices.storedLayers);
   }
 
   /**
@@ -331,18 +328,6 @@ export class CreateLayerComponent implements OnInit {
       this.queryDetails.polygon.push(firstEdge);
     }
 
-    this.queryDetails.geojsonFeatures.features.push(
-      Object({
-        type: "Feature",
-        geometry: {
-          type: "MultiPolygon",
-          coordinates: [
-            [this.queryDetails.polygon.map((e) => [e.longitude, e.latitude])],
-          ],
-        },
-      })
-    );
-
     try {
       if (
         this.queryDetails.filters.length !== 0 &&
@@ -387,7 +372,9 @@ export class CreateLayerComponent implements OnInit {
    * Step3 submit
    */
   onThirdSubmit() {
-    console.log(this.queryDetails);
+    this.apiServices.storedLayers.forEach((layer) => {
+      this.queryDetails.layers.push(JSON.stringify(layer));
+    });
   }
 
   /**
@@ -396,7 +383,6 @@ export class CreateLayerComponent implements OnInit {
   async onFourthSubmit() {
     this.queryDetails.queryName = this.thirdForm.value.projectName;
     this.queryDetails.queryDescription = this.thirdForm.value.description;
-    console.log(this.queryDetails);
     try {
       if (this.queryDetails.queryName.length !== 0) {
         // Make the API call with the prepared data

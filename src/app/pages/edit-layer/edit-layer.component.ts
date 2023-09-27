@@ -40,10 +40,7 @@ export class EditLayerComponent implements OnInit {
     external: true,
     queryName: "",
     queryDescription: "",
-    geojsonFeatures: {
-      type: "FeatureCollection",
-      features: [],
-    },
+    layers: [],
   };
 
   constructor(private apiServices: ApiService) {}
@@ -85,27 +82,29 @@ export class EditLayerComponent implements OnInit {
     this.map.addControl(drawControl);
 
     //initialize function to draw areas inside the map
-    this.map.on(L.Draw.Event.CREATED, function (e: any) {
+    this.map.on("draw:created", function (e: any) {
       let drawingLayer = e.layer;
       //layer in which we are going to draw the selecion areas
       editableLayers.addLayer(drawingLayer);
     });
 
-    console.log(data.query);
+    this.apiServices.storedLayers.forEach((element) => {
+      const style: any = {
+        color: "#3388ff",
+        opacity: 0.5,
+        weight: 4,
+      };
 
-    let geojsonFeatures: any = JSON.parse(data.query);
+      L.geoJSON(element, {
+        style,
+        onEachFeature(feature, layer) {
+          console.log(feature);
+          layer.addTo(editableLayers);
+        },
+      });
 
-    const style: any = {
-      color: "#3388ff",
-      opacity: 0.5,
-      weight: 4,
-    };
-
-    var newPolygons = L.geoJSON(null);
-
-    newPolygons = L.geoJSON(geojsonFeatures, {
-      style,
-    }).addTo(editableLayers);
+      this.isDrawn = true;
+    });
   }
 
   /**
@@ -173,14 +172,17 @@ export class EditLayerComponent implements OnInit {
       this.apiServices.apiFilters.forEach((element) => {
         this.filters.push(element);
       });
-      this.initFiltersMap(data);
       console.log(data);
       this.queryDetails.id = data.id;
       this.queryDetails.queryName = data.name;
       this.queryDetails.city = data.city;
       this.queryDetails.queryDescription = data.description;
       data.filter.forEach((e) => this.queryDetails.filters.push(e));
-      this.queryDetails.geojsonFeatures = JSON.parse(data.query);
+      data.layers.forEach((e) =>
+        this.apiServices.storedLayers.push(JSON.parse(e))
+      );
+
+      this.initFiltersMap(data);
     } catch (error) {
       // Show a message in case of error
       console.error("API call failed:", error);
@@ -281,18 +283,6 @@ export class EditLayerComponent implements OnInit {
         longitude: this.queryDetails.polygon[0].longitude,
       };
       this.queryDetails.polygon.push(firstEdge);
-      this.queryDetails.geojsonFeatures.features = [];
-      this.queryDetails.geojsonFeatures.features.push(
-        Object({
-          type: "Feature",
-          geometry: {
-            type: "MultiPolygon",
-            coordinates: [
-              [this.queryDetails.polygon.map((e) => [e.longitude, e.latitude])],
-            ],
-          },
-        })
-      );
     }
 
     try {
