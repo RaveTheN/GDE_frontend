@@ -128,6 +128,21 @@ export class EditLayerComponent implements OnInit {
 
   // Usage: call checkDrawing() to check if there are drawings on the map.
 
+  saveDrawings() {
+    this.apiServices.storedLayers = [];
+    Object.values(this.map._layers).forEach((e: any) => {
+      console.log(e);
+      if (
+        e.feature ||
+        Object.keys(e.options).toString() ===
+          "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable"
+      ) {
+        console.log(e);
+        this.apiServices.storedLayers.push(e.toGeoJSON());
+      }
+    });
+    console.log(this.apiServices.storedLayers);
+  }
   /**
    * Step3 map rendering
    */
@@ -314,6 +329,7 @@ export class EditLayerComponent implements OnInit {
         this.overlayMaps = this.apiServices.apiPoints;
         console.log(this.overlayMaps);
       }
+      this.saveDrawings();
       this.isDrawn && this.isFilterOn
         ? this.stepper.next()
         : (this.hidingAlerts = false);
@@ -327,6 +343,9 @@ export class EditLayerComponent implements OnInit {
    * Step2 submit
    */
   async onThirdSubmit() {
+    this.apiServices.storedLayers.forEach((layer) => {
+      this.queryDetails.layers.push(JSON.stringify(layer));
+    });
     this.queryDetails.queryName = this.secondForm.value.projectName;
     this.queryDetails.queryDescription = this.secondForm.value.description;
     try {

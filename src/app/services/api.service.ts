@@ -399,7 +399,7 @@ export class ApiService {
           filter: [filter],
           name: queryDetails.queryName,
           description: queryDetails.queryDescription,
-          query: JSON.stringify(queryDetails.geojsonFeatures),
+          layers: queryDetails.layers,
           requestJson: {
             type: "Polygon/PointRadius/Multipolygon",
             value: queryDetails,
