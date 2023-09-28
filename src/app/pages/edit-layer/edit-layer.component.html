@@ -12,26 +12,36 @@
             want to perform the research.
           </p>
           <div id="second-step-ui">
-            <div class="filters-checkbox-out">
-              <div class="filters-checkbox-in" *ngFor="let filter of filters">
-                <nb-checkbox
-                  formControlName="filters"
-                  (change)="onChange(filter)"
-                  >{{ filter }}</nb-checkbox
+            <div class="options-box">
+              <div class="filters-checkbox-out">
+                <div class="filters-checkbox-in" *ngFor="let filter of filters">
+                  <nb-checkbox
+                    formControlName="filters"
+                    (change)="onChange(filter)"
+                    >{{ filter }}</nb-checkbox
+                  >
+                </div>
+                <div
+                  [hidden]="
+                    hidingAlerts === true
+                      ? true
+                      : isFilterOn === true
+                      ? true
+                      : false
+                  "
+                  class="alert"
                 >
+                  !! Select at least one filter
+                </div>
               </div>
-              <div
-                [hidden]="
-                  hidingAlerts === true
-                    ? true
-                    : isFilterOn === true
-                    ? true
-                    : false
-                "
-                class="alert"
-              >
-                !! Select at least one filter
-              </div>
+              <!-- This select is hidden by deafult for now -->
+              <nb-select class="custom-select" [hidden]="true">
+                <nb-option
+                  *ngFor="let area of areas; let i = index"
+                  [value]="area.id"
+                  >{{ area.display }}</nb-option
+                >
+              </nb-select>
             </div>
             <div
               (mouseup)="checkDrawing()"

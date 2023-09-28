@@ -25,6 +25,12 @@ export class EditLayerComponent implements OnInit {
   isDrawn: boolean = false;
   //alert when not selecting a city
   citySelected: boolean = false;
+  //areas
+  areas: any[] = [
+    { id: 1, display: "Alppila" },
+    { id: 2, display: "Ruoholahti" },
+    { id: 3, display: "Lauttasaari" },
+  ];
 
   //forms declaration
   firstForm: FormGroup;
