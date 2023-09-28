@@ -7,7 +7,7 @@ import { ApiService } from "../../services/api.service";
   styleUrls: ["./available-options.component.scss"],
 })
 export class AvailableOptionsComponent implements OnInit {
-  previousSearches: any = this.apiServices.allProjects;
+  previousSearches: any = [];
 
   constructor(private apiServices: ApiService) {}
 
@@ -28,7 +28,7 @@ export class AvailableOptionsComponent implements OnInit {
 
   async ngOnInit() {
     try {
-      await this.apiServices.getAll();
+      this.previousSearches = await this.apiServices.getAll();
     } catch (error) {
       //Show a message in case of error
       console.error("API call failed:", error);

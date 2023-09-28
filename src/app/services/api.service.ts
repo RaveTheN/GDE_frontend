@@ -339,7 +339,9 @@ export class ApiService {
           }),
         })
         .subscribe((data: any) => {
-          console.log(data);
+          //remove leftover voices from previous usage
+          this.allProjects = [];
+          //insert new entries inside array
           data
             .map((e: any) =>
               Object({
@@ -350,7 +352,7 @@ export class ApiService {
               })
             )
             .forEach((e: any) => this.allProjects.push(e));
-          console.log(this.allProjects);
+          resolve(this.allProjects);
         }),
         (error) => {
           console.log(error);
