@@ -219,6 +219,7 @@ export class ApiService {
   public async saveSearch(queryDetails: any) {
     return new Promise((resolve, reject) => {
       console.log(queryDetails);
+      let featuresArray = [];
       for (const filter of queryDetails.filters) {
         //extracting coordinates from apiPoints (which contains all the points obtained from the last search)
         //in alternative to apiPoints I could use overlayMaps from create-layer, which after a research contains the same data of apiPoints
@@ -226,57 +227,55 @@ export class ApiService {
         for (let obj of Object.entries<any>(this.apiPoints[filter]._layers)) {
           coordinates.push([obj[1]._latlng.lat, obj[1]._latlng.lng]);
         }
-        const url = "http://127.0.0.1:9090/api/document/save/";
-        const body = {
-          city: queryDetails.city,
-          filter: [filter],
-          name: queryDetails.queryName,
-          description: queryDetails.queryDescription,
-          layers: queryDetails.layers,
-          requestJson: {
-            type: "Polygon/PointRadius/Multipolygon",
-            value: queryDetails,
-          },
-          geojson: {
+        featuresArray.push(
+          Object({
             type: "Feature",
-            features: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "Point",
-                  coordinates: [coordinates],
-                },
-                properties: {
-                  name: queryDetails.queryName,
-                },
-              },
-            ],
-          },
-        };
-        this.http
-          .post(url, body, {
-            headers: new HttpHeaders({
-              Authorization:
-                "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJCQUpfRm04T0tOdXlBaXB2MTA5VElsOENpdHpxWGlSR0FCUHI2NWx4M2c0In0.eyJleHAiOjE2ODMwMzIwOTYsImlhdCI6MTY4MzAzMTc5NiwiYXV0aF90aW1lIjoxNjgzMDMxNzk1LCJqdGkiOiJmNjZlYzg3MC1mMWM5LTQxM2UtODZiZS05ODU3ZGNlZjFlNGQiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODUvYXV0aC9yZWFsbXMvU3BvdHRlZCIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJmNjIzYTUwNi1mODAzLTQ5NjktYTVhMi01Yjk4MjU2NDMxNjciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzcG90dGVkIiwic2Vzc2lvbl9zdGF0ZSI6IjBmMDk3ZTExLTZmYjUtNGNhZC1iZDkzLTMwNjA5ZDZmMmQ3NiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJkZWZhdWx0LXJvbGVzLXNwb3R0ZWQiLCJ1bWFfYXV0aG9yaXphdGlvbiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIGVtYWlsIHByb2ZpbGUiLCJzaWQiOiIwZjA5N2UxMS02ZmI1LTRjYWQtYmQ5My0zMDYwOWQ2ZjJkNzYiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsIm5hbWUiOiJSaXRhIEdhZXRhIiwicHJlZmVycmVkX3VzZXJuYW1lIjoicml0YS5nYWV0YUBlbmcuaXQiLCJnaXZlbl9uYW1lIjoiUml0YSIsImZhbWlseV9uYW1lIjoiR2FldGEiLCJlbWFpbCI6InJpdGEuZ2FldGFAZW5nLml0In0.RVBSlrsLL7TRNSxEEXkP1F0RX0cw7cwEbVHPJg9-MNzYzWHDQJE0wDqFgL2u_d_E2I9B1vu5tLbL0pEEUnmnzj5cIsIz4eP2uGbq-0wIG08Xf3eZLQjd8ZvsIact5u_L_Cs400OUMVOsUyuq-B9k39_HevsaMbHIzHpaXiWKur6J77KzIcbg-UQ5sfq11HZMkrZnxNnHWvBJxdzV-ZQiD7Lav-_AGb32ZQ0zIb5sQ2LE-CI2_531LNjXOcHu8vG6wNarJ9XZgFeXfToe9W_y1LFJ1vJbv1RvIazZiXhJlCULbZ1XI0hP-lW1PAi3XonMKcVcT1B6EiGWQy2x3CqzGg",
-              "Content-Type": "application/json",
-            }),
-            responseType: "text",
+            geometry: {
+              type: "Point",
+              coordinates: [coordinates],
+            },
+            properties: {
+              name: filter,
+            },
           })
-          .subscribe((data) => {
-            resolve(console.log(data));
-          }),
-          (error) => {
-            console.log(error);
-            if (
-              error.status === 400 ||
-              error.error.text === "Request retrieved"
-            )
-              // Resolve with an error message if the request is successful but contains an error message
-              resolve(error.error.text);
-            // Reject the Promise with the error
-            else reject(error);
-          };
+        );
       }
+      const url = "http://127.0.0.1:9090/api/document/save/";
+      const body = {
+        city: queryDetails.city,
+        filter: queryDetails.filters,
+        name: queryDetails.queryName,
+        description: queryDetails.queryDescription,
+        layers: queryDetails.layers,
+        requestJson: {
+          type: "Polygon/PointRadius/Multipolygon",
+          value: queryDetails,
+        },
+        geojson: {
+          type: "Feature",
+          features: featuresArray,
+        },
+      };
+      this.http
+        .post(url, body, {
+          headers: new HttpHeaders({
+            Authorization:
+              "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJCQUpfRm04T0tOdXlBaXB2MTA5VElsOENpdHpxWGlSR0FCUHI2NWx4M2c0In0.eyJleHAiOjE2ODMwMzIwOTYsImlhdCI6MTY4MzAzMTc5NiwiYXV0aF90aW1lIjoxNjgzMDMxNzk1LCJqdGkiOiJmNjZlYzg3MC1mMWM5LTQxM2UtODZiZS05ODU3ZGNlZjFlNGQiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODUvYXV0aC9yZWFsbXMvU3BvdHRlZCIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJmNjIzYTUwNi1mODAzLTQ5NjktYTVhMi01Yjk4MjU2NDMxNjciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzcG90dGVkIiwic2Vzc2lvbl9zdGF0ZSI6IjBmMDk3ZTExLTZmYjUtNGNhZC1iZDkzLTMwNjA5ZDZmMmQ3NiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJkZWZhdWx0LXJvbGVzLXNwb3R0ZWQiLCJ1bWFfYXV0aG9yaXphdGlvbiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIGVtYWlsIHByb2ZpbGUiLCJzaWQiOiIwZjA5N2UxMS02ZmI1LTRjYWQtYmQ5My0zMDYwOWQ2ZjJkNzYiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsIm5hbWUiOiJSaXRhIEdhZXRhIiwicHJlZmVycmVkX3VzZXJuYW1lIjoicml0YS5nYWV0YUBlbmcuaXQiLCJnaXZlbl9uYW1lIjoiUml0YSIsImZhbWlseV9uYW1lIjoiR2FldGEiLCJlbWFpbCI6InJpdGEuZ2FldGFAZW5nLml0In0.RVBSlrsLL7TRNSxEEXkP1F0RX0cw7cwEbVHPJg9-MNzYzWHDQJE0wDqFgL2u_d_E2I9B1vu5tLbL0pEEUnmnzj5cIsIz4eP2uGbq-0wIG08Xf3eZLQjd8ZvsIact5u_L_Cs400OUMVOsUyuq-B9k39_HevsaMbHIzHpaXiWKur6J77KzIcbg-UQ5sfq11HZMkrZnxNnHWvBJxdzV-ZQiD7Lav-_AGb32ZQ0zIb5sQ2LE-CI2_531LNjXOcHu8vG6wNarJ9XZgFeXfToe9W_y1LFJ1vJbv1RvIazZiXhJlCULbZ1XI0hP-lW1PAi3XonMKcVcT1B6EiGWQy2x3CqzGg",
+            "Content-Type": "application/json",
+          }),
+          responseType: "text",
+        })
+        .subscribe((data) => {
+          resolve(console.log(data));
+        }),
+        (error) => {
+          console.log(error);
+          if (error.status === 400 || error.error.text === "Request retrieved")
+            // Resolve with an error message if the request is successful but contains an error message
+            resolve(error.error.text);
+          // Reject the Promise with the error
+          else reject(error);
+        };
     });
   }
 
@@ -295,23 +294,25 @@ export class ApiService {
         .subscribe((data: any) => {
           // Extract the 'filter' property from the API response
           let filter = data.filter;
-          this.apiPoints[filter] = L.layerGroup();
+          filter.forEach((element, index) => {
+            this.apiPoints[element] = L.layerGroup();
 
-          // Extract the coordinates of the search results and create markers for each
-          let markers =
-            data.geojson.properties.features[0].geometry.coordinates[0].map(
-              (coordinate: [number, number]) => {
-                // Create markers using the custom icon declared at the beginning and bind a popup with the filter name
-                return L.marker([coordinate[0], coordinate[1]], {
-                  icon: this.customIcon,
-                }).bindPopup(`${filter}`);
-              }
+            // Extract the coordinates of the search results and create markers for each
+            let markers = data.geojson.properties.features[
+              index
+            ].geometry.coordinates[0].map((coordinate: [number, number]) => {
+              // Create markers using the custom icon declared at the beginning and bind a popup with the filter name
+              return L.marker([coordinate[0], coordinate[1]], {
+                icon: this.customIcon,
+              }).bindPopup(`${element}`);
+            });
+
+            // Add markers to the corresponding layer group
+            markers.forEach((marker: L.Marker) =>
+              marker.addTo(this.apiPoints[element])
             );
-
-          // Add markers to the corresponding layer group
-          markers.forEach((marker: L.Marker) =>
-            marker.addTo(this.apiPoints[filter])
-          );
+          });
+          console.log(this.apiPoints);
 
           resolve(data);
         }),

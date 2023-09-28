@@ -182,7 +182,7 @@ export class EditLayerComponent implements OnInit {
 
     try {
       data = await this.apiServices.getSearch(this.apiServices.currentId);
-      await this.apiServices.getFilters("Helsinki"); //set to Helsinki for dev purposes
+      await this.apiServices.getFilters(data.city);
       //pushing fetch results in this.filters
       this.apiServices.apiFilters.forEach((element) => {
         this.filters.push(element);

@@ -79,8 +79,7 @@ export class CreateLayerComponent implements OnInit {
   //map for step 2
   private initFiltersMap(): void {
     this.map = L.map("map", {
-      //center: this.option[0],
-      center: [60.1699, 24.9384], //set to Helsinki for developing purposes
+      center: this.option[0],
       zoom: 12,
       layers: [this.osm],
     });
