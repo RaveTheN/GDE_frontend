@@ -39,7 +39,7 @@
   </ul>
   <script>
     window.addEventListener("message", (event, $scope) => {
-      document.cookie = "loggedin=" + event.data.accessToken;
+      localStorage.setItem("token", event.data.accessToken);
     });
   </script>
 </div>
