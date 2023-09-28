@@ -130,7 +130,9 @@ export class CreateLayerComponent implements OnInit {
   }
 
   /**
-   * Check
+   * Check if the number  of layers is higher than 3.
+   * In a map without any other kind of layers (eg: markers, circlemarkers),
+   * it confirms the presence of drawings created by the user
    */
   checkDrawing() {
     let layerCount = 0;
@@ -149,6 +151,10 @@ export class CreateLayerComponent implements OnInit {
 
   // Usage: call checkDrawing() to check if there are drawings on the map.
 
+  /**
+   * Checks inside the layers created by leaflet. If criteria are met,
+   * stores them in an array.
+   */
   saveDrawings() {
     Object.values(this.map._layers).forEach(
       (e: any) =>
@@ -156,7 +162,6 @@ export class CreateLayerComponent implements OnInit {
           "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable" &&
         this.apiServices.storedLayers.push(e.toGeoJSON())
     );
-    console.log(this.apiServices.storedLayers);
   }
 
   /**
@@ -358,9 +363,8 @@ export class CreateLayerComponent implements OnInit {
         this.overlayMaps = this.apiServices.apiPoints;
         console.log(this.overlayMaps);
       }
-      this.saveDrawings();
       this.isDrawn && this.isFilterOn
-        ? this.stepper.next()
+        ? (this.saveDrawings(), this.stepper.next())
         : (this.hidingAlerts = false);
     } catch (error) {
       this.loading = false;

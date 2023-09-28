@@ -27,6 +27,8 @@ export class AvailableOptionsComponent implements OnInit {
   }
 
   async ngOnInit() {
+    //remove entries in storedLayers previous unfinished researches
+    this.apiServices.storedLayers = [];
     try {
       this.previousSearches = await this.apiServices.getAll();
     } catch (error) {

@@ -241,7 +241,7 @@ export class EditLayerComponent implements OnInit {
         this.queryDetails.point = {};
         this.queryDetails.radius = 0;
         this.hidingAlerts = true;
-        this.isDrawn = true;
+        this.checkDrawing();
         this.isFilterOn = false;
         this.clearMap();
         setTimeout(() => this.initFiltersMap(), 100);
@@ -343,7 +343,7 @@ export class EditLayerComponent implements OnInit {
       }
       this.saveDrawings();
       this.isDrawn && this.isFilterOn
-        ? this.stepper.next()
+        ? (this.saveDrawings(), this.stepper.next())
         : (this.hidingAlerts = false);
     } catch (error) {
       // Show a message in case of error
