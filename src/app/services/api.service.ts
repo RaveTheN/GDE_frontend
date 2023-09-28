@@ -266,7 +266,7 @@ export class ApiService {
           responseType: "text",
         })
         .subscribe((data) => {
-          resolve(console.log(data));
+          resolve(data);
         }),
         (error) => {
           console.log(error);

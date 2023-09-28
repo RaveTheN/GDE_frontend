@@ -43,6 +43,7 @@ export class CreateLayerComponent implements OnInit {
   //object in which to store the data input by the user
   queryDetails = {
     city: "",
+    center: [],
     filters: [],
     polygon: [],
     point: {},
@@ -247,6 +248,7 @@ export class CreateLayerComponent implements OnInit {
   async onFirstSubmit() {
     this.citySelected = true;
     this.queryDetails.city = this.option[1];
+    this.queryDetails.center = this.option[0];
     if (this.queryDetails.city !== "" && this.firstForm.status !== "INVALID") {
       this.loading = true;
       try {

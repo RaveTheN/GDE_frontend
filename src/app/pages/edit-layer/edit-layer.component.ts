@@ -45,6 +45,8 @@ export class EditLayerComponent implements OnInit {
 
   constructor(private apiServices: ApiService) {}
 
+  centerCityFromApi: any = [];
+
   /**
    * Step 1 map rendering
    */
@@ -59,7 +61,7 @@ export class EditLayerComponent implements OnInit {
   //map for step 1
   private initFiltersMap(data: any = null): void {
     this.map = L.map("map", {
-      center: [60.1699, 24.9384], //!!! Temporary
+      center: this.centerCityFromApi,
       zoom: 12,
       layers: [this.osm],
     });
@@ -187,7 +189,17 @@ export class EditLayerComponent implements OnInit {
       this.apiServices.apiFilters.forEach((element) => {
         this.filters.push(element);
       });
-      console.log(data);
+      switch (data.city) {
+        case "Helsinki":
+          this.centerCityFromApi = [60.1699, 24.9384];
+          break;
+        case "Santander":
+          this.centerCityFromApi = [43.462776, -3.805];
+          break;
+        case "Antwerp":
+          this.centerCityFromApi = [51.2213, 4.4051];
+          break;
+      }
       this.queryDetails.id = data.id;
       this.queryDetails.queryName = data.name;
       this.queryDetails.city = data.city;

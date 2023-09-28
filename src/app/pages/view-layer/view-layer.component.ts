@@ -24,12 +24,13 @@ export class ViewLayerComponent implements OnInit {
 
   constructor(private apiServices: ApiService) {}
 
+  centerCityFromApi: any = [];
   /**
    * Initializes the map.
    */
   private initMap(): void {
     this.map = L.map("map", {
-      center: [60.1699, 24.9384],
+      center: this.centerCityFromApi,
       zoom: 12,
       layers: [this.osm],
     });
@@ -51,8 +52,21 @@ export class ViewLayerComponent implements OnInit {
   async ngOnInit() {
     try {
       // Fetch data from the API.
-      await this.apiServices.getSearch(this.apiServices.currentId);
+      let data: any = await this.apiServices.getSearch(
+        this.apiServices.currentId
+      );
       this.overlayMaps = this.apiServices.apiPoints;
+      switch (data.city) {
+        case "Helsinki":
+          this.centerCityFromApi = [60.1699, 24.9384];
+          break;
+        case "Santander":
+          this.centerCityFromApi = [43.462776, -3.805];
+          break;
+        case "Antwerp":
+          this.centerCityFromApi = [51.2213, 4.4051];
+          break;
+      }
     } catch (error) {
       // Handle API call failure.
       console.error("API call failed:", error);
