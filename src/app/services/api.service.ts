@@ -74,49 +74,73 @@ export class ApiService {
    * @param body - An object containing city, filter, and polygon data.
    * @returns A Promise that resolves when data is retrieved and markers are added.
    */
-  public async getPolygonData(body: {
+  public getPolygonData(body: {
     city: string;
     filter: string[];
     polygon: {}[];
-  }): Promise<void> {
-    try {
-      // Create an array to store all the HTTP request promises
-      const requestPromises: Promise<any>[] = [];
-
-      // Iterate through each filter
-      for (const filter of body.filter) {
-        this.apiPoints[filter] = L.layerGroup();
-        const url = `${environment.base_url}/api/polygondata/`;
-
-        // Create a promise for each HTTP request and push it to the array
-        const requestPromise = this.makeHttpRequest(url, {
-          city: body.city,
-          filter: [filter],
-          polygon: body.polygon,
-        });
-
-        requestPromises.push(requestPromise);
-      }
-
-      // Wait for all HTTP requests to complete
-      const responseDataArray = await Promise.all(requestPromises);
-
-      // Process and add markers to the map (see bottom for responseData example)
-      responseDataArray.forEach((responseData, index) => {
-        const filter = body.filter[index];
-        const markers = this.processMarkersCoordinates(
-          responseData[0].features
-        );
-
-        // Add markers to the corresponding layer group
-        markers.forEach((marker) => marker.addTo(this.apiPoints[filter]));
+  }): any {
+    return new Promise((resolve, reject) => {
+      //cycling once for each voice inside body.filter
+      body.filter.forEach((f) => {
+        //making a new key in apiPoint with the name of the current filter
+        this.apiPoints[f] = L.layerGroup();
+        const url = "http://localhost:9090/api/multipolygondata/";
+        this.http
+          .post<any>(
+            url,
+            { city: body.city, filter: [f], polygon: body.polygon },
+            {
+              headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST,PATCH,OPTIONS",
+              }),
+            }
+          )
+          .subscribe(
+            (data) => {
+              console.log(data);
+              resolve(
+                data.forEach((element) => {
+                  element.features
+                    .map((element: any) =>
+                      element.geometry === null
+                        ? L.marker(
+                            [
+                              element.properties.location.value.coordinates[1],
+                              element.properties.location.value.coordinates[0],
+                            ],
+                            {
+                              icon: this.customIcon,
+                            }
+                          ).bindPopup(`${element.properties.type}`)
+                        : L.marker(
+                            [
+                              element.geometry.coordinates[1],
+                              element.geometry.coordinates[0],
+                            ],
+                            {
+                              icon: this.customIcon,
+                            }
+                          ).bindPopup(`${element.properties.type}`)
+                    )
+                    .forEach((element) => element.addTo(this.apiPoints[f]));
+                })
+              );
+              console.log(this.apiPoints);
+            },
+            (error) => {
+              console.log(error);
+              if (
+                error.status === "200" ||
+                error.error.text === "Request retrieved"
+              )
+                resolve(error.error.text);
+              else reject(error);
+            }
+          );
       });
-
-      console.log(this.apiPoints);
-    } catch (error) {
-      console.error(error);
-      throw error; // Re-throw the error for proper handling elsewhere
-    }
+    });
   }
 
   /**

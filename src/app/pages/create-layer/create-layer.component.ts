@@ -302,14 +302,25 @@ export class CreateLayerComponent implements OnInit {
     for (layer of Object.values(this.map._layers)) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
       if (Array.isArray(layer._latlngs)) {
+        let polygonArray = [];
         // Flatten the nested array and push edges to the polygon array
         for (const latlng of layer._latlngs.flat()) {
           const edge = {
             latitude: latlng.lat,
             longitude: latlng.lng,
           };
-          this.queryDetails.polygon.push(edge);
+          polygonArray.push(edge);
+          console.log(polygonArray);
         }
+        // Push the first edge again to complete the polygon
+
+        const firstEdge = {
+          latitude: polygonArray[0].latitude,
+          longitude: polygonArray[0].longitude,
+        };
+        polygonArray.push(firstEdge);
+
+        this.queryDetails.polygon.push(polygonArray);
       } else if (layer._latlng && layer._radius) {
         this.queryDetails.point = {
           latitude: layer._latlng.lat,
@@ -325,15 +336,7 @@ export class CreateLayerComponent implements OnInit {
         );
       }
     }
-    // Push the first edge again to complete the polygon
-    if (this.queryDetails.polygon?.[0]) {
-      const firstEdge = {
-        latitude: this.queryDetails.polygon[0].latitude,
-        longitude: this.queryDetails.polygon[0].longitude,
-      };
-      this.queryDetails.polygon.push(firstEdge);
-    }
-
+    console.log(this.queryDetails.polygon);
     try {
       if (
         this.queryDetails.filters.length !== 0 &&
