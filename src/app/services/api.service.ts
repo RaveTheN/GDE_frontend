@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { rejects } from "assert";
+import { environment } from "../../environments/environment";
 import * as L from "leaflet";
 
 @Injectable({
@@ -34,7 +34,7 @@ export class ApiService {
    */
   public getFilters(cityValue: string) {
     return new Promise((resolve, reject) => {
-      const url = "http://localhost:9090/api/filter/";
+      const url = `${environment.base_url}/api/filter/`;
       this.http
         .post(url, JSON.stringify({ city: cityValue }), {
           headers: new HttpHeaders({
@@ -86,7 +86,7 @@ export class ApiService {
       // Iterate through each filter
       for (const filter of body.filter) {
         this.apiPoints[filter] = L.layerGroup();
-        const url = `http://localhost:9090/api/polygondata/`;
+        const url = `${environment.base_url}/api/polygondata/`;
 
         // Create a promise for each HTTP request and push it to the array
         const requestPromise = this.makeHttpRequest(url, {
@@ -139,7 +139,7 @@ export class ApiService {
       // Iterate through each filter
       for (const filter of body.filter) {
         this.apiPoints[filter] = L.layerGroup();
-        const url = `http://localhost:9090/api/pointradiusdata/`;
+        const url = `${environment.base_url}/api/pointradiusdata/`;
 
         // Create a promise for each HTTP request and push it to the array
         const requestPromise = this.makeHttpRequest(url, {
@@ -240,7 +240,7 @@ export class ApiService {
           })
         );
       }
-      const url = "http://127.0.0.1:9090/api/document/save/";
+      const url = `${environment.base_url}/api/document/save/`;
       const body = {
         city: queryDetails.city,
         filter: queryDetails.filters,
@@ -290,7 +290,7 @@ export class ApiService {
     return new Promise((resolve, reject) => {
       // Send an HTTP GET request to the API to retrieve search results for the provided IDs
       this.http
-        .get(`http://127.0.0.1:9090/api/document/${id}`)
+        .get(`${environment.base_url}/api/document/${id}`)
         .subscribe((data: any) => {
           // Extract the 'filter' property from the API response
           let filter = data.filter;
@@ -332,7 +332,7 @@ export class ApiService {
   public getAll() {
     return new Promise((resolve, reject) => {
       this.http
-        .get("http://127.0.0.1:9090/api/document/getdocuments", {
+        .get(`${environment.base_url}/api/document/getdocuments`, {
           headers: new HttpHeaders({
             Authorization:
               "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJCQUpfRm04T0tOdXlBaXB2MTA5VElsOENpdHpxWGlSR0FCUHI2NWx4M2c0In0.eyJleHAiOjE2ODMwMzIwOTYsImlhdCI6MTY4MzAzMTc5NiwiYXV0aF90aW1lIjoxNjgzMDMxNzk1LCJqdGkiOiJmNjZlYzg3MC1mMWM5LTQxM2UtODZiZS05ODU3ZGNlZjFlNGQiLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODUvYXV0aC9yZWFsbXMvU3BvdHRlZCIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJmNjIzYTUwNi1mODAzLTQ5NjktYTVhMi01Yjk4MjU2NDMxNjciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzcG90dGVkIiwic2Vzc2lvbl9zdGF0ZSI6IjBmMDk3ZTExLTZmYjUtNGNhZC1iZDkzLTMwNjA5ZDZmMmQ3NiIsImFjciI6IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJkZWZhdWx0LXJvbGVzLXNwb3R0ZWQiLCJ1bWFfYXV0aG9yaXphdGlvbiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIGVtYWlsIHByb2ZpbGUiLCJzaWQiOiIwZjA5N2UxMS02ZmI1LTRjYWQtYmQ5My0zMDYwOWQ2ZjJkNzYiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsIm5hbWUiOiJSaXRhIEdhZXRhIiwicHJlZmVycmVkX3VzZXJuYW1lIjoicml0YS5nYWV0YUBlbmcuaXQiLCJnaXZlbl9uYW1lIjoiUml0YSIsImZhbWlseV9uYW1lIjoiR2FldGEiLCJlbWFpbCI6InJpdGEuZ2FldGFAZW5nLml0In0.RVBSlrsLL7TRNSxEEXkP1F0RX0cw7cwEbVHPJg9-MNzYzWHDQJE0wDqFgL2u_d_E2I9B1vu5tLbL0pEEUnmnzj5cIsIz4eP2uGbq-0wIG08Xf3eZLQjd8ZvsIact5u_L_Cs400OUMVOsUyuq-B9k39_HevsaMbHIzHpaXiWKur6J77KzIcbg-UQ5sfq11HZMkrZnxNnHWvBJxdzV-ZQiD7Lav-_AGb32ZQ0zIb5sQ2LE-CI2_531LNjXOcHu8vG6wNarJ9XZgFeXfToe9W_y1LFJ1vJbv1RvIazZiXhJlCULbZ1XI0hP-lW1PAi3XonMKcVcT1B6EiGWQy2x3CqzGg",
@@ -368,7 +368,7 @@ export class ApiService {
   public deleteEntry(id: string) {
     return new Promise((resolve, reject) => {
       this.http
-        .delete(`http://127.0.0.1:9090/api/document/${id}`)
+        .delete(`${environment.base_url}/api/document/${id}`)
         .subscribe((data: any) => {
           resolve("entry deleted");
         }),
@@ -393,7 +393,7 @@ export class ApiService {
         for (let obj of Object.entries<any>(this.apiPoints[filter]._layers)) {
           coordinates.push([obj[1]._latlng.lat, obj[1]._latlng.lng]);
         }
-        const url = "http://127.0.0.1:9090/api/document/save/";
+        const url = `${environment.base_url}/api/document/save/`;
         const body = {
           id: queryDetails.id,
           userEmail: '"rita.gaeta@eng.it"',
