@@ -306,17 +306,32 @@ export class EditLayerComponent implements OnInit {
     for (layer of Object.values(this.map._layers)) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
       if (Array.isArray(layer._latlngs)) {
+        let polygonArray = [];
         // Flatten the nested array and push edges to the polygon array
         for (const latlng of layer._latlngs.flat()) {
           const edge = {
             latitude: latlng.lat,
             longitude: latlng.lng,
           };
-          this.queryDetails.polygon.push(edge);
+          polygonArray.push(edge);
+          console.log(polygonArray);
         }
-      } else if (layer._latlng && layer._radius) {
-        this.queryDetails.point = layer._latlng;
-        this.queryDetails.radius = layer._radius;
+        // Push the first edge again to complete the polygon
+
+        const firstEdge = {
+          latitude: polygonArray[0].latitude,
+          longitude: polygonArray[0].longitude,
+        };
+        polygonArray.push(firstEdge);
+
+        this.queryDetails.polygon.push(polygonArray);
+      }
+      if (layer._latlng && layer._radius) {
+        this.queryDetails.point = {
+          latitude: layer._latlng.lat,
+          longitude: layer._latlng.lng,
+        };
+        this.queryDetails.radius = layer._mRadius;
 
         console.log(
           "This is a circle: " +
@@ -326,49 +341,46 @@ export class EditLayerComponent implements OnInit {
         );
       }
     }
-    // Push the first edge again to complete the polygon
-    if (this.queryDetails.polygon?.[0]) {
-      const firstEdge = {
-        latitude: this.queryDetails.polygon[0].latitude,
-        longitude: this.queryDetails.polygon[0].longitude,
-      };
-      this.queryDetails.polygon.push(firstEdge);
-    }
-
+    console.log(this.queryDetails.polygon);
     try {
-      this.queryDetails.filters.length !== 0 &&
-      this.queryDetails.polygon.length !== 0
-        ? // Make the API call with the prepared data
-          await this.apiServices.getPolygonData({
-            city: this.queryDetails.city,
-            filter: this.queryDetails.filters,
-            polygon: this.queryDetails.polygon,
-          })
-        : null;
+      if (
+        this.queryDetails.filters.length !== 0 &&
+        this.queryDetails.polygon.length !== 0
+      ) {
+        // Make the API call with the prepared data
+        await this.apiServices.getPolygonData({
+          city: this.queryDetails.city,
+          filter: this.queryDetails.filters,
+          polygon: this.queryDetails.polygon,
+        });
 
-      this.queryDetails.filters.length !== 0 &&
-      Object.keys(this.queryDetails.point).length !== 0 &&
-      this.queryDetails.radius !== 0
-        ? await this.apiServices.getPointRadiusData({
-            city: this.queryDetails.city,
-            filter: this.queryDetails.filters,
-            point: this.queryDetails.point,
-            radius: this.queryDetails.radius,
-            external: true,
-          })
-        : null;
+        this.overlayMaps = this.apiServices.apiPoints;
+      }
+      if (
+        this.queryDetails.filters.length !== 0 &&
+        Object.keys(this.queryDetails.point).length !== 0 &&
+        this.queryDetails.radius !== 0
+      ) {
+        await this.apiServices.getPointRadiusData({
+          city: this.queryDetails.city,
+          filter: this.queryDetails.filters,
+          point: this.queryDetails.point,
+          radius: this.queryDetails.radius,
+          external: false,
+        });
 
-      this.overlayMaps = this.apiServices.apiPoints;
-      console.log(this.overlayMaps);
+        this.overlayMaps = this.apiServices.apiPoints;
+        console.log(this.overlayMaps);
+      }
+      this.isDrawn && this.isFilterOn
+        ? (this.saveDrawings(), this.stepper.next())
+        : (this.hidingAlerts = false);
+
+      console.log(this.apiServices.storedLayers);
     } catch (error) {
       // Show a message in case of error
       console.error("API call failed:", error);
     }
-
-    this.saveDrawings();
-    this.isDrawn && this.isFilterOn
-      ? (this.saveDrawings(), this.stepper.next())
-      : (this.hidingAlerts = false);
   }
 
   /**
