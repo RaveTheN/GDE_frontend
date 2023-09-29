@@ -119,6 +119,11 @@ export class CreateLayerComponent implements OnInit {
 
       L.geoJSON(element, {
         style,
+        pointToLayer(feature, latlng) {
+          if (feature.properties.radius) {
+            return new L.Circle(latlng, feature.properties.radius);
+          }
+        },
         onEachFeature(feature, layer) {
           console.log(feature);
           layer.addTo(editableLayers);
@@ -156,12 +161,22 @@ export class CreateLayerComponent implements OnInit {
    * stores them in an array.
    */
   saveDrawings() {
-    Object.values(this.map._layers).forEach(
-      (e: any) =>
+    Object.values(this.map._layers).forEach((e: any) => {
+      if (
         Object.keys(e.options).toString() ===
-          "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable" &&
-        this.apiServices.storedLayers.push(e.toGeoJSON())
-    );
+          "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable" ||
+        e._mRadius
+      ) {
+        //check: if the laye is from a circle, store the radius
+        const json = e.toGeoJSON();
+
+        if (e instanceof L.Circle) {
+          json.properties.radius = e.getRadius();
+        }
+
+        this.apiServices.storedLayers.push(json);
+      }
+    });
   }
 
   /**
