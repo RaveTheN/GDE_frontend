@@ -13,16 +13,15 @@
         <p class="project-name">
           {{ search.name }}
         </p>
-        <p>{{ search.id }}</p>
+        <p>{{ search.description }}</p>
       </div>
       <div>
         <p class="project-name">
-          {{ search.date }}
+          {{ search.city }}
         </p>
-        <p [hidden]="search.completed === true">Pending</p>
-        <p [hidden]="search.completed === false">Completed</p>
+        <p>{{ search.filters }}</p>
       </div>
-      <div>
+      <div class="project-buttons">
         <button
           class="btn-primary"
           routerLink="/pages/view-layer"

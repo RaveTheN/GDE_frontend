@@ -356,9 +356,9 @@ export class ApiService {
             .map((e: any) =>
               Object({
                 name: e.name,
-                id: e.id,
-                date: "2023-09-11",
-                completed: true,
+                description: e.description,
+                city: e.city,
+                filters: e.filter,
               })
             )
             .forEach((e: any) => this.allProjects.push(e));
