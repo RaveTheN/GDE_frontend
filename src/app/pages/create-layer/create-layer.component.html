@@ -5,14 +5,14 @@
         <form [formGroup]="firstForm" class="step-container">
           <div class="input-group" [class.spinner]="loading">
             <div>
-              <p>Select the city to apply filters to:</p>
+              <p>Select the region to apply filters to:</p>
               <p
                 [hidden]="
                   citySelected === false || firstForm.status === 'VALID'
                 "
                 class="alert"
               >
-                Please select a city first:
+                Please select a region first:
               </p>
               <nb-radio-group
                 formControlName="cityOptions"
