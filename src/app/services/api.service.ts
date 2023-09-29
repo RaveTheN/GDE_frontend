@@ -72,7 +72,6 @@ export class ApiService {
   /**
    * Retrieves polygon data for specified filters and adds markers to the map.
    * @param body - An object containing city, filter, and polygon data.
-   * @returns A Promise that resolves when data is retrieved and markers are added.
    */
   public getPolygonData(body: {
     city: string;
@@ -147,94 +146,81 @@ export class ApiService {
    * Retrieves circle data for specified filters and adds markers to the map.
    * @param body - An object containing city, filter, point, radius end external.
    * external - means whether to search inside or outside the shape.
-   * @returns A Promise that resolves when data is retrieved and markers are added.
    */
-  public async getPointRadiusData(body: {
+  public getPointRadiusData(body: {
     city: string;
     filter: string[];
     point: {};
     radius: Number;
     external: boolean; //true by default, for now
-  }): Promise<void> {
-    try {
-      // Create an array to store all the HTTP request promises
-      const requestPromises: Promise<any>[] = [];
-
-      // Iterate through each filter
-      for (const filter of body.filter) {
-        this.apiPoints[filter] = L.layerGroup();
+  }): any {
+    return new Promise((resolve, reject) => {
+      //cycling once for each voice inside body.filter
+      body.filter.forEach((f) => {
+        //making a new key in apiPoint with the name of the current filter
+        this.apiPoints[f] = L.layerGroup();
         const url = `${environment.base_url}/api/pointradiusdata/`;
-
-        // Create a promise for each HTTP request and push it to the array
-        const requestPromise = this.makeHttpRequest(url, {
-          city: body.city,
-          filter: [filter],
-          point: body.point,
-          radius: body.radius,
-          external: body.external,
-        });
-
-        requestPromises.push(requestPromise);
-      }
-
-      // Wait for all HTTP requests to complete
-      const responseDataArray = await Promise.all(requestPromises);
-
-      // Process and add markers to the map (see bottom for responseData example)
-      responseDataArray.forEach((responseData, index) => {
-        console.log(JSON.stringify(body));
-        const filter = body.filter[index];
-        const markers = this.processMarkersCoordinates(
-          responseData[0].features
-        );
-
-        // Add markers to the corresponding layer group
-        markers.forEach((marker) => marker.addTo(this.apiPoints[filter]));
+        this.http
+          .post<any>(
+            url,
+            {
+              city: body.city,
+              filter: [f],
+              point: body.point,
+              radius: body.radius,
+              external: body.external,
+            },
+            {
+              headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST,PATCH,OPTIONS",
+              }),
+            }
+          )
+          .subscribe(
+            (data) => {
+              console.log(data);
+              resolve(
+                data.forEach((element) => {
+                  element.features
+                    .map((element: any) =>
+                      element.geometry === null
+                        ? L.marker(
+                            [
+                              element.properties.location.value.coordinates[1],
+                              element.properties.location.value.coordinates[0],
+                            ],
+                            {
+                              icon: this.customIcon,
+                            }
+                          ).bindPopup(`${element.properties.type}`)
+                        : L.marker(
+                            [
+                              element.geometry.coordinates[1],
+                              element.geometry.coordinates[0],
+                            ],
+                            {
+                              icon: this.customIcon,
+                            }
+                          ).bindPopup(`${element.properties.type}`)
+                    )
+                    .forEach((element) => element.addTo(this.apiPoints[f]));
+                })
+              );
+              console.log(this.apiPoints);
+            },
+            (error) => {
+              console.log(error);
+              if (
+                error.status === "200" ||
+                error.error.text === "Request retrieved"
+              )
+                resolve(error.error.text);
+              else reject(error);
+            }
+          );
       });
-    } catch (error) {
-      console.error(error);
-      throw error; // Re-throw the error for proper handling elsewhere
-    }
-  }
-
-  /**
-   * Makes an HTTP POST request to the specified URL with the given data.
-   * @param url - The URL to send the request to.
-   * @param data - The data to send in the request body.
-   * @returns A Promise that resolves with the response data.
-   */
-  private makeHttpRequest(url: string, data: any): Promise<any> {
-    const headers = new HttpHeaders({
-      "Content-Type": "application/json",
-    });
-
-    return this.http
-      .post(url, data, { headers })
-      .toPromise()
-      .catch((error) => {
-        if (error.status === 200 || error.error?.text === "Request retrieved") {
-          return error.error.text;
-        } else {
-          throw error;
-        }
-      });
-  }
-
-  /**
-   * Processes the response data and creates markers.
-   * @param responseData - The response data from the HTTP request.
-   * @returns An array of markers.
-   */
-  private processMarkersCoordinates(responseData: any): L.Marker[] {
-    return responseData.map((element: any) => {
-      const coordinates =
-        element.geometry === null
-          ? element.properties.location.value.coordinates
-          : element.geometry.coordinates;
-
-      return L.marker([coordinates[1], coordinates[0]], {
-        icon: this.customIcon,
-      }).bindPopup(`${element.properties.type}`);
     });
   }
 

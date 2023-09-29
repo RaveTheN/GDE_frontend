@@ -131,6 +131,7 @@ export class CreateLayerComponent implements OnInit {
       });
 
       this.isDrawn = true;
+      this.apiServices.storedLayers = [];
     });
   }
 

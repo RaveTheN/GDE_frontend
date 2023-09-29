@@ -117,6 +117,7 @@ export class EditLayerComponent implements OnInit {
       });
 
       this.isDrawn = true;
+      this.apiServices.storedLayers = [];
     });
   }
 
@@ -335,42 +336,39 @@ export class EditLayerComponent implements OnInit {
     }
 
     try {
-      if (
-        this.queryDetails.filters.length !== 0 &&
-        this.queryDetails.polygon.length !== 0
-      ) {
-        // Make the API call with the prepared data
-        await this.apiServices.getPolygonData({
-          city: this.queryDetails.city,
-          filter: this.queryDetails.filters,
-          polygon: this.queryDetails.polygon,
-        });
+      this.queryDetails.filters.length !== 0 &&
+      this.queryDetails.polygon.length !== 0
+        ? // Make the API call with the prepared data
+          await this.apiServices.getPolygonData({
+            city: this.queryDetails.city,
+            filter: this.queryDetails.filters,
+            polygon: this.queryDetails.polygon,
+          })
+        : null;
 
-        this.overlayMaps = this.apiServices.apiPoints;
-      } else if (
-        this.queryDetails.filters.length !== 0 &&
-        Object.keys(this.queryDetails.point).length !== 0 &&
-        this.queryDetails.radius !== 0
-      ) {
-        await this.apiServices.getPointRadiusData({
-          city: this.queryDetails.city,
-          filter: this.queryDetails.filters,
-          point: this.queryDetails.point,
-          radius: this.queryDetails.radius,
-          external: true,
-        });
+      this.queryDetails.filters.length !== 0 &&
+      Object.keys(this.queryDetails.point).length !== 0 &&
+      this.queryDetails.radius !== 0
+        ? await this.apiServices.getPointRadiusData({
+            city: this.queryDetails.city,
+            filter: this.queryDetails.filters,
+            point: this.queryDetails.point,
+            radius: this.queryDetails.radius,
+            external: true,
+          })
+        : null;
 
-        this.overlayMaps = this.apiServices.apiPoints;
-        console.log(this.overlayMaps);
-      }
-      this.saveDrawings();
-      this.isDrawn && this.isFilterOn
-        ? (this.saveDrawings(), this.stepper.next())
-        : (this.hidingAlerts = false);
+      this.overlayMaps = this.apiServices.apiPoints;
+      console.log(this.overlayMaps);
     } catch (error) {
       // Show a message in case of error
       console.error("API call failed:", error);
     }
+
+    this.saveDrawings();
+    this.isDrawn && this.isFilterOn
+      ? (this.saveDrawings(), this.stepper.next())
+      : (this.hidingAlerts = false);
   }
 
   /**
