@@ -84,7 +84,7 @@ export class ApiService {
       body.filter.forEach((f) => {
         //making a new key in apiPoint with the name of the current filter
         this.apiPoints[f] = L.layerGroup();
-        const url = "http://localhost:9090/api/multipolygondata/";
+        const url = `${environment.base_url}/api/multipolygondata/`;
         this.http
           .post<any>(
             url,
