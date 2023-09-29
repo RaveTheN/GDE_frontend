@@ -163,11 +163,11 @@ export class CreateLayerComponent implements OnInit {
   saveDrawings() {
     Object.values(this.map._layers).forEach((e: any) => {
       if (
-        Object.keys(e.options).toString() ===
-          "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable" ||
-        e._mRadius
+        e instanceof L.Circle ||
+        e instanceof L.Polygon ||
+        e instanceof L.Polyline
       ) {
-        //check: if the laye is from a circle, store the radius
+        //check: if the layer is from a circle, store the radius
         const json = e.toGeoJSON();
 
         if (e instanceof L.Circle) {

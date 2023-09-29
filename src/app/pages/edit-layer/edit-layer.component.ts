@@ -105,6 +105,11 @@ export class EditLayerComponent implements OnInit {
 
       L.geoJSON(element, {
         style,
+        pointToLayer(feature, latlng) {
+          if (feature.properties.radius) {
+            return new L.Circle(latlng, feature.properties.radius);
+          }
+        },
         onEachFeature(feature, layer) {
           console.log(feature);
           layer.addTo(editableLayers);
@@ -136,21 +141,29 @@ export class EditLayerComponent implements OnInit {
 
   // Usage: call checkDrawing() to check if there are drawings on the map.
 
+  /**
+   * Checks inside the layers created by leaflet. If criteria are met,
+   * stores them in an array.
+   */
   saveDrawings() {
-    this.apiServices.storedLayers = [];
     Object.values(this.map._layers).forEach((e: any) => {
-      console.log(e);
       if (
-        e.feature ||
-        Object.keys(e.options).toString() ===
-          "stroke,color,weight,opacity,fill,fillColor,fillOpacity,clickable"
+        e instanceof L.Circle ||
+        e instanceof L.Polygon ||
+        e instanceof L.Polyline
       ) {
-        console.log(e);
-        this.apiServices.storedLayers.push(e.toGeoJSON());
+        //check: if the layer is from a circle, store the radius
+        const json = e.toGeoJSON();
+
+        if (e instanceof L.Circle) {
+          json.properties.radius = e.getRadius();
+        }
+
+        this.apiServices.storedLayers.push(json);
       }
     });
-    console.log(this.apiServices.storedLayers);
   }
+
   /**
    * Step3 map rendering
    */
