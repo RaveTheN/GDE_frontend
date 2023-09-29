@@ -159,7 +159,10 @@ export class EditLayerComponent implements OnInit {
           json.properties.radius = e.getRadius();
         }
 
-        this.apiServices.storedLayers.push(json);
+        //add layer only if it is not already stored
+        if (!this.apiServices.storedLayers.includes(json)) {
+          this.apiServices.storedLayers.push(json);
+        }
       }
     });
   }

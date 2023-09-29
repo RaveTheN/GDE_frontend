@@ -171,7 +171,7 @@ export class ApiService {
           filter: [filter],
           point: body.point,
           radius: body.radius,
-          external: false,
+          external: body.external,
         });
 
         requestPromises.push(requestPromise);

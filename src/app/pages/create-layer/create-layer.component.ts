@@ -174,7 +174,10 @@ export class CreateLayerComponent implements OnInit {
           json.properties.radius = e.getRadius();
         }
 
-        this.apiServices.storedLayers.push(json);
+        //add layer only if it is not already stored
+        if (!this.apiServices.storedLayers.includes(json)) {
+          this.apiServices.storedLayers.push(json);
+        }
       }
     });
   }
@@ -336,7 +339,8 @@ export class CreateLayerComponent implements OnInit {
         polygonArray.push(firstEdge);
 
         this.queryDetails.polygon.push(polygonArray);
-      } else if (layer._latlng && layer._radius) {
+      }
+      if (layer._latlng && layer._radius) {
         this.queryDetails.point = {
           latitude: layer._latlng.lat,
           longitude: layer._latlng.lng,
@@ -365,7 +369,8 @@ export class CreateLayerComponent implements OnInit {
         });
 
         this.overlayMaps = this.apiServices.apiPoints;
-      } else if (
+      }
+      if (
         this.queryDetails.filters.length !== 0 &&
         Object.keys(this.queryDetails.point).length !== 0 &&
         this.queryDetails.radius !== 0
@@ -375,7 +380,7 @@ export class CreateLayerComponent implements OnInit {
           filter: this.queryDetails.filters,
           point: this.queryDetails.point,
           radius: this.queryDetails.radius,
-          external: true,
+          external: false,
         });
 
         this.overlayMaps = this.apiServices.apiPoints;
@@ -384,6 +389,8 @@ export class CreateLayerComponent implements OnInit {
       this.isDrawn && this.isFilterOn
         ? (this.saveDrawings(), this.stepper.next())
         : (this.hidingAlerts = false);
+
+      console.log(this.apiServices.storedLayers);
     } catch (error) {
       this.loading = false;
       // Show a message in case of error
