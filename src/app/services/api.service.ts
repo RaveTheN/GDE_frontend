@@ -355,6 +355,7 @@ export class ApiService {
           data
             .map((e: any) =>
               Object({
+                id: e.id,
                 name: e.name,
                 description: e.description,
                 city: e.city,
