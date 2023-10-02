@@ -317,6 +317,7 @@ export class CreateLayerComponent implements OnInit {
   async onSecondSubmit() {
     var layer: any;
     this.queryDetails.polygon = [];
+    this.overlayMaps = {};
     this.apiServices.apiPoints = {};
     console.log(this.map._layers);
     this.isDrawn && this.isFilterOn && this.saveDrawings();
@@ -342,7 +343,8 @@ export class CreateLayerComponent implements OnInit {
         polygonArray.push(firstEdge);
 
         this.queryDetails.polygon.push(polygonArray);
-      } else if (layer._latlng && layer._radius) {
+        //controls if it is a circle
+      } else if (layer instanceof L.Circle) {
         for (layer of this.apiServices.storedLayers) {
           if (layer.properties.radius) {
             console.log(layer);
