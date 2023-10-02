@@ -162,6 +162,7 @@ export class CreateLayerComponent implements OnInit {
    * stores them in an array.
    */
   saveDrawings() {
+    this.apiServices.storedLayers = [];
     Object.values(this.map._layers).forEach((e: any) => {
       if (
         e instanceof L.Circle ||
@@ -318,6 +319,7 @@ export class CreateLayerComponent implements OnInit {
     this.queryDetails.polygon = [];
     this.apiServices.apiPoints = {};
     console.log(this.map._layers);
+    this.isDrawn && this.isFilterOn && this.saveDrawings();
     for (layer of Object.values(this.map._layers)) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
       if (Array.isArray(layer._latlngs)) {
@@ -340,20 +342,39 @@ export class CreateLayerComponent implements OnInit {
         polygonArray.push(firstEdge);
 
         this.queryDetails.polygon.push(polygonArray);
-      }
-      if (layer._latlng && layer._radius) {
-        this.queryDetails.point = {
-          latitude: layer._latlng.lat,
-          longitude: layer._latlng.lng,
-        };
-        this.queryDetails.radius = layer._mRadius;
+      } else if (layer._latlng && layer._radius) {
+        for (layer of this.apiServices.storedLayers) {
+          if (layer.properties.radius) {
+            console.log(layer);
+            try {
+              await this.apiServices.getPointRadiusData({
+                city: this.queryDetails.city,
+                filter: this.queryDetails.filters,
+                point: {
+                  latitude: layer.geometry.coordinates[1],
+                  longitude: layer.geometry.coordinates[0],
+                },
+                radius: layer.properties.radius,
+                external: false,
+              });
 
-        console.log(
-          "This is a circle: " +
-            this.queryDetails.point +
-            " " +
-            this.queryDetails.radius
-        );
+              Object.entries(this.apiServices.apiPoints).forEach(
+                (element: any) => {
+                  this.overlayMaps[element[0]]
+                    ? Object.assign(
+                        this.overlayMaps[element[0]]._layers,
+                        element[1]._layers
+                      )
+                    : (this.overlayMaps[element[0]] = element[1]);
+                }
+              );
+            } catch (error) {
+              this.loading = false;
+              // Show a message in case of error
+              console.error("API call failed:", error);
+            }
+          }
+        }
       }
     }
     console.log(this.queryDetails.polygon);
@@ -368,30 +389,19 @@ export class CreateLayerComponent implements OnInit {
           filter: this.queryDetails.filters,
           polygon: this.queryDetails.polygon,
         });
-
-        this.overlayMaps = this.apiServices.apiPoints;
-      }
-      if (
-        this.queryDetails.filters.length !== 0 &&
-        Object.keys(this.queryDetails.point).length !== 0 &&
-        this.queryDetails.radius !== 0
-      ) {
-        await this.apiServices.getPointRadiusData({
-          city: this.queryDetails.city,
-          filter: this.queryDetails.filters,
-          point: this.queryDetails.point,
-          radius: this.queryDetails.radius,
-          external: false,
+        Object.entries(this.apiServices.apiPoints).forEach((element: any) => {
+          this.overlayMaps[element[0]]
+            ? Object.assign(
+                this.overlayMaps[element[0]]._layers,
+                element[1]._layers
+              )
+            : (this.overlayMaps[element[0]] = element[1]);
         });
-
-        this.overlayMaps = this.apiServices.apiPoints;
-        console.log(this.overlayMaps);
       }
+
       this.isDrawn && this.isFilterOn
         ? (this.saveDrawings(), this.stepper.next())
         : (this.hidingAlerts = false);
-
-      console.log(this.apiServices.storedLayers);
     } catch (error) {
       this.loading = false;
       // Show a message in case of error
