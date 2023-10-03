@@ -321,30 +321,21 @@ export class CreateLayerComponent implements OnInit {
     this.apiServices.apiPoints = {};
     console.log(this.map._layers);
     this.isDrawn && this.isFilterOn && this.saveDrawings();
-    for (layer of Object.values(this.map._layers)) {
+    for (layer of this.apiServices.storedLayers) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
-      if (Array.isArray(layer._latlngs)) {
+      if (!layer.properties.radius) {
         let polygonArray = [];
         // Flatten the nested array and push edges to the polygon array
-        for (const latlng of layer._latlngs.flat()) {
+        for (const coordinate of layer.geometry.coordinates.flat()) {
           const edge = {
-            latitude: latlng.lat,
-            longitude: latlng.lng,
+            latitude: coordinate[1],
+            longitude: coordinate[0],
           };
           polygonArray.push(edge);
-          console.log(polygonArray);
         }
-        // Push the first edge again to complete the polygon
-
-        const firstEdge = {
-          latitude: polygonArray[0].latitude,
-          longitude: polygonArray[0].longitude,
-        };
-        polygonArray.push(firstEdge);
 
         this.queryDetails.polygon.push(polygonArray);
-        //controls if it is a circle
-      } else if (layer instanceof L.Circle) {
+      } else {
         for (layer of this.apiServices.storedLayers) {
           if (layer.properties.radius) {
             console.log(layer);

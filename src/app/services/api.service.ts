@@ -79,6 +79,7 @@ export class ApiService {
     polygon: {}[];
   }): any {
     return new Promise((resolve, reject) => {
+      console.log(body);
       //cycling once for each voice inside body.filter
       body.filter.forEach((f) => {
         //making a new key in apiPoint with the name of the current filter
