@@ -148,28 +148,20 @@ export class ApiService {
    * @param body - An object containing city, filter, point, radius end external.
    * external - means whether to search inside or outside the shape.
    */
-  public getPointRadiusData(body: {
-    city: string;
-    filter: string[];
-    point: {};
-    radius: Number;
-    external: boolean; //true by default, for now
-  }): any {
+  public getPointRadiusData(body: any): any {
     return new Promise((resolve, reject) => {
       //cycling once for each voice inside body.filter
       body.filter.forEach((f) => {
         //making a new key in apiPoint with the name of the current filter
         this.apiPoints[f] = L.layerGroup();
-        const url = `${environment.base_url}/api/pointradiusdata/`;
+        const url = `${environment.base_url}/api/multipointradiusdata/`;
         this.http
           .post<any>(
             url,
             {
               city: body.city,
               filter: [f],
-              point: body.point,
-              radius: body.radius,
-              external: body.external,
+              multipoint: body.multipoint,
             },
             {
               headers: new HttpHeaders({

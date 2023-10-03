@@ -45,10 +45,8 @@ export class CreateLayerComponent implements OnInit {
     city: "",
     center: [],
     filters: [],
-    polygon: [],
-    point: {},
-    radius: 0,
-    external: true,
+    polygons: [],
+    circles: [],
     queryName: "",
     queryDescription: "",
     layers: [],
@@ -251,9 +249,8 @@ export class CreateLayerComponent implements OnInit {
       case 1:
         this.secondForm.reset();
         this.selectedFilters = [];
-        this.queryDetails.polygon = [];
-        this.queryDetails.point = {};
-        this.queryDetails.radius = 0;
+        this.queryDetails.polygons = [];
+        this.queryDetails.circles = [];
         this.isDrawn = false;
         this.hidingAlerts = true;
         this.isFilterOn = false;
@@ -316,7 +313,7 @@ export class CreateLayerComponent implements OnInit {
    */
   async onSecondSubmit() {
     var layer: any;
-    this.queryDetails.polygon = [];
+    this.queryDetails.polygons = [];
     this.overlayMaps = {};
     this.apiServices.apiPoints = {};
     console.log(this.map._layers);
@@ -334,54 +331,44 @@ export class CreateLayerComponent implements OnInit {
           polygonArray.push(edge);
         }
 
-        this.queryDetails.polygon.push(polygonArray);
+        this.queryDetails.polygons.push(polygonArray);
       } else {
-        for (layer of this.apiServices.storedLayers) {
-          if (layer.properties.radius) {
-            console.log(layer);
-            try {
-              await this.apiServices.getPointRadiusData({
-                city: this.queryDetails.city,
-                filter: this.queryDetails.filters,
-                point: {
-                  latitude: layer.geometry.coordinates[1],
-                  longitude: layer.geometry.coordinates[0],
-                },
-                radius: layer.properties.radius,
-                external: false,
-              });
-
-              Object.entries(this.apiServices.apiPoints).forEach(
-                (element: any) => {
-                  this.overlayMaps[element[0]]
-                    ? Object.assign(
-                        this.overlayMaps[element[0]]._layers,
-                        element[1]._layers
-                      )
-                    : (this.overlayMaps[element[0]] = element[1]);
-                }
-              );
-            } catch (error) {
-              this.loading = false;
-              // Show a message in case of error
-              console.error("API call failed:", error);
-            }
-          }
-        }
+        this.queryDetails.circles.push(
+          Object({
+            point: {
+              latitude: layer.geometry.coordinates[1],
+              longitude: layer.geometry.coordinates[0],
+            },
+            radius: layer.properties.radius,
+            external: false,
+          })
+        );
       }
     }
-    console.log(this.queryDetails.polygon);
     try {
-      if (
-        this.queryDetails.filters.length !== 0 &&
-        this.queryDetails.polygon.length !== 0
-      ) {
+      if (this.queryDetails.polygons.length !== 0) {
         // Make the API call with the prepared data
         await this.apiServices.getPolygonData({
           city: this.queryDetails.city,
           filter: this.queryDetails.filters,
-          polygon: this.queryDetails.polygon,
+          polygon: this.queryDetails.polygons,
         });
+        Object.entries(this.apiServices.apiPoints).forEach((element: any) => {
+          this.overlayMaps[element[0]]
+            ? Object.assign(
+                this.overlayMaps[element[0]]._layers,
+                element[1]._layers
+              )
+            : (this.overlayMaps[element[0]] = element[1]);
+        });
+      }
+      if (this.queryDetails.circles.length !== 0) {
+        await this.apiServices.getPointRadiusData({
+          city: this.queryDetails.city,
+          filter: this.queryDetails.filters,
+          multipoint: this.queryDetails.circles,
+        });
+
         Object.entries(this.apiServices.apiPoints).forEach((element: any) => {
           this.overlayMaps[element[0]]
             ? Object.assign(
@@ -393,10 +380,9 @@ export class CreateLayerComponent implements OnInit {
       }
 
       this.isDrawn && this.isFilterOn
-        ? (this.saveDrawings(), this.stepper.next())
+        ? this.stepper.next()
         : (this.hidingAlerts = false);
     } catch (error) {
-      this.loading = false;
       // Show a message in case of error
       console.error("API call failed:", error);
     }

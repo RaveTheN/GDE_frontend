@@ -40,10 +40,8 @@ export class EditLayerComponent implements OnInit {
     id: "",
     city: "",
     filters: [],
-    polygon: [],
-    point: {},
-    radius: 0,
-    external: true,
+    polygons: [],
+    circles: [],
     queryName: "",
     queryDescription: "",
     layers: [],
@@ -147,6 +145,7 @@ export class EditLayerComponent implements OnInit {
    * stores them in an array.
    */
   saveDrawings() {
+    this.apiServices.storedLayers = [];
     Object.values(this.map._layers).forEach((e: any) => {
       if (
         e instanceof L.Circle ||
@@ -260,9 +259,8 @@ export class EditLayerComponent implements OnInit {
       case 0:
         this.firstForm.reset();
         this.selectedFilters = [];
-        this.queryDetails.polygon = [];
-        this.queryDetails.point = {};
-        this.queryDetails.radius = 0;
+        this.queryDetails.polygons = [];
+        this.queryDetails.circles = [];
         this.hidingAlerts = true;
         this.checkDrawing();
         this.isFilterOn = false;
@@ -300,83 +298,75 @@ export class EditLayerComponent implements OnInit {
    */
   async onFirstSubmit() {
     var layer: any;
-    this.queryDetails.polygon = [];
+    this.queryDetails.polygons = [];
+    this.overlayMaps = {};
     this.apiServices.apiPoints = {};
     console.log(this.map._layers);
-    for (layer of Object.values(this.map._layers)) {
+    this.isDrawn && this.isFilterOn && this.saveDrawings();
+    for (layer of this.apiServices.storedLayers) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
-      if (Array.isArray(layer._latlngs)) {
+      if (!layer.properties.radius) {
         let polygonArray = [];
         // Flatten the nested array and push edges to the polygon array
-        for (const latlng of layer._latlngs.flat()) {
+        for (const coordinate of layer.geometry.coordinates.flat()) {
           const edge = {
-            latitude: latlng.lat,
-            longitude: latlng.lng,
+            latitude: coordinate[1],
+            longitude: coordinate[0],
           };
           polygonArray.push(edge);
-          console.log(polygonArray);
         }
-        // Push the first edge again to complete the polygon
 
-        const firstEdge = {
-          latitude: polygonArray[0].latitude,
-          longitude: polygonArray[0].longitude,
-        };
-        polygonArray.push(firstEdge);
-
-        this.queryDetails.polygon.push(polygonArray);
-      }
-      if (layer._latlng && layer._radius) {
-        this.queryDetails.point = {
-          latitude: layer._latlng.lat,
-          longitude: layer._latlng.lng,
-        };
-        this.queryDetails.radius = layer._mRadius;
-
-        console.log(
-          "This is a circle: " +
-            this.queryDetails.point +
-            " " +
-            this.queryDetails.radius
+        this.queryDetails.polygons.push(polygonArray);
+      } else {
+        this.queryDetails.circles.push(
+          Object({
+            point: {
+              latitude: layer.geometry.coordinates[1],
+              longitude: layer.geometry.coordinates[0],
+            },
+            radius: layer.properties.radius,
+            external: false,
+          })
         );
       }
     }
-    console.log(this.queryDetails.polygon);
     try {
-      if (
-        this.queryDetails.filters.length !== 0 &&
-        this.queryDetails.polygon.length !== 0
-      ) {
+      if (this.queryDetails.polygons.length !== 0) {
         // Make the API call with the prepared data
         await this.apiServices.getPolygonData({
           city: this.queryDetails.city,
           filter: this.queryDetails.filters,
-          polygon: this.queryDetails.polygon,
+          polygon: this.queryDetails.polygons,
         });
-
-        this.overlayMaps = this.apiServices.apiPoints;
+        Object.entries(this.apiServices.apiPoints).forEach((element: any) => {
+          this.overlayMaps[element[0]]
+            ? Object.assign(
+                this.overlayMaps[element[0]]._layers,
+                element[1]._layers
+              )
+            : (this.overlayMaps[element[0]] = element[1]);
+        });
       }
-      if (
-        this.queryDetails.filters.length !== 0 &&
-        Object.keys(this.queryDetails.point).length !== 0 &&
-        this.queryDetails.radius !== 0
-      ) {
+      if (this.queryDetails.circles.length !== 0) {
         await this.apiServices.getPointRadiusData({
           city: this.queryDetails.city,
           filter: this.queryDetails.filters,
-          point: this.queryDetails.point,
-          radius: this.queryDetails.radius,
-          external: false,
+          multipoint: this.queryDetails.circles,
         });
 
-        this.overlayMaps = this.apiServices.apiPoints;
-        console.log(this.overlayMaps);
+        Object.entries(this.apiServices.apiPoints).forEach((element: any) => {
+          this.overlayMaps[element[0]]
+            ? Object.assign(
+                this.overlayMaps[element[0]]._layers,
+                element[1]._layers
+              )
+            : (this.overlayMaps[element[0]] = element[1]);
+        });
       }
-      this.isDrawn && this.isFilterOn
-        ? (this.saveDrawings(), this.stepper.next())
-        : (this.hidingAlerts = false);
 
-      console.log(this.apiServices.storedLayers);
+      this.isDrawn && this.isFilterOn
+        ? this.stepper.next()
+        : (this.hidingAlerts = false);
     } catch (error) {
       // Show a message in case of error
       console.error("API call failed:", error);
