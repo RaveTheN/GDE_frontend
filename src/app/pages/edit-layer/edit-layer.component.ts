@@ -301,7 +301,6 @@ export class EditLayerComponent implements OnInit {
     this.queryDetails.polygons = [];
     this.overlayMaps = {};
     this.apiServices.apiPoints = {};
-    console.log(this.map._layers);
     this.isDrawn && this.isFilterOn && this.saveDrawings();
     for (layer of this.apiServices.storedLayers) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
@@ -338,14 +337,6 @@ export class EditLayerComponent implements OnInit {
           filter: this.queryDetails.filters,
           polygon: this.queryDetails.polygons,
         });
-        Object.entries(this.apiServices.apiPoints).forEach((element: any) => {
-          this.overlayMaps[element[0]]
-            ? Object.assign(
-                this.overlayMaps[element[0]]._layers,
-                element[1]._layers
-              )
-            : (this.overlayMaps[element[0]] = element[1]);
-        });
       }
       if (this.queryDetails.circles.length !== 0) {
         await this.apiServices.getPointRadiusData({
@@ -353,16 +344,17 @@ export class EditLayerComponent implements OnInit {
           filter: this.queryDetails.filters,
           multipoint: this.queryDetails.circles,
         });
-
-        Object.entries(this.apiServices.apiPoints).forEach((element: any) => {
-          this.overlayMaps[element[0]]
-            ? Object.assign(
-                this.overlayMaps[element[0]]._layers,
-                element[1]._layers
-              )
-            : (this.overlayMaps[element[0]] = element[1]);
-        });
       }
+      Object.entries(this.apiServices.apiPoints).forEach((element: any) => {
+        console.log(element);
+        let filterName = element[0];
+        this.overlayMaps[filterName]
+          ? Object.assign(
+              this.overlayMaps[filterName]._layers,
+              element[1]._layers
+            )
+          : (this.overlayMaps[filterName] = element[1]);
+      });
 
       this.isDrawn && this.isFilterOn
         ? this.stepper.next()
