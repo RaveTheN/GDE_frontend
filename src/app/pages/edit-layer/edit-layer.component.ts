@@ -25,6 +25,8 @@ export class EditLayerComponent implements OnInit {
   isDrawn: boolean = false;
   //alert when not selecting a city
   citySelected: boolean = false;
+  //controlling the loading spinner
+  loading = false;
   //areas
   areas: any[] = [
     { id: 1, display: "Alppila" },
@@ -205,8 +207,11 @@ export class EditLayerComponent implements OnInit {
     });
 
     try {
+      this.loading = true;
       data = await this.apiServices.getSearch(this.apiServices.currentId);
       await this.apiServices.getFilters(data.city);
+
+      this.loading = false;
       //pushing fetch results in this.filters
       this.apiServices.apiFilters.forEach((element) => {
         this.filters.push(element);
@@ -234,6 +239,7 @@ export class EditLayerComponent implements OnInit {
       this.initFiltersMap(data);
     } catch (error) {
       // Show a message in case of error
+      this.loading = false;
       console.error("API call failed:", error);
     }
   }
