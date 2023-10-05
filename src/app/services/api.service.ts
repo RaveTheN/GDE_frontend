@@ -79,7 +79,6 @@ export class ApiService {
     polygon: {}[];
   }): any {
     return new Promise((resolve, reject) => {
-      console.log(body);
       //cycling once for each voice inside body.filter
       body.filter.forEach((f) => {
         //making a new key in apiPoint with the name of the current filter
@@ -99,7 +98,6 @@ export class ApiService {
           )
           .subscribe(
             (data) => {
-              console.log(data);
               resolve(
                 data.forEach((element) => {
                   element.features
@@ -127,7 +125,6 @@ export class ApiService {
                     .forEach((element) => element.addTo(this.apiPoints[f]));
                 })
               );
-              console.log(this.apiPoints);
             },
             (error) => {
               console.log(error);
@@ -173,7 +170,6 @@ export class ApiService {
           )
           .subscribe(
             (data) => {
-              console.log(data);
               resolve(
                 data.forEach((element) => {
                   element.features
@@ -201,7 +197,6 @@ export class ApiService {
                     .forEach((element) => element.addTo(this.apiPoints[f]));
                 })
               );
-              console.log(this.apiPoints);
             },
             (error) => {
               console.log(error);
@@ -221,7 +216,6 @@ export class ApiService {
 
   public async saveSearch(queryDetails: any) {
     return new Promise((resolve, reject) => {
-      console.log(queryDetails);
       let featuresArray = [];
       for (const filter of queryDetails.filters) {
         //extracting coordinates from apiPoints (which contains all the points obtained from the last search)
@@ -315,7 +309,6 @@ export class ApiService {
               marker.addTo(this.apiPoints[element])
             );
           });
-          console.log(this.apiPoints);
 
           resolve(data);
         }),
@@ -388,7 +381,6 @@ export class ApiService {
   }
 
   public async updateSearch(queryDetails: any) {
-    console.log(queryDetails);
     return new Promise((resolve, reject) => {
       for (const filter of queryDetails.filters) {
         //extracting coordinates from apiPoints (which contains all the points obtained from the last search)
@@ -437,7 +429,7 @@ export class ApiService {
             responseType: "text",
           })
           .subscribe((data) => {
-            resolve(console.log(data));
+            resolve(data);
           }),
           (error) => {
             console.log(error);

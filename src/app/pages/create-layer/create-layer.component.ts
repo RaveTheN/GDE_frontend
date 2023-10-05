@@ -103,7 +103,6 @@ export class CreateLayerComponent implements OnInit {
     //initialize function to draw areas inside the map
     this.map.on("draw:created", function (e: any) {
       let drawingLayer = e.layer;
-      console.log(drawingLayer.editing);
       //layer in which we are going to draw the selecion areas
       editableLayers.addLayer(drawingLayer);
     });
@@ -123,7 +122,6 @@ export class CreateLayerComponent implements OnInit {
           }
         },
         onEachFeature(feature, layer) {
-          console.log(feature);
           layer.addTo(editableLayers);
         },
       });
@@ -149,7 +147,7 @@ export class CreateLayerComponent implements OnInit {
 
       //i must be > 3 as map._layers will always have at least 4 layers, if at least one drawing is present.
       layerCount > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
-      console.log("isdrawn: " + this.isDrawn);
+      // console.log("isdrawn: " + this.isDrawn);
     }, 100);
   }
 
@@ -316,7 +314,6 @@ export class CreateLayerComponent implements OnInit {
     this.queryDetails.polygons = [];
     this.overlayMaps = {};
     this.apiServices.apiPoints = {};
-    console.log(this.map._layers);
     this.isDrawn && this.isFilterOn && this.saveDrawings();
     for (layer of this.apiServices.storedLayers) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
