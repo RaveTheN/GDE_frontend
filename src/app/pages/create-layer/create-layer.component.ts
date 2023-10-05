@@ -57,7 +57,7 @@ export class CreateLayerComponent implements OnInit {
    */
   options = [
     { value: [[60.1699, 24.9384], "Helsinki"], label: "Helsinki" },
-    { value: [[51.0501, 3.7303], "Flanders"], label: "Flanders" },
+    { value: [[51.05, 3.7303], "Flanders"], label: "Flanders" },
     { value: [[43.462776, -3.805], "Santander"], label: "Santander" },
   ];
   option: any;
@@ -79,7 +79,7 @@ export class CreateLayerComponent implements OnInit {
   private initFiltersMap(): void {
     this.map = L.map("map", {
       center: this.option[0],
-      zoom: 14,
+      zoom: this.option[1] === "Flanders" ? 9 : 12,
       layers: [this.osm],
     });
 
@@ -191,7 +191,7 @@ export class CreateLayerComponent implements OnInit {
   public initFinalMap(): void {
     this.map = L.map("map", {
       center: this.option[0],
-      zoom: 14,
+      zoom: this.option[1] === "Flanders" ? 9 : 12,
       layers: [this.osm],
     });
 

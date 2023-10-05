@@ -292,8 +292,8 @@ export class ApiService {
         .subscribe((data: any) => {
           // Extract the 'filter' property from the API response
           let filter = data.filter;
-          filter.forEach((filterName, index) => {
-            this.apiPoints[filterName] = L.layerGroup();
+          filter.forEach((element, index) => {
+            this.apiPoints[element] = L.layerGroup();
             console.log(data);
 
             // Extract the coordinates of the search results and create markers for each
@@ -303,12 +303,12 @@ export class ApiService {
               // Create markers using the custom icon declared at the beginning and bind a popup with the filter name
               return L.marker([coordinate[0], coordinate[1]], {
                 icon: this.customIcon,
-              }).bindPopup(`${filterName}`);
+              }).bindPopup(`${element}`);
             });
 
             // Add markers to the corresponding layer group
             markers.forEach((marker: L.Marker) =>
-              marker.addTo(this.apiPoints[filterName])
+              marker.addTo(this.apiPoints[element])
             );
           });
 

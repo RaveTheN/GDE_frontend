@@ -63,8 +63,8 @@ export class ViewLayerComponent implements OnInit {
         case "Santander":
           this.centerCityFromApi = [43.462776, -3.805];
           break;
-        case "Flanders":
-          this.centerCityFromApi = [51.0501, 3.7303];
+        case "Antwerp":
+          this.centerCityFromApi = [51.2213, 4.4051];
           break;
       }
     } catch (error) {
