@@ -179,7 +179,7 @@ export class EditLayerComponent implements OnInit {
   //map for step3
   public initFinalMap(): void {
     this.map = L.map("map", {
-      center: this.centerCityFromApi,
+      center: [60.1699, 24.9384], //!!! Temporary
       zoom: 12,
       layers: [this.osm],
     });
