@@ -202,11 +202,8 @@ export class EditLayerComponent implements OnInit {
       filters: new FormControl("", Validators.required),
     });
     this.secondForm = new FormGroup({
-      projectName: new FormControl(
-        this.queryDetails.queryName,
-        Validators.required
-      ),
-      description: new FormControl(this.queryDetails.queryDescription),
+      projectName: new FormControl(""),
+      description: new FormControl(""),
     });
 
     try {
