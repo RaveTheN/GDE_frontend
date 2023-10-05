@@ -343,6 +343,13 @@ export class CreateLayerComponent implements OnInit {
       }
     }
     try {
+      if (this.queryDetails.circles.length !== 0) {
+        await this.apiServices.getPointRadiusData({
+          city: this.queryDetails.city,
+          filter: this.queryDetails.filters,
+          multipoint: this.queryDetails.circles,
+        });
+      }
       if (this.queryDetails.polygons.length !== 0) {
         // Make the API call with the prepared data
         await this.apiServices.getPolygonData({
@@ -351,13 +358,7 @@ export class CreateLayerComponent implements OnInit {
           polygon: this.queryDetails.polygons,
         });
       }
-      if (this.queryDetails.circles.length !== 0) {
-        await this.apiServices.getPointRadiusData({
-          city: this.queryDetails.city,
-          filter: this.queryDetails.filters,
-          multipoint: this.queryDetails.circles,
-        });
-      }
+
       Object.entries(this.apiServices.apiPoints).forEach((element: any) => {
         console.log(element);
         let filterName = element[0];
