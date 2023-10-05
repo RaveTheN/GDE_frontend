@@ -121,14 +121,13 @@
                 type="text"
                 placeholder="Description"
                 formControlName="description"
-                >{{ queryDetails.queryDescription }}</textarea
-              >
+                [value]="queryDetails.queryDescription"
+              ></textarea>
             </div>
           </div>
           <button class="btn-primary" nbStepperPrevious>prev</button>
           <a href="pages/available-options"
             ><button
-              [disabled]="secondForm.value.projectName === ''"
               type="button"
               class="btn-primary"
               (click)="onThirdSubmit()"
