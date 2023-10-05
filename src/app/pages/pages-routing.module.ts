@@ -30,6 +30,12 @@ const routes: Routes = [
         component: EditLayerComponent,
       },
       {
+        path: "",
+        redirectTo: "own",
+        pathMatch: "full",
+      },
+      { path: "own", component: AvailableOptionsComponent },
+      {
         path: "**",
         component: NotFoundComponent,
       },
