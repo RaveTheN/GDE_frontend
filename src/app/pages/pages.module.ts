@@ -20,6 +20,14 @@ import { EditLayerComponent } from "./edit-layer/edit-layer.component";
 import { AuthService } from "../services/auth-service.service";
 import { HTTP_INTERCEPTORS } from "@angular/common/http";
 import { AuthInterceptorService } from "../services/auth-interceptor.service";
+import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
+import { TranslateHttpLoader } from "@ngx-translate/http-loader";
+import { HttpClient, HttpClientModule } from "@angular/common/http";
+
+// Function for loading translation files
+export function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http);
+}
 
 @NgModule({
   imports: [
@@ -34,6 +42,14 @@ import { AuthInterceptorService } from "../services/auth-interceptor.service";
     NbMenuModule,
     MiscellaneousModule,
     NbSelectModule,
+    HttpClientModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient],
+      },
+    }),
   ],
   declarations: [
     PagesComponent,

@@ -1,5 +1,6 @@
 import { Component, OnInit, AfterContentInit } from "@angular/core";
 import { ApiService } from "../../services/api.service";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   selector: "ngx-available-options",
@@ -8,8 +9,19 @@ import { ApiService } from "../../services/api.service";
 })
 export class AvailableOptionsComponent implements OnInit {
   previousSearches: any = [];
+  //languages
+  selectedValue: number = 1; // Set the default value to 1
 
-  constructor(private apiServices: ApiService) {}
+  constructor(
+    private apiServices: ApiService,
+    private translate: TranslateService
+  ) {
+    translate.setDefaultLang("en");
+  }
+
+  switchLanguage(language: string) {
+    this.translate.use(language);
+  }
 
   //storing selected search Id(s) into services
   public storeIds(id: string) {
