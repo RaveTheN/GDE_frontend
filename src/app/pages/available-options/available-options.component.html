@@ -4,6 +4,8 @@
     <select
       (change)="switchLanguage($event.target.value)"
       style="height: fit-content"
+      id="languageSelector"
+      [value]="getCookie('urbanageLanguage')"
     >
       <option value="en">English</option>
       <option value="fr">Français</option>
@@ -11,7 +13,7 @@
       <option value="es">Español</option>
     </select>
     <button class="btn-primary" routerLink="/pages/create-layer">
-      Create New Project
+      {{ "new_project" | translate }}
     </button>
   </div>
   <div class="divider"></div>
@@ -36,7 +38,7 @@
           routerLink="/pages/view-layer"
           (click)="storeIds(search.id)"
         >
-          View
+          {{ "view" | translate }}
         </button>
         &nbsp;
         <button
@@ -44,7 +46,7 @@
           (click)="deleteSearch(search.id)"
           routerLink=""
         >
-          Delete
+          {{ "delete" | translate }}
         </button>
       </div>
     </li>

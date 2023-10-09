@@ -1,4 +1,18 @@
 {
   "projects": "Projects",
-  "new_project": "Create New Project"
+  "new_project": "Create New Project",
+  "view": "View",
+  "delete": "Delete",
+  "select_region": "Select the region to apply filters to:",
+  "select_region_warning": "Please select a region first:",
+  "prev": "prev",
+  "next": "next",
+  "select_filters": "Select one or more of the filters and draw the area in which you want to perform the research.",
+  "select_filters_warning": "!! Select at least one filter",
+  "draw_area_alert": "!! Draw area of interest",
+  "markers_map": "The markers in the map show the points matching your search criteria. Proceed to next step to save the results.",
+  "project_name": "Project's name:",
+  "description": "Description:",
+  "save": "Save",
+  "select_city": "Select City"
 }

@@ -5,14 +5,14 @@
         <form [formGroup]="firstForm" class="step-container">
           <div class="input-group" [class.spinner]="loading">
             <div>
-              <p>Select the region to apply filters to:</p>
+              <p>{{ "select_region" | translate }}</p>
               <p
                 [hidden]="
                   citySelected === false || firstForm.status === 'VALID'
                 "
                 class="alert"
               >
-                Please select a region first:
+                {{ "select_region_warning" | translate }}
               </p>
               <nb-radio-group
                 formControlName="cityOptions"
@@ -30,7 +30,7 @@
           </div>
           <a href="pages/available-options"
             ><button type="button" class="btn-primary" [disabled]="loading">
-              prev
+              {{ "prev" | translate }}
             </button></a
           >
           <button
@@ -39,7 +39,7 @@
             [disabled]="loading"
             (click)="onFirstSubmit()"
           >
-            next
+            {{ "next" | translate }}
           </button>
         </form>
       </nb-step>
@@ -50,8 +50,7 @@
           class="step-container"
         >
           <p>
-            Select one or more of the filters and draw the area in which you
-            want to perform the research.
+            {{ "select_filters" | translate }}
           </p>
           <div id="second-step-ui">
             <div class="options-box">
@@ -73,7 +72,7 @@
                   "
                   class="alert"
                 >
-                  !! Select at least one filter
+                  {{ "select_filters_warning" | translate }}
                 </div>
               </div>
               <!-- This select is hidden by deafult for now -->
@@ -96,7 +95,7 @@
                 "
                 class="alert"
               >
-                !! Draw area of interest
+                {{ "draw_area_alert" | translate }}
               </div>
               <div class="map-frame">
                 <div id="map"></div>
@@ -110,7 +109,7 @@
           nbStepperPrevious
           (click)="(clearMap)"
         >
-          prev
+          {{ "prev" | translate }}
         </button>
         <button
           type="button"
@@ -118,14 +117,13 @@
           (click)="onSecondSubmit()"
           (click)="(clearMap)"
         >
-          next
+          {{ "next" | translate }}
         </button>
       </nb-step>
 
       <nb-step label="Results">
         <p class="lorem">
-          The markers in the map show the points matching your search criteria.
-          Proceed to next step to save the results.
+          {{ "markers_map" | translate }}
         </p>
         <div class="map-container">
           <div class="map-frame">
@@ -134,7 +132,7 @@
         </div>
         <button class="btn-primary" nbStepperPrevious>prev</button>
         <button class="btn-primary" (click)="onThirdSubmit()" nbStepperNext>
-          next
+          {{ "next" | translate }}
         </button>
       </nb-step>
       <nb-step [stepControl]="thirdForm" label="Save search"
@@ -145,7 +143,7 @@
         >
           <div class="input-group">
             <div>
-              <p>Project's name:</p>
+              <p>{{ "project_name" | translate }}</p>
               <input
                 nbInput
                 type="text"
@@ -159,7 +157,7 @@
               />
             </div>
             <div>
-              <p>Description:</p>
+              <p>{{ "description" | translate }}</p>
               <textarea
                 nbInput
                 type="text"
@@ -176,7 +174,7 @@
               (click)="onFourthSubmit()"
               routerLink="/pages/available-options"
             >
-              Save
+              {{ "save" | translate }}
             </button></a
           >
         </form>

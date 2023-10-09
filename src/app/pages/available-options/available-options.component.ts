@@ -19,8 +19,24 @@ export class AvailableOptionsComponent implements OnInit {
     translate.setDefaultLang("en");
   }
 
+  getCookie(cname: string) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let cookiesArray = decodedCookie.split(";");
+    for (let c of cookiesArray) {
+      while (c.charAt(0) == " ") {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
+
   switchLanguage(language: string) {
-    this.translate.use(language);
+    document.cookie = `urbanageLanguage=${language}`;
+    this.translate.use(this.getCookie("urbanageLanguage"));
   }
 
   //storing selected search Id(s) into services
@@ -39,6 +55,8 @@ export class AvailableOptionsComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.switchLanguage(this?.getCookie("urbanageLanguage"));
+    document.getElementById("languageSelector");
     //remove entries in storedLayers previous unfinished researches
     this.apiServices.storedLayers = [];
     try {

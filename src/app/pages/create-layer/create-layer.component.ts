@@ -8,6 +8,7 @@ import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
 import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
 import { ApiService } from "../../services/api.service";
 import { __await } from "tslib";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   selector: "ngx-create-layer",
@@ -62,7 +63,12 @@ export class CreateLayerComponent implements OnInit {
   ];
   option: any;
 
-  constructor(private apiServices: ApiService) {}
+  constructor(
+    private apiServices: ApiService,
+    private translate: TranslateService
+  ) {
+    translate.setDefaultLang("en");
+  }
 
   /**
    * Step 2 map rendering
