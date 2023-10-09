@@ -1,7 +1,7 @@
 <nb-card>
   <div class="container">
     <p class="lorem">
-      The markers in the map show the points matching your search criteria.
+      {{ "markers_map_view" | translate }}
     </p>
     <div class="map-container">
       <div class="map-frame">
@@ -9,10 +9,14 @@
       </div>
     </div>
     <a href="pages/available-options"
-      ><button type="button" class="btn-primary">prev</button></a
+      ><button type="button" class="btn-primary">
+        {{ "prev" | translate }}
+      </button></a
     >
 
     &nbsp;
-    <button class="btn-primary" routerLink="/pages/edit-layer">Edit</button>
+    <button class="btn-primary" routerLink="/pages/edit-layer">
+      {{ "edit" | translate }}
+    </button>
   </div>
 </nb-card>

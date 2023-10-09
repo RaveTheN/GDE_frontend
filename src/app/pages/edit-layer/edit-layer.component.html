@@ -8,8 +8,7 @@
           class="step-container"
         >
           <p>
-            Select one or more of the filters and draw the area in which you
-            want to perform the research.
+            {{ "select_filters" | translate }}
           </p>
 
           <div id="second-step-ui">
@@ -35,7 +34,7 @@
                   "
                   class="alert"
                 >
-                  !! Select at least one filter
+                  {{ "select_filters_warning" | translate }}
                 </div>
               </div>
               <!-- This select is hidden by deafult for now -->
@@ -58,7 +57,7 @@
                 "
                 class="alert"
               >
-                !! Draw area of interest
+                {{ "draw_area_alert" | translate }}
               </div>
               <div class="map-frame">
                 <div id="map"></div>
@@ -67,7 +66,9 @@
           </div>
         </form>
         <a href="pages/available-options"
-          ><button type="button" class="btn-primary">prev</button></a
+          ><button type="button" class="btn-primary">
+            {{ "prev" | translate }}
+          </button></a
         >
         <button
           type="button"
@@ -75,22 +76,25 @@
           (click)="onFirstSubmit()"
           (click)="(clearMap)"
         >
-          next
+          {{ "next" | translate }}
         </button>
       </nb-step>
 
       <nb-step label="Results">
         <p class="lorem">
-          The markers in the map show the points matching your search criteria.
-          Proceed to next step to save the results.
+          {{ "markers_map" | translate }}
         </p>
         <div class="map-container">
           <div class="map-frame">
             <div id="map"></div>
           </div>
         </div>
-        <button class="btn-primary" nbStepperPrevious>prev</button>
-        <button class="btn-primary" nbStepperNext>next</button>
+        <button class="btn-primary" nbStepperPrevious>
+          {{ "prev" | translate }}
+        </button>
+        <button class="btn-primary" nbStepperNext>
+          {{ "next" | translate }}
+        </button>
       </nb-step>
       <nb-step [stepControl]="secondForm" label="Save search"
         ><form
@@ -100,7 +104,7 @@
         >
           <div class="input-group">
             <div>
-              <p>Project's name:</p>
+              <p>{{ "projectName" | translate }}</p>
               <input
                 nbInput
                 type="text"
@@ -115,7 +119,7 @@
               />
             </div>
             <div>
-              <p>Description:</p>
+              <p>{{ "description" | translate }}</p>
               <textarea
                 nbInput
                 type="text"

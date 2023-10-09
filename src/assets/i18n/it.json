@@ -5,13 +5,15 @@
   "delete": "Elimina",
   "select_region": "Seleziona la regione in cui applicare i filtri:",
   "select_region_warning": "Seleziona prima una regione:",
-  "prev": "indietro",
-  "next": "avanti",
-  "select_filters": "Seleziona uno o più filtri e disegna l'area in cui vuoi venga effettuata la ricerca.",
+  "prev": "Indietro",
+  "next": "Avanti",
+  "select_filters": "Seleziona uno o più filtri e disegna l'area in cui vuoi effettuare la ricerca.",
   "select_filters_warning": "⚠️ Seleziona almeno un filtro",
   "draw_area_alert": "⚠️ Disegna l'area in cui effettuare la ricerca",
   "markers_map": "Gli indicatori sulla mappa indicano i punti che corrispondo ai filtri applicati. Procedi al prossimo step per salvare questo risultato.",
+  "markers_map_view": "Gli indicatori sulla mappa indicano i punti che corrispondo ai filtri applicati.",
   "project_name": "Nome del progetto:",
   "description": "Descrizione:",
-  "save": "Salva"
+  "save": "Salva",
+  "edit": "Modifica"
 }
