@@ -3,7 +3,6 @@
     <h1>{{ "projects" | translate }}</h1>
     <select
       (change)="switchLanguage($event.target.value)"
-      style="height: fit-content"
       id="languageSelector"
       [value]="getCookie('urbanageLanguage')"
     >
