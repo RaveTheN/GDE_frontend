@@ -129,7 +129,9 @@
               ></textarea>
             </div>
           </div>
-          <button class="btn-primary" nbStepperPrevious>prev</button>
+          <button class="btn-primary" nbStepperPrevious>
+            {{ "prev" | translate }}
+          </button>
           <a href="pages/available-options"
             ><button
               [disabled]="secondForm.value.projectName === ''"
@@ -137,7 +139,7 @@
               class="btn-primary"
               (click)="onThirdSubmit()"
             >
-              Save
+              {{ "save" | translate }}
             </button></a
           >
         </form>

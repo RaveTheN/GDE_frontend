@@ -411,4 +411,25 @@ export class CreateLayerComponent implements OnInit {
       console.error("API call failed:", error);
     }
   }
+
+  /**
+   * File loading
+   */
+
+  fileData = [];
+  fileUpload(event) {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      const fileExtension = file.name.split(".").pop();
+      if (fileExtension !== "csv" && fileExtension !== "geojson") {
+      }
+      //leggo i dati dal file
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.fileData[0] = e.target.result as string;
+        console.log(this.fileData[0]);
+      };
+      console.log(reader.readAsText(file));
+    }
+  }
 }

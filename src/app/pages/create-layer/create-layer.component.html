@@ -83,6 +83,7 @@
                   >{{ area.display }}</nb-option
                 >
               </nb-select>
+              <input type="file" #fileInput (change)="fileUpload($event)" />
             </div>
             <div
               (mouseup)="checkDrawing()"
