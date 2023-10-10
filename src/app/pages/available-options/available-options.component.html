@@ -20,7 +20,11 @@
   <div class="divider"></div>
 
   <ul class="list-group">
-    <li class="list-group-item" *ngFor="let search of previousSearches">
+    <li
+      class="list-group-item"
+      *ngFor="let search of previousSearches"
+      [attr.id]="search.id"
+    >
       <div>
         <p class="project-name">
           {{ search.name }}
@@ -42,11 +46,7 @@
           {{ "view" | translate }}
         </button>
         &nbsp;
-        <button
-          class="btn-primary"
-          (click)="deleteSearch(search.id)"
-          routerLink=""
-        >
+        <button class="btn-primary" (click)="deleteSearch(search.id)">
           {{ "delete" | translate }}
         </button>
       </div>

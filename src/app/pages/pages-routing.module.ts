@@ -31,10 +31,9 @@ const routes: Routes = [
       },
       {
         path: "",
-        redirectTo: "own",
+        redirectTo: "available-options",
         pathMatch: "full",
       },
-      { path: "own", component: AvailableOptionsComponent },
       {
         path: "**",
         component: NotFoundComponent,

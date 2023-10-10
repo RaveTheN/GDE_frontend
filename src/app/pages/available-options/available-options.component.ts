@@ -46,8 +46,10 @@ export class AvailableOptionsComponent implements OnInit {
   }
 
   async deleteSearch(id: string) {
+    let element = document.getElementById(id);
     try {
       await this.apiServices.deleteEntry(id);
+      element.remove();
     } catch (error) {
       //Show a message in case of error
       console.error("API call failed:", error);
