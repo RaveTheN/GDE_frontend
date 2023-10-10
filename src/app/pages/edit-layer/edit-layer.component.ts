@@ -6,7 +6,6 @@ import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
 import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
 import { ApiService } from "../../services/api.service";
 import { __await } from "tslib";
-import { GeoJsonObject } from "geojson";
 
 @Component({
   selector: "ngx-edit-layer",
@@ -223,8 +222,8 @@ export class EditLayerComponent implements OnInit {
         case "Santander":
           this.centerCityFromApi = [43.462776, -3.805];
           break;
-        case "Antwerp":
-          this.centerCityFromApi = [51.2213, 4.4051];
+        case "Flanders":
+          this.centerCityFromApi = [51.0501, 3.7303];
           break;
       }
       this.queryDetails.id = data.id;

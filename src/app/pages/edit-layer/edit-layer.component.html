@@ -1,7 +1,7 @@
 <nb-card>
   <nb-card-body class="card-body">
     <nb-stepper #stepper (stepChange)="onStepChange($event)">
-      <nb-step [stepControl]="firstForm" label="Apply filters">
+      <nb-step [stepControl]="firstForm">
         <form
           [formGroup]="firstForm"
           (ngSubmit)="onFirstSubmit()"
@@ -12,10 +12,7 @@
           </p>
 
           <div id="second-step-ui">
-            <div [hidden]="!loading" class="loading-mask">
-              <div class="input-group" [class.spinner]="loading"></div>
-            </div>
-            <div class="options-box">
+            <div [hidden]="loading" class="options-box">
               <div class="filters-checkbox-out">
                 <div class="filters-checkbox-in" *ngFor="let filter of filters">
                   <nb-checkbox
@@ -60,6 +57,9 @@
                 {{ "draw_area_alert" | translate }}
               </div>
               <div class="map-frame">
+                <div [hidden]="!loading" class="loading-mask">
+                  <div class="input-group" [class.spinner]="loading"></div>
+                </div>
                 <div id="map"></div>
               </div>
             </div>
@@ -80,7 +80,7 @@
         </button>
       </nb-step>
 
-      <nb-step label="Results">
+      <nb-step>
         <p class="lorem">
           {{ "markers_map" | translate }}
         </p>
@@ -96,7 +96,7 @@
           {{ "next" | translate }}
         </button>
       </nb-step>
-      <nb-step [stepControl]="secondForm" label="Save search"
+      <nb-step [stepControl]="secondForm"
         ><form
           [formGroup]="secondForm"
           (ngSubmit)="onThirdSubmit()"
