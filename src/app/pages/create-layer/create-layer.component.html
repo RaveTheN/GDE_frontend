@@ -84,6 +84,7 @@
                 >
               </nb-select>
               <input type="file" #fileInput (change)="fileUpload($event)" />
+              <button (click)="saveFile()">Export geoJson</button>
             </div>
             <div
               (mouseup)="checkDrawing()"

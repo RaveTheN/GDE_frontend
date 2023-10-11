@@ -9,6 +9,8 @@ import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
 import { ApiService } from "../../services/api.service";
 import { __await } from "tslib";
 import { TranslateService } from "@ngx-translate/core";
+import { saveAs } from "file-saver";
+
 @Component({
   selector: "ngx-create-layer",
   templateUrl: "./create-layer.component.html",
@@ -434,5 +436,17 @@ export class CreateLayerComponent implements OnInit {
       };
       reader.readAsText(file);
     }
+  }
+
+  saveFile() {
+    this.saveDrawings();
+    const geoJsonFile = { type: "FeatureCollection", features: [] };
+    this.apiServices.storedLayers.forEach((feature) => {
+      geoJsonFile.features.push(feature);
+    });
+    const blob = new Blob([JSON.stringify(geoJsonFile)], {
+      type: "text/plain;charset=utf-8",
+    });
+    saveAs(blob, `${this.option[1]}.geojson`);
   }
 }
