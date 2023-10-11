@@ -9,7 +9,6 @@ import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
 import { ApiService } from "../../services/api.service";
 import { __await } from "tslib";
 import { TranslateService } from "@ngx-translate/core";
-
 @Component({
   selector: "ngx-create-layer",
   templateUrl: "./create-layer.component.html",
@@ -181,6 +180,7 @@ export class CreateLayerComponent implements OnInit {
         //add layer only if it is not already stored
         if (!this.apiServices.storedLayers.includes(json)) {
           this.apiServices.storedLayers.push(json);
+          console.log(JSON.stringify(json));
         }
       }
     });
@@ -421,15 +421,18 @@ export class CreateLayerComponent implements OnInit {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
       const fileExtension = file.name.split(".").pop();
-      if (fileExtension !== "csv" && fileExtension !== "geojson") {
+      if (fileExtension !== "geojson") {
       }
       //leggo i dati dal file
       const reader = new FileReader();
       reader.onload = (e) => {
         this.fileData[0] = e.target.result as string;
-        console.log(this.fileData[0]);
+        var geojsonLayer = JSON.parse(this.fileData[0]);
+        this.apiServices.storedLayers.push(geojsonLayer);
+        this.clearMap();
+        setTimeout(() => this.initFiltersMap(), 100);
       };
-      console.log(reader.readAsText(file));
+      reader.readAsText(file);
     }
   }
 }
