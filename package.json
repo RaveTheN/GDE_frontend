@@ -49,6 +49,8 @@
     "@ngx-translate/http-loader": "^8.0.0",
     "@swimlane/ngx-charts": "^14.0.0",
     "@turf/boolean-point-in-polygon": "^6.5.0",
+    "@turf/buffer": "^6.5.0",
+    "@turf/collect": "^6.5.0",
     "@turf/turf": "^6.5.0",
     "@types/file-saver": "^2.0.5",
     "@types/ws": "^8.5.4",

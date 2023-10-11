@@ -10,6 +10,7 @@ import { ApiService } from "../../services/api.service";
 import { __await } from "tslib";
 import { TranslateService } from "@ngx-translate/core";
 import { saveAs } from "file-saver";
+import * as turf from "@turf/turf";
 
 @Component({
   selector: "ngx-create-layer",
