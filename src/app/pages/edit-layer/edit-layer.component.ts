@@ -270,11 +270,11 @@ export class EditLayerComponent implements OnInit {
         this.checkDrawing();
         this.isFilterOn = false;
         this.clearMap();
-        setTimeout(() => this.initFiltersMap(), 100);
+        setTimeout(() => this.initFiltersMap(), 300);
         break;
       case 1:
         this.clearMap();
-        setTimeout(() => this.initFinalMap(), 100);
+        setTimeout(() => this.initFinalMap(), 300);
         break;
     }
   }
@@ -303,24 +303,13 @@ export class EditLayerComponent implements OnInit {
    */
   async onFirstSubmit() {
     var layer: any;
-    this.queryDetails.polygons = [];
     this.overlayMaps = {};
     this.apiServices.apiPoints = {};
     this.isDrawn && this.isFilterOn && this.saveDrawings();
     for (layer of this.apiServices.storedLayers) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
       if (!layer.properties.radius) {
-        let polygonArray = [];
-        // Flatten the nested array and push edges to the polygon array
-        for (const coordinate of layer.geometry.coordinates.flat()) {
-          const edge = {
-            latitude: coordinate[1],
-            longitude: coordinate[0],
-          };
-          polygonArray.push(edge);
-        }
-
-        this.queryDetails.polygons.push(polygonArray);
+        this.queryDetails.polygons.push(1);
       } else {
         this.queryDetails.circles.push(
           Object({
@@ -335,14 +324,6 @@ export class EditLayerComponent implements OnInit {
       }
     }
     try {
-      if (this.queryDetails.polygons.length !== 0) {
-        // Make the API call with the prepared data
-        await this.apiServices.getPolygonData({
-          city: this.queryDetails.city,
-          filter: this.queryDetails.filters,
-          polygon: this.queryDetails.polygons,
-        });
-      }
       if (this.queryDetails.circles.length !== 0) {
         await this.apiServices.getPointRadiusData({
           city: this.queryDetails.city,
@@ -350,6 +331,14 @@ export class EditLayerComponent implements OnInit {
           multipoint: this.queryDetails.circles,
         });
       }
+      if (this.queryDetails.polygons.length !== 0) {
+        // Make the API call with the prepared data
+        await this.apiServices.getPolygonData({
+          city: this.queryDetails.city,
+          filter: this.queryDetails.filters,
+        });
+      }
+
       Object.entries(this.apiServices.apiPoints).forEach((element: any) => {
         console.log(element);
         let filterName = element[0];

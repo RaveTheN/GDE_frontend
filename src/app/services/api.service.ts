@@ -74,11 +74,7 @@ export class ApiService {
    * Retrieves polygon data for specified filters and adds markers to the map.
    * @param body - An object containing city, filter, and polygon data.
    */
-  public getPolygonData(body: {
-    city: string;
-    filter: string[];
-    polygon: {}[];
-  }): any {
+  public getPolygonData(body: { city: string; filter: string[] }): any {
     return new Promise((resolve, reject) => {
       //cycling once for each voice inside body.filter
       body.filter.forEach((f) => {
@@ -88,22 +84,25 @@ export class ApiService {
         let tesselationResults = [];
 
         for (let layer of this.storedLayers) {
-          var poly = turf.polygon(layer.geometry.coordinates);
-          var triangles = turf.tesselate(poly);
-          console.log(triangles);
-          let feature: any;
-          for (feature of triangles.features) {
-            // console.log(feature);
-            let polygonArray = [];
-            // Flatten the nested array and push edges to the polygon array
-            for (const coordinate of feature.geometry.coordinates.flat()) {
-              const edge = {
-                latitude: coordinate[1],
-                longitude: coordinate[0],
-              };
-              polygonArray.push(edge);
+          if (!layer.properties.radius) {
+            console.log(layer);
+            var poly = turf.polygon(layer.geometry.coordinates);
+            var triangles = turf.tesselate(poly);
+            // console.log(triangles);
+            let feature: any;
+            for (feature of triangles.features) {
+              // console.log(feature);
+              let polygonArray = [];
+              // Flatten the nested array and push edges to the polygon array
+              for (const coordinate of feature.geometry.coordinates.flat()) {
+                const edge = {
+                  latitude: coordinate[1],
+                  longitude: coordinate[0],
+                };
+                polygonArray.push(edge);
+              }
+              tesselationResults.push(polygonArray);
             }
-            tesselationResults.push(polygonArray);
             this.http
               .post<any>(
                 url,

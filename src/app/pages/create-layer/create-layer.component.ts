@@ -261,11 +261,11 @@ export class CreateLayerComponent implements OnInit {
         this.hidingAlerts = true;
         this.isFilterOn = false;
         this.clearMap();
-        setTimeout(() => this.initFiltersMap(), 100);
+        setTimeout(() => this.initFiltersMap(), 300);
         break;
       case 2:
         this.clearMap();
-        setTimeout(() => this.initFinalMap(), 100);
+        setTimeout(() => this.initFinalMap(), 300);
         break;
     }
   }
@@ -319,24 +319,13 @@ export class CreateLayerComponent implements OnInit {
    */
   async onSecondSubmit() {
     var layer: any;
-    this.queryDetails.polygons = [];
     this.overlayMaps = {};
     this.apiServices.apiPoints = {};
     this.isDrawn && this.isFilterOn && this.saveDrawings();
     for (layer of this.apiServices.storedLayers) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
       if (!layer.properties.radius) {
-        let polygonArray = [];
-        // Flatten the nested array and push edges to the polygon array
-        for (const coordinate of layer.geometry.coordinates.flat()) {
-          const edge = {
-            latitude: coordinate[1],
-            longitude: coordinate[0],
-          };
-          polygonArray.push(edge);
-        }
-
-        this.queryDetails.polygons.push(polygonArray);
+        this.queryDetails.polygons.push(1);
       } else {
         this.queryDetails.circles.push(
           Object({
@@ -363,7 +352,6 @@ export class CreateLayerComponent implements OnInit {
         await this.apiServices.getPolygonData({
           city: this.queryDetails.city,
           filter: this.queryDetails.filters,
-          polygon: this.queryDetails.polygons,
         });
       }
 
