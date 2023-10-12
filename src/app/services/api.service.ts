@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { environment } from "../../environments/environment";
 import * as L from "leaflet";
+import * as turf from "@turf/turf";
 
 @Injectable({
   providedIn: "root",
@@ -84,58 +85,82 @@ export class ApiService {
         //making a new key in apiPoint with the name of the current filter
         this.apiPoints[f] ? null : (this.apiPoints[f] = L.layerGroup());
         const url = `${environment.base_url}/api/multipolygondata/`;
-        this.http
-          .post<any>(
-            url,
-            { city: body.city, filter: [f], polygon: body.polygon },
-            {
-              headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "POST,PATCH,OPTIONS",
-              }),
+        let tesselationResults = [];
+
+        for (let layer of this.storedLayers) {
+          var poly = turf.polygon(layer.geometry.coordinates);
+          var triangles = turf.tesselate(poly);
+          console.log(triangles);
+          let feature: any;
+          for (feature of triangles.features) {
+            // console.log(feature);
+            let polygonArray = [];
+            // Flatten the nested array and push edges to the polygon array
+            for (const coordinate of feature.geometry.coordinates.flat()) {
+              const edge = {
+                latitude: coordinate[1],
+                longitude: coordinate[0],
+              };
+              polygonArray.push(edge);
             }
-          )
-          .subscribe(
-            (data) => {
-              resolve(
-                data.forEach((element) => {
-                  element.features
-                    .map((element: any) =>
-                      element.geometry === null
-                        ? L.marker(
-                            [
-                              element.properties.location.value.coordinates[1],
-                              element.properties.location.value.coordinates[0],
-                            ],
-                            {
-                              icon: this.customIcon,
-                            }
-                          ).bindPopup(`${element.properties.type}`)
-                        : L.marker(
-                            [
-                              element.geometry.coordinates[1],
-                              element.geometry.coordinates[0],
-                            ],
-                            {
-                              icon: this.customIcon,
-                            }
-                          ).bindPopup(`${element.properties.type}`)
-                    )
-                    .forEach((element) => element.addTo(this.apiPoints[f]));
-                })
-              );
-            },
-            (error) => {
-              console.log(error);
-              if (
-                error.status === "200" ||
-                error.error.text === "Request retrieved"
+            tesselationResults.push(polygonArray);
+            this.http
+              .post<any>(
+                url,
+                { city: body.city, filter: [f], polygon: tesselationResults },
+                {
+                  headers: new HttpHeaders({
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST,PATCH,OPTIONS",
+                  }),
+                }
               )
-                resolve(error.error.text);
-              else reject(error);
-            }
-          );
+              .subscribe(
+                (data) => {
+                  resolve(
+                    data.forEach((element) => {
+                      element.features
+                        .map((element: any) =>
+                          element.geometry === null
+                            ? L.marker(
+                                [
+                                  element.properties.location.value
+                                    .coordinates[1],
+                                  element.properties.location.value
+                                    .coordinates[0],
+                                ],
+                                {
+                                  icon: this.customIcon,
+                                }
+                              ).bindPopup(`${element.properties.type}`)
+                            : L.marker(
+                                [
+                                  element.geometry.coordinates[1],
+                                  element.geometry.coordinates[0],
+                                ],
+                                {
+                                  icon: this.customIcon,
+                                }
+                              ).bindPopup(`${element.properties.type}`)
+                        )
+                        .forEach((element) => element.addTo(this.apiPoints[f]));
+                    })
+                  );
+                },
+                (error) => {
+                  console.log(error);
+                  if (
+                    error.status === "200" ||
+                    error.error.text === "Request retrieved"
+                  )
+                    resolve(error.error.text);
+                  else reject(error);
+                }
+              );
+            tesselationResults = [];
+          }
+        }
       });
     });
   }

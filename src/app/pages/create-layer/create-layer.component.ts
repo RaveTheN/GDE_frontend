@@ -183,7 +183,6 @@ export class CreateLayerComponent implements OnInit {
         //add layer only if it is not already stored
         if (!this.apiServices.storedLayers.includes(json)) {
           this.apiServices.storedLayers.push(json);
-          console.log(JSON.stringify(json));
         }
       }
     });
@@ -416,7 +415,7 @@ export class CreateLayerComponent implements OnInit {
   }
 
   /**
-   * File loading
+   * File importing and exporting
    */
 
   fileData = [];
