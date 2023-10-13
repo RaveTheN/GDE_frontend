@@ -9,8 +9,7 @@ import * as turf from "@turf/turf";
 })
 export class ApiService {
   customIcon = L.icon({
-    iconUrl:
-      "https://upload.wikimedia.org/wikipedia/commons/8/88/Map_marker.svg",
+    iconUrl: "https://unpkg.com/leaflet@1.6/dist/images/marker-icon.png",
 
     iconSize: [15, 35], // size of the icon
   });
@@ -74,32 +73,42 @@ export class ApiService {
    * Retrieves polygon data for specified filters and adds markers to the map.
    * @param body - An object containing city, filter, and polygon data.
    */
-  public getPolygonData(body: { city: string; filter: string[] }): any {
-    return new Promise((resolve, reject) => {
-      //cycling once for each voice inside body.filter
-      body.filter.forEach((f) => {
-        //making a new key in apiPoint with the name of the current filter
-        this.apiPoints[f] ? null : (this.apiPoints[f] = L.layerGroup());
+  public getPolygonData(body: { city: string; filter: string[] }) {
+    return new Promise(async (resolve, reject) => {
+      //for every filter
+      for (const filter of body.filter) {
+        //create a key in the apiPoint object, if it doesnt exist
+        if (!this.apiPoints[filter]) {
+          this.apiPoints[filter] = L.layerGroup();
+        }
         const url = `${environment.base_url}/api/multipolygondata/`;
         let tesselationResults = [];
 
-        for (let layer of this.storedLayers) {
+        //for each drawing stored
+        for (const layer of this.storedLayers) {
+          //if they are not circles
           if (!layer.properties.radius) {
             let isPolygon = true;
             let isCircle = true;
             let poly = turf.polygon(layer.geometry.coordinates);
+            //calculate centroid of the polygon (if it is a circle will match the center)
             let centroid = turf.centroid(poly);
+            //calculate the distance between first vertex and the centrooid (if it is a circle, this will be the equivalent of the radius)
             let from = turf.point(layer.geometry.coordinates[0][1]);
             let to = turf.point(centroid.geometry.coordinates);
             let options: { units: turf.Units } = { units: "kilometers" };
             let radius = turf.distance(from, to, options) * 1000;
+
+            //if they have more than 20 vertices
             if (layer.geometry.coordinates[0].length > 20) {
-              console.log(radius, " ", radius + 1, " ", radius - 1);
+              //for every vertex
               for (let coordinate of layer.geometry.coordinates[0]) {
                 let from = turf.point(coordinate);
                 let distance = turf.distance(from, to, options) * 1000;
-                console.log(distance);
+
+                //if the distance exceeds or is smaller than the radius with a tolerance of 1 meter
                 if (distance > radius + 1 || distance < radius - 1) {
+                  //then it is not a circle
                   isCircle = false;
                 } else {
                   isPolygon = false;
@@ -107,43 +116,24 @@ export class ApiService {
               }
             }
 
-            if (isCircle === true && isPolygon === false) {
-              this.getPointRadiusData({
-                city: body.city,
-                filter: [f],
-                multipoint: [
-                  {
-                    point: {
-                      latitude: centroid.geometry.coordinates[1],
-                      longitude: centroid.geometry.coordinates[0],
-                    },
-                    radius: radius,
-                    external: false,
-                  },
-                ],
-              });
-            } else {
-              var triangles = turf.tesselate(poly);
-              // console.log(triangles);
-              console.log("qua sono");
-              let feature: any;
-              for (feature of triangles.features) {
-                // console.log(feature);
-                let polygonArray = [];
-                // Flatten the nested array and push edges to the polygon array
-                for (const coordinate of feature.geometry.coordinates.flat()) {
-                  const edge = {
-                    latitude: coordinate[1],
-                    longitude: coordinate[0],
-                  };
-                  polygonArray.push(edge);
-                }
-                tesselationResults.push(polygonArray);
-              }
+            if (isCircle && !isPolygon) {
               this.http
                 .post<any>(
-                  url,
-                  { city: body.city, filter: [f], polygon: tesselationResults },
+                  `${environment.base_url}/api/multipointradiusdata/`,
+                  {
+                    city: body.city,
+                    filter: [filter],
+                    multipoint: [
+                      {
+                        point: {
+                          latitude: centroid.geometry.coordinates[1],
+                          longitude: centroid.geometry.coordinates[0],
+                        },
+                        radius: radius,
+                        external: false,
+                      },
+                    ],
+                  },
                   {
                     headers: new HttpHeaders({
                       "Content-Type": "application/json",
@@ -181,7 +171,82 @@ export class ApiService {
                                 ).bindPopup(`${element.properties.type}`)
                           )
                           .forEach((element) =>
-                            element.addTo(this.apiPoints[f])
+                            element.addTo(this.apiPoints[filter])
+                          );
+                      })
+                    );
+                  },
+                  (error) => {
+                    console.log(error);
+                    if (
+                      error.status === "200" ||
+                      error.error.text === "Request retrieved"
+                    )
+                      resolve(error.error.text);
+                    else reject(error);
+                  }
+                );
+            } else {
+              var triangles = turf.tesselate(poly);
+              let feature: any;
+              for (feature of triangles.features) {
+                let polygonArray = [];
+                // Flatten the nested array and push edges to the polygon array
+                for (const coordinate of feature.geometry.coordinates.flat()) {
+                  const edge = {
+                    latitude: coordinate[1],
+                    longitude: coordinate[0],
+                  };
+                  polygonArray.push(edge);
+                }
+                tesselationResults.push(polygonArray);
+              }
+              this.http
+                .post<any>(
+                  url,
+                  {
+                    city: body.city,
+                    filter: [filter],
+                    polygon: tesselationResults,
+                  },
+                  {
+                    headers: new HttpHeaders({
+                      "Content-Type": "application/json",
+                      "Access-Control-Allow-Origin": "*",
+                      "Access-Control-Allow-Methods": "POST,PATCH,OPTIONS",
+                    }),
+                  }
+                )
+                .subscribe(
+                  (data) => {
+                    resolve(
+                      data.forEach((element) => {
+                        element.features
+                          .map((element: any) =>
+                            element.geometry === null
+                              ? L.marker(
+                                  [
+                                    element.properties.location.value
+                                      .coordinates[1],
+                                    element.properties.location.value
+                                      .coordinates[0],
+                                  ],
+                                  {
+                                    icon: this.customIcon,
+                                  }
+                                ).bindPopup(`${element.properties.type}`)
+                              : L.marker(
+                                  [
+                                    element.geometry.coordinates[1],
+                                    element.geometry.coordinates[0],
+                                  ],
+                                  {
+                                    icon: this.customIcon,
+                                  }
+                                ).bindPopup(`${element.properties.type}`)
+                          )
+                          .forEach((element) =>
+                            element.addTo(this.apiPoints[filter])
                           );
                       })
                     );
@@ -200,7 +265,7 @@ export class ApiService {
             }
           }
         }
-      });
+      }
     });
   }
 
@@ -210,20 +275,20 @@ export class ApiService {
    * external - means whether to search inside or outside the shape.
    */
   public getPointRadiusData(body: any): any {
-    console.log("qua sono");
     return new Promise((resolve, reject) => {
       //cycling once for each voice inside body.filter
-      body.filter.forEach((f) => {
+      for (const filter of body.filter) {
         //making a new key in apiPoint with the name of the current filter
-        this.apiPoints[f] ? null : (this.apiPoints[f] = L.layerGroup());
-        console.log(this.apiPoints);
+        this.apiPoints[filter]
+          ? null
+          : (this.apiPoints[filter] = L.layerGroup());
         const url = `${environment.base_url}/api/multipointradiusdata/`;
         this.http
           .post<any>(
             url,
             {
               city: body.city,
-              filter: [f],
+              filter: [filter],
               multipoint: body.multipoint,
             },
             {
@@ -260,7 +325,9 @@ export class ApiService {
                             }
                           ).bindPopup(`${element.properties.type}`)
                     )
-                    .forEach((element) => element.addTo(this.apiPoints[f]));
+                    .forEach((element) =>
+                      element.addTo(this.apiPoints[filter])
+                    );
                 })
               );
             },
@@ -274,7 +341,7 @@ export class ApiService {
               else reject(error);
             }
           );
-      });
+      }
     });
   }
 
