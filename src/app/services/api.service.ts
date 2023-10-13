@@ -85,79 +85,119 @@ export class ApiService {
 
         for (let layer of this.storedLayers) {
           if (!layer.properties.radius) {
-            console.log(layer);
-            var poly = turf.polygon(layer.geometry.coordinates);
-            var triangles = turf.tesselate(poly);
-            // console.log(triangles);
-            let feature: any;
-            for (feature of triangles.features) {
-              // console.log(feature);
-              let polygonArray = [];
-              // Flatten the nested array and push edges to the polygon array
-              for (const coordinate of feature.geometry.coordinates.flat()) {
-                const edge = {
-                  latitude: coordinate[1],
-                  longitude: coordinate[0],
-                };
-                polygonArray.push(edge);
+            let isPolygon = true;
+            let isCircle = true;
+            let poly = turf.polygon(layer.geometry.coordinates);
+            let centroid = turf.centroid(poly);
+            let from = turf.point(layer.geometry.coordinates[0][1]);
+            let to = turf.point(centroid.geometry.coordinates);
+            let options: { units: turf.Units } = { units: "kilometers" };
+            let radius = turf.distance(from, to, options) * 1000;
+            if (layer.geometry.coordinates[0].length > 20) {
+              console.log(radius, " ", radius + 1, " ", radius - 1);
+              for (let coordinate of layer.geometry.coordinates[0]) {
+                let from = turf.point(coordinate);
+                let distance = turf.distance(from, to, options) * 1000;
+                console.log(distance);
+                if (distance > radius + 1 || distance < radius - 1) {
+                  isCircle = false;
+                } else {
+                  isPolygon = false;
+                }
               }
-              tesselationResults.push(polygonArray);
             }
-            this.http
-              .post<any>(
-                url,
-                { city: body.city, filter: [f], polygon: tesselationResults },
-                {
-                  headers: new HttpHeaders({
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "POST,PATCH,OPTIONS",
-                  }),
+
+            if (isCircle === true && isPolygon === false) {
+              this.getPointRadiusData({
+                city: body.city,
+                filter: [f],
+                multipoint: [
+                  {
+                    point: {
+                      latitude: centroid.geometry.coordinates[1],
+                      longitude: centroid.geometry.coordinates[0],
+                    },
+                    radius: radius,
+                    external: false,
+                  },
+                ],
+              });
+            } else {
+              var triangles = turf.tesselate(poly);
+              // console.log(triangles);
+              console.log("qua sono");
+              let feature: any;
+              for (feature of triangles.features) {
+                // console.log(feature);
+                let polygonArray = [];
+                // Flatten the nested array and push edges to the polygon array
+                for (const coordinate of feature.geometry.coordinates.flat()) {
+                  const edge = {
+                    latitude: coordinate[1],
+                    longitude: coordinate[0],
+                  };
+                  polygonArray.push(edge);
                 }
-              )
-              .subscribe(
-                (data) => {
-                  resolve(
-                    data.forEach((element) => {
-                      element.features
-                        .map((element: any) =>
-                          element.geometry === null
-                            ? L.marker(
-                                [
-                                  element.properties.location.value
-                                    .coordinates[1],
-                                  element.properties.location.value
-                                    .coordinates[0],
-                                ],
-                                {
-                                  icon: this.customIcon,
-                                }
-                              ).bindPopup(`${element.properties.type}`)
-                            : L.marker(
-                                [
-                                  element.geometry.coordinates[1],
-                                  element.geometry.coordinates[0],
-                                ],
-                                {
-                                  icon: this.customIcon,
-                                }
-                              ).bindPopup(`${element.properties.type}`)
-                        )
-                        .forEach((element) => element.addTo(this.apiPoints[f]));
-                    })
-                  );
-                },
-                (error) => {
-                  console.log(error);
-                  if (
-                    error.status === "200" ||
-                    error.error.text === "Request retrieved"
-                  )
-                    resolve(error.error.text);
-                  else reject(error);
-                }
-              );
-            tesselationResults = [];
+                tesselationResults.push(polygonArray);
+              }
+              this.http
+                .post<any>(
+                  url,
+                  { city: body.city, filter: [f], polygon: tesselationResults },
+                  {
+                    headers: new HttpHeaders({
+                      "Content-Type": "application/json",
+                      "Access-Control-Allow-Origin": "*",
+                      "Access-Control-Allow-Methods": "POST,PATCH,OPTIONS",
+                    }),
+                  }
+                )
+                .subscribe(
+                  (data) => {
+                    resolve(
+                      data.forEach((element) => {
+                        element.features
+                          .map((element: any) =>
+                            element.geometry === null
+                              ? L.marker(
+                                  [
+                                    element.properties.location.value
+                                      .coordinates[1],
+                                    element.properties.location.value
+                                      .coordinates[0],
+                                  ],
+                                  {
+                                    icon: this.customIcon,
+                                  }
+                                ).bindPopup(`${element.properties.type}`)
+                              : L.marker(
+                                  [
+                                    element.geometry.coordinates[1],
+                                    element.geometry.coordinates[0],
+                                  ],
+                                  {
+                                    icon: this.customIcon,
+                                  }
+                                ).bindPopup(`${element.properties.type}`)
+                          )
+                          .forEach((element) =>
+                            element.addTo(this.apiPoints[f])
+                          );
+                      })
+                    );
+                  },
+                  (error) => {
+                    console.log(error);
+                    if (
+                      error.status === "200" ||
+                      error.error.text === "Request retrieved"
+                    )
+                      resolve(error.error.text);
+                    else reject(error);
+                  }
+                );
+              tesselationResults = [];
+            }
           }
         }
       });
@@ -170,6 +210,7 @@ export class ApiService {
    * external - means whether to search inside or outside the shape.
    */
   public getPointRadiusData(body: any): any {
+    console.log("qua sono");
     return new Promise((resolve, reject) => {
       //cycling once for each voice inside body.filter
       body.filter.forEach((f) => {
