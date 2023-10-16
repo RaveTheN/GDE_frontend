@@ -3,15 +3,21 @@ import { Injectable } from "@angular/core";
 import { environment } from "../../environments/environment";
 import * as L from "leaflet";
 import * as turf from "@turf/turf";
+import { MarkerClusterGroup } from "leaflet.markercluster";
+// import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+// import "leaflet/dist/leaflet.css";
 
 @Injectable({
   providedIn: "root",
 })
 export class ApiService {
   customIcon = L.icon({
-    iconUrl: "https://unpkg.com/leaflet@1.6/dist/images/marker-icon.png",
-
-    iconSize: [15, 35], // size of the icon
+    iconSize: [25, 41],
+    iconAnchor: [10, 41],
+    popupAnchor: [2, -40],
+    // specify the path here
+    iconUrl: "https://unpkg.com/leaflet@1.4.0/dist/images/marker-icon.png",
+    shadowUrl: "https://unpkg.com/leaflet@1.4.0/dist/images/marker-shadow.png",
   });
 
   constructor(private http: HttpClient) {}
@@ -79,7 +85,7 @@ export class ApiService {
       for (const filter of body.filter) {
         //create a key in the apiPoint object, if it doesnt exist
         if (!this.apiPoints[filter]) {
-          this.apiPoints[filter] = L.layerGroup();
+          this.apiPoints[filter] = new MarkerClusterGroup();
         }
         const url = `${environment.base_url}/api/multipolygondata/`;
         let tesselationResults = [];
@@ -281,7 +287,7 @@ export class ApiService {
         //making a new key in apiPoint with the name of the current filter
         this.apiPoints[filter]
           ? null
-          : (this.apiPoints[filter] = L.layerGroup());
+          : (this.apiPoints[filter] = new MarkerClusterGroup());
         const url = `${environment.base_url}/api/multipointradiusdata/`;
         this.http
           .post<any>(
