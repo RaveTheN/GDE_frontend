@@ -154,7 +154,7 @@
                 type="text"
                 placeholder="Project's name"
                 class="form-control"
-                formControlName="projectName"
+                formControlName="nameInput"
                 [ngClass]="{
                   'form-control-danger':
                     firstForm.invalid && (firstForm.dirty || firstForm.touched)
@@ -167,17 +167,17 @@
                 nbInput
                 type="text"
                 placeholder="Description"
-                formControlName="description"
+                formControlName="descriptionInput"
               ></textarea>
             </div>
           </div>
           <button class="btn-primary" nbStepperPrevious>prev</button>
-          <a
+          <a href="pages/available-options"
             ><button
-              type="button"
+              [disabled]="thirdForm.value.nameInput === ''"
               class="btn-primary"
+              type="button"
               (click)="onFourthSubmit()"
-              routerLink="/pages/available-options"
             >
               {{ "save" | translate }}
             </button></a

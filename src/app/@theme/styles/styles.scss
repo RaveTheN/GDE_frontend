@@ -130,9 +130,17 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  background-color: rgb(226, 215, 215) !important;
+}
+
+button:disabled:hover {
+  background-color: rgb(206, 194, 194) !important;
+}
+
 .btn-primary {
-  color: var(--btn-text-color) !important;
-  background-color: var(--primary-color) !important;
+  color: var(--btn-text-color);
+  background-color: var(--primary-color);
 }
 
 .btn-primary:hover {

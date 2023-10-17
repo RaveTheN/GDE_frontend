@@ -67,9 +67,7 @@ export class CreateLayerComponent implements OnInit {
   constructor(
     private apiServices: ApiService,
     private translate: TranslateService
-  ) {
-    translate.setDefaultLang("en");
-  }
+  ) {}
 
   /**
    * Step 2 map rendering
@@ -214,6 +212,7 @@ export class CreateLayerComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.translate.setDefaultLang("en");
     //Step 1 radio validator
     this.firstForm = new FormGroup({
       cityOptions: new FormControl(null, Validators.required),
@@ -223,8 +222,8 @@ export class CreateLayerComponent implements OnInit {
       filters: new FormControl("", Validators.required),
     });
     this.thirdForm = new FormGroup({
-      projectName: new FormControl(""),
-      description: new FormControl(""),
+      nameInput: new FormControl("", Validators.required),
+      descriptionInput: new FormControl(""),
     });
   }
 
@@ -296,6 +295,7 @@ export class CreateLayerComponent implements OnInit {
 
   //filters checkbox
   filters = [];
+  // filters = ["PointOfInterest", "Open311ServiceRequest"];
 
   onChange(f: string) {
     this.selectedFilters.includes(f)
@@ -383,8 +383,8 @@ export class CreateLayerComponent implements OnInit {
    * Step4 submit
    */
   async onFourthSubmit() {
-    this.queryDetails.queryName = this.thirdForm.value.projectName;
-    this.queryDetails.queryDescription = this.thirdForm.value.description;
+    this.queryDetails.queryName = this.thirdForm.value.nameInput;
+    this.queryDetails.queryDescription = this.thirdForm.value.descriptionInput;
     try {
       if (this.queryDetails.queryName.length !== 0) {
         // Make the API call with the prepared data
