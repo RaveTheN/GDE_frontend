@@ -1,5 +1,10 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from "@angular/forms";
 
 import * as L from "leaflet";
 import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
@@ -39,6 +44,9 @@ export class EditLayerComponent implements OnInit {
   firstForm: FormGroup;
   secondForm: FormGroup;
 
+  nameInput: FormControl;
+  descriptionInput: FormControl;
+
   queryDetails = {
     id: "",
     city: "",
@@ -50,7 +58,22 @@ export class EditLayerComponent implements OnInit {
     layers: [],
   };
 
-  constructor(private apiServices: ApiService) {}
+  constructor(
+    private apiServices: ApiService,
+    private formBuilder: FormBuilder
+  ) {
+    this.firstForm = new FormGroup({
+      filters: new FormControl("", Validators.required),
+    });
+
+    this.nameInput = new FormControl();
+    this.descriptionInput = new FormControl();
+
+    this.secondForm = this.formBuilder.group({
+      nameInput: this.nameInput,
+      descriptionInput: this.descriptionInput,
+    });
+  }
 
   centerCityFromApi: any = [];
 
@@ -197,13 +220,6 @@ export class EditLayerComponent implements OnInit {
 
   async ngOnInit() {
     let data: any;
-    this.firstForm = new FormGroup({
-      filters: new FormControl("", Validators.required),
-    });
-    this.secondForm = new FormGroup({
-      projectName: new FormControl(""),
-      description: new FormControl(""),
-    });
 
     try {
       this.loading = true;
@@ -276,6 +292,9 @@ export class EditLayerComponent implements OnInit {
         this.clearMap();
         setTimeout(() => this.initFinalMap(), 300);
         break;
+      case 2:
+        this.nameInput.setValue(this.queryDetails.queryName);
+        this.descriptionInput.setValue(this.queryDetails.queryDescription);
     }
   }
 
@@ -363,8 +382,8 @@ export class EditLayerComponent implements OnInit {
     this.apiServices.storedLayers.forEach((layer) => {
       this.queryDetails.layers.push(JSON.stringify(layer));
     });
-    this.queryDetails.queryName = this.secondForm.value.projectName;
-    this.queryDetails.queryDescription = this.secondForm.value.description;
+    this.queryDetails.queryName = this.secondForm.value.nameInput;
+    this.queryDetails.queryDescription = this.secondForm.value.descriptionInput;
     try {
       if (this.queryDetails.queryName.length !== 0) {
         // Make the API call with the prepared data

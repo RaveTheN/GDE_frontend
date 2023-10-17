@@ -112,12 +112,11 @@
                 type="text"
                 placeholder="Project's name"
                 class="form-control"
-                formControlName="projectName"
+                formControlName="nameInput"
                 [ngClass]="{
                   'form-control-danger':
                     firstForm.invalid && (firstForm.dirty || firstForm.touched)
                 }"
-                [value]="queryDetails.queryName"
               />
             </div>
             <div>
@@ -126,8 +125,7 @@
                 nbInput
                 type="text"
                 placeholder="Description"
-                formControlName="description"
-                [value]="queryDetails.queryDescription"
+                formControlName="descriptionInput"
               ></textarea>
             </div>
           </div>
@@ -136,7 +134,7 @@
           </button>
           <a href="pages/available-options"
             ><button
-              [disabled]="secondForm.value.projectName === ''"
+              [disabled]="secondForm.value.nameInput === ''"
               type="button"
               class="btn-primary"
               (click)="onThirdSubmit()"
