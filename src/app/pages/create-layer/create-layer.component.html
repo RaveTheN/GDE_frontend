@@ -53,7 +53,7 @@
             {{ "select_filters" | translate }}
           </p>
           <div id="second-step-ui">
-            <div class="options-box">
+            <div [hidden]="loading" class="options-box">
               <div class="filters-checkbox-out">
                 <div class="filters-checkbox-in" *ngFor="let filter of filters">
                   <nb-checkbox

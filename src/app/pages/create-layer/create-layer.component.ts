@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, Input, OnInit, ViewChild } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import * as L from "leaflet";
@@ -338,6 +338,7 @@ export class CreateLayerComponent implements OnInit {
       }
     }
     try {
+      this.loading = true;
       if (this.queryDetails.circles.length !== 0) {
         await this.apiServices.getPointRadiusData({
           city: this.queryDetails.city,
@@ -361,11 +362,13 @@ export class CreateLayerComponent implements OnInit {
           : (this.overlayMaps[filterName] = element[1]);
       });
 
+      this.loading = false;
       this.isDrawn && this.isFilterOn
         ? this.stepper.next()
         : (this.hidingAlerts = false);
     } catch (error) {
       // Show a message in case of error
+      this.loading = false;
       console.error("API call failed:", error);
     }
   }

@@ -343,6 +343,7 @@ export class EditLayerComponent implements OnInit {
       }
     }
     try {
+      this.loading = true;
       if (this.queryDetails.circles.length !== 0) {
         await this.apiServices.getPointRadiusData({
           city: this.queryDetails.city,
@@ -366,11 +367,13 @@ export class EditLayerComponent implements OnInit {
           : (this.overlayMaps[filterName] = element[1]);
       });
 
+      this.loading = false;
       this.isDrawn && this.isFilterOn
         ? this.stepper.next()
         : (this.hidingAlerts = false);
     } catch (error) {
       // Show a message in case of error
+      this.loading = false;
       console.error("API call failed:", error);
     }
   }

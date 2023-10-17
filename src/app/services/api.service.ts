@@ -26,6 +26,16 @@ export class ApiService {
   //Stores the filters to be passed to create-layer.component
   apiFilters: string[] = [];
 
+  //store drawn layers here
+  public storedLayers = [];
+
+  //Stores the points to be passed to create-layer.component
+  apiPoints = {};
+
+  //progress
+  nominalProgress = this.storedLayers.length / 100;
+  totalProgress: number;
+
   /**
    * Sets apiFilters with the data provided by getFilters().
    * @param data - An array of filter data to set.
@@ -72,9 +82,6 @@ export class ApiService {
         );
     });
   }
-
-  //Stores the points to be passed to create-layer.component
-  apiPoints = {};
 
   /**
    * Retrieves polygon data for specified filters and adds markers to the map.
@@ -351,8 +358,6 @@ export class ApiService {
       }
     });
   }
-
-  public storedLayers = [];
 
   public async saveSearch(queryDetails: any) {
     return new Promise((resolve, reject) => {
