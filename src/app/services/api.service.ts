@@ -361,8 +361,8 @@ export class ApiService {
         //extracting coordinates from apiPoints (which contains all the points obtained from the last search)
         //in alternative to apiPoints I could use overlayMaps from create-layer, which after a research contains the same data of apiPoints
         let coordinates = [];
-        for (let obj of Object.entries<any>(this.apiPoints[filter]._layers)) {
-          coordinates.push([obj[1]._latlng.lat, obj[1]._latlng.lng]);
+        for (let layer of this.apiPoints[filter].getLayers()) {
+          coordinates.push([layer.getLatLng().lat, layer.getLatLng().lng]);
         }
         featuresArray.push(
           Object({
@@ -432,8 +432,7 @@ export class ApiService {
           // Extract the 'filter' property from the API response
           let filter = data.filter;
           filter.forEach((filterName, index) => {
-            this.apiPoints[filterName] = L.layerGroup();
-            console.log(data);
+            this.apiPoints[filterName] = new MarkerClusterGroup();
 
             // Extract the coordinates of the search results and create markers for each
             let markers = data.geojson.properties.features[
@@ -528,8 +527,8 @@ export class ApiService {
         //extracting coordinates from apiPoints (which contains all the points obtained from the last search)
         //in alternative to apiPoints I could use overlayMaps from create-layer, which after a research contains the same data of apiPoints
         let coordinates = [];
-        for (let obj of Object.entries<any>(this.apiPoints[filter]._layers)) {
-          coordinates.push([obj[1]._latlng.lat, obj[1]._latlng.lng]);
+        for (let layer of this.apiPoints[filter].getLayers()) {
+          coordinates.push([layer.getLatLng().lat, layer.getLatLng().lng]);
         }
         featuresArray.push(
           Object({

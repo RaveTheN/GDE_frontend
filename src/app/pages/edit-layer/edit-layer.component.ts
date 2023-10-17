@@ -7,6 +7,8 @@ import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
 import { ApiService } from "../../services/api.service";
 import { __await } from "tslib";
 
+import { saveAs } from "file-saver";
+
 @Component({
   selector: "ngx-edit-layer",
   templateUrl: "./edit-layer.component.html",
@@ -128,14 +130,12 @@ export class EditLayerComponent implements OnInit {
 
     //the settimout is to make sue that leaflet has added/removed the layers before we are counting them
     setTimeout(() => {
-      for (let key in this.map._layers) {
+      this.map.eachLayer(function () {
         layerCount++;
-      }
+      });
 
       //i must be > 3 as map._layers will always have at least 4 layers, if at least one drawing is present.
       layerCount > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
-      console.log("isdrawn: " + this.isDrawn);
-      console.log(this.map._layers);
     }, 100);
   }
 
@@ -343,10 +343,7 @@ export class EditLayerComponent implements OnInit {
         console.log(element);
         let filterName = element[0];
         this.overlayMaps[filterName]
-          ? Object.assign(
-              this.overlayMaps[filterName]._layers,
-              element[1]._layers
-            )
+          ? this.overlayMaps[filterName].addLayers(element[1].getLayers())
           : (this.overlayMaps[filterName] = element[1]);
       });
 
@@ -377,5 +374,41 @@ export class EditLayerComponent implements OnInit {
       // Show a message in case of error
       console.error("API call failed:", error);
     }
+  }
+
+  /**
+   * File importing and exporting
+   */
+
+  fileData = [];
+  fileUpload(event) {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      const fileExtension = file.name.split(".").pop();
+      if (fileExtension !== "geojson") {
+      }
+      //leggo i dati dal file
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.fileData[0] = e.target.result as string;
+        var geojsonLayer = JSON.parse(this.fileData[0]);
+        this.apiServices.storedLayers.push(geojsonLayer);
+        this.clearMap();
+        setTimeout(() => this.initFiltersMap(), 100);
+      };
+      reader.readAsText(file);
+    }
+  }
+
+  saveFile() {
+    this.saveDrawings();
+    const geoJsonFile = { type: "FeatureCollection", features: [] };
+    this.apiServices.storedLayers.forEach((feature) => {
+      geoJsonFile.features.push(feature);
+    });
+    const blob = new Blob([JSON.stringify(geoJsonFile)], {
+      type: "text/plain;charset=utf-8",
+    });
+    saveAs(blob, `${this.queryDetails.city}.geojson`);
   }
 }

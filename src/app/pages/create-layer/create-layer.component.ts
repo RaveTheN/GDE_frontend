@@ -148,13 +148,12 @@ export class CreateLayerComponent implements OnInit {
 
     //the settimout is to make sue that leaflet has added/removed the layers before we are counting them
     setTimeout(() => {
-      for (let key in this.map._layers) {
+      this.map.eachLayer(function () {
         layerCount++;
-      }
+      });
 
       //i must be > 3 as map._layers will always have at least 4 layers, if at least one drawing is present.
       layerCount > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
-      // console.log("isdrawn: " + this.isDrawn);
     }, 100);
   }
 
@@ -358,10 +357,7 @@ export class CreateLayerComponent implements OnInit {
         console.log(element);
         let filterName = element[0];
         this.overlayMaps[filterName]
-          ? Object.assign(
-              this.overlayMaps[filterName]._layers,
-              element[1]._layers
-            )
+          ? this.overlayMaps[filterName].addLayers(element[1].getLayers())
           : (this.overlayMaps[filterName] = element[1]);
       });
 
