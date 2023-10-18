@@ -4,6 +4,7 @@ import { environment } from "../../environments/environment";
 import * as L from "leaflet";
 import * as turf from "@turf/turf";
 import { MarkerClusterGroup } from "leaflet.markercluster";
+import { BehaviorSubject } from "rxjs";
 // import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 // import "leaflet/dist/leaflet.css";
 
@@ -35,6 +36,12 @@ export class ApiService {
   //progress
   nominalProgress = 0;
   totalProgress = 0;
+  private progressSource = new BehaviorSubject<number>(0);
+  progress$ = this.progressSource.asObservable();
+
+  setProgress(value: number) {
+    this.progressSource.next(value);
+  }
 
   /**
    * Sets apiFilters with the data provided by getFilters().
@@ -90,10 +97,8 @@ export class ApiService {
   public getPolygonData(body: { city: string; filter: string[] }) {
     let tesselationResults = [];
     this.totalProgress = 0;
-    console.log(this.storedLayers.length);
-    console.log(body.filter.length);
+    this.setProgress(this.totalProgress);
     this.nominalProgress = 100 / this.storedLayers.length / body.filter.length;
-    console.log(this.nominalProgress);
     return new Promise(async (resolve, reject) => {
       //for every filter
       for (const filter of body.filter) {
@@ -195,6 +200,14 @@ export class ApiService {
                           );
                       })
                     );
+                    this.totalProgress += this.nominalProgress;
+                    this.setProgress(this.totalProgress);
+
+                    console.log(
+                      this.totalProgress > 100
+                        ? Math.floor(this.totalProgress)
+                        : Math.ceil(this.totalProgress)
+                    );
                   },
                   (error) => {
                     console.log(error);
@@ -272,6 +285,7 @@ export class ApiService {
                     );
 
                     this.totalProgress += this.nominalProgress;
+                    this.setProgress(this.totalProgress);
 
                     console.log(
                       this.totalProgress > 100

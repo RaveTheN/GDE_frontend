@@ -37,6 +37,9 @@ export class CreateLayerComponent implements OnInit {
     { id: 3, display: "Lauttasaari" },
   ];
 
+  //contols progress of the loading bar
+  @Input() progress: number = 0;
+
   //forms declaration
   firstForm: FormGroup;
   secondForm: FormGroup;
@@ -224,6 +227,9 @@ export class CreateLayerComponent implements OnInit {
     this.thirdForm = new FormGroup({
       nameInput: new FormControl("", Validators.required),
       descriptionInput: new FormControl(""),
+    });
+    this.apiServices.progress$.subscribe((value) => {
+      this.progress = value;
     });
   }
 

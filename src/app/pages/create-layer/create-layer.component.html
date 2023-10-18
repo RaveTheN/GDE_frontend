@@ -130,6 +130,10 @@
         <p class="lorem">
           {{ "markers_map" | translate }}
         </p>
+        <div class="progress-bar">
+          <div class="progress" [style.width]="progress + '%'"></div>
+        </div>
+
         <div class="map-container">
           <div class="map-frame">
             <div id="map"></div>
