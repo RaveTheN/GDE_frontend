@@ -33,8 +33,8 @@ export class ApiService {
   apiPoints = {};
 
   //progress
-  nominalProgress = this.storedLayers.length / 100;
-  totalProgress: number;
+  nominalProgress = 0;
+  totalProgress = 0;
 
   /**
    * Sets apiFilters with the data provided by getFilters().
@@ -88,6 +88,12 @@ export class ApiService {
    * @param body - An object containing city, filter, and polygon data.
    */
   public getPolygonData(body: { city: string; filter: string[] }) {
+    let tesselationResults = [];
+    this.totalProgress = 0;
+    console.log(this.storedLayers.length);
+    console.log(body.filter.length);
+    this.nominalProgress = 100 / this.storedLayers.length / body.filter.length;
+    console.log(this.nominalProgress);
     return new Promise(async (resolve, reject) => {
       //for every filter
       for (const filter of body.filter) {
@@ -96,10 +102,10 @@ export class ApiService {
           this.apiPoints[filter] = new MarkerClusterGroup();
         }
         const url = `${environment.base_url}/api/multipolygondata/`;
-        let tesselationResults = [];
 
         //for each drawing stored
         for (const layer of this.storedLayers) {
+          tesselationResults = [];
           //if they are not circles
           if (!layer.properties.radius) {
             let isPolygon = true;
@@ -264,6 +270,14 @@ export class ApiService {
                           );
                       })
                     );
+
+                    this.totalProgress += this.nominalProgress;
+
+                    console.log(
+                      this.totalProgress > 100
+                        ? Math.floor(this.totalProgress)
+                        : Math.ceil(this.totalProgress)
+                    );
                   },
                   (error) => {
                     console.log(error);
@@ -275,7 +289,6 @@ export class ApiService {
                     else reject(error);
                   }
                 );
-              tesselationResults = [];
             }
           }
         }
