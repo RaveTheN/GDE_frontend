@@ -5,6 +5,9 @@
     </p>
     <div class="map-container">
       <div class="map-frame">
+        <div [hidden]="!loading" class="loading-mask">
+          <div class="input-group" [class.spinner]="loading"></div>
+        </div>
         <div id="map"></div>
       </div>
     </div>
