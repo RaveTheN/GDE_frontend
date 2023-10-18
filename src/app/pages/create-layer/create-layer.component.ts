@@ -345,6 +345,7 @@ export class CreateLayerComponent implements OnInit {
     }
     try {
       this.loading = true;
+      this.apiServices.totalProgress = 0;
       if (this.queryDetails.circles.length !== 0) {
         await this.apiServices.getPointRadiusData({
           city: this.queryDetails.city,

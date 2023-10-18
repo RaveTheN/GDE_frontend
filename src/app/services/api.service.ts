@@ -96,8 +96,6 @@ export class ApiService {
    */
   public getPolygonData(body: { city: string; filter: string[] }) {
     let tesselationResults = [];
-    this.totalProgress = 0;
-    this.setProgress(this.totalProgress);
     this.nominalProgress = 100 / this.storedLayers.length / body.filter.length;
     return new Promise(async (resolve, reject) => {
       //for every filter
@@ -316,6 +314,7 @@ export class ApiService {
    * external - means whether to search inside or outside the shape.
    */
   public getPointRadiusData(body: any): any {
+    this.nominalProgress = 100 / this.storedLayers.length / body.filter.length;
     return new Promise((resolve, reject) => {
       //cycling once for each voice inside body.filter
       for (const filter of body.filter) {
@@ -369,6 +368,15 @@ export class ApiService {
                     .forEach((element) =>
                       element.addTo(this.apiPoints[filter])
                     );
+
+                  this.totalProgress += this.nominalProgress;
+                  this.setProgress(this.totalProgress);
+
+                  console.log(
+                    this.totalProgress > 100
+                      ? Math.floor(this.totalProgress)
+                      : Math.ceil(this.totalProgress)
+                  );
                 })
               );
             },
