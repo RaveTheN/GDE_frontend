@@ -257,6 +257,8 @@ export class CreateLayerComponent implements OnInit {
       case 0:
         //emptying filters everytime the city selection step renders
         this.filters = [];
+        this.loading = false;
+        this.apiServices.ngOnDestroy();
         break;
       case 1:
         this.secondForm.reset();

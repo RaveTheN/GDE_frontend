@@ -4,7 +4,8 @@ import { environment } from "../../environments/environment";
 import * as L from "leaflet";
 import * as turf from "@turf/turf";
 import { MarkerClusterGroup } from "leaflet.markercluster";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
+import { takeUntil } from "rxjs/operators";
 // import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 // import "leaflet/dist/leaflet.css";
 
@@ -21,6 +22,8 @@ export class ApiService {
       "https://upload.wikimedia.org/wikipedia/commons/8/88/Map_marker.svg",
     shadowUrl: "https://unpkg.com/leaflet@1.4.0/dist/images/marker-shadow.png",
   });
+
+  protected ngUnsubscribe: Subject<void> = new Subject<void>();
 
   constructor(private http: HttpClient) {}
 
@@ -41,6 +44,13 @@ export class ApiService {
 
   setProgress(value: number) {
     this.progressSource.next(value);
+  }
+
+  public ngOnDestroy(): void {
+    // This aborts all HTTP requests.
+    this.ngUnsubscribe.next();
+    // This completes the subject properlly.
+    this.ngUnsubscribe.complete();
   }
 
   /**
@@ -66,6 +76,7 @@ export class ApiService {
           }),
           responseType: "text",
         })
+        .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe(
           (data) => {
             // Clean up the data and split it into an array
@@ -165,6 +176,7 @@ export class ApiService {
                     }),
                   }
                 )
+                .pipe(takeUntil(this.ngUnsubscribe))
                 .subscribe(
                   (data) => {
                     resolve(
@@ -248,6 +260,7 @@ export class ApiService {
                     }),
                   }
                 )
+                .pipe(takeUntil(this.ngUnsubscribe))
                 .subscribe(
                   (data) => {
                     resolve(
@@ -339,6 +352,7 @@ export class ApiService {
               }),
             }
           )
+          .pipe(takeUntil(this.ngUnsubscribe))
           .subscribe(
             (data) => {
               resolve(
@@ -442,6 +456,7 @@ export class ApiService {
           }),
           responseType: "text",
         })
+        .pipe(takeUntil(this.ngUnsubscribe))
         .subscribe((data) => {
           resolve(data);
         }),
