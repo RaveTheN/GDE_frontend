@@ -70,7 +70,7 @@
         <button
           type="button"
           class="btn-primary"
-          routerLink="/pages/view-layer"
+          [routerLink]="dynamicUrl()"
           (click)="onAbort()"
         >
           {{ "prev" | translate }}
@@ -91,7 +91,7 @@
           {{ "markers_map" | translate }}
         </p>
 
-        <div class="progress-bar">
+        <div [hidden]="progress === 100" class="progress-bar">
           <div class="progress" [style.width]="progress + '%'"></div>
         </div>
         <div class="map-container">

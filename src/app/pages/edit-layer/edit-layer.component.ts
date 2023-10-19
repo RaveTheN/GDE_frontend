@@ -138,7 +138,6 @@ export class EditLayerComponent implements OnInit {
           }
         },
         onEachFeature(feature, layer) {
-          console.log(feature);
           layer.addTo(editableLayers);
         },
       });
@@ -229,10 +228,12 @@ export class EditLayerComponent implements OnInit {
     });
 
     let data: any;
+    let id = [];
+    id.push(localStorage.getItem("searchId"));
 
     try {
       this.loading = true;
-      data = await this.apiServices.getSearch(this.apiServices.currentId);
+      data = await this.apiServices.getSearch(id);
       await this.apiServices.getFilters(data.city);
 
       this.loading = false;
@@ -260,6 +261,7 @@ export class EditLayerComponent implements OnInit {
         this.apiServices.storedLayers.push(JSON.parse(e))
       );
 
+      this.clearMap();
       this.initFiltersMap(data);
     } catch (error) {
       this.loading = false;
@@ -281,6 +283,16 @@ export class EditLayerComponent implements OnInit {
     this.map != undefined ? (this.map = this.map.remove()) : null;
   }
 
+  //
+  dynamicUrl(): string {
+    return this.loading
+      ? this.apiServices.storedLayers.length > 0
+        ? "/pages/edit-layer"
+        : "/pages/view-layer"
+      : "/pages/view-layer";
+  }
+
+  //cleans all process if going back while loading
   onAbort() {
     this.apiServices.ngOnDestroy;
     this.loading = false;
@@ -293,8 +305,6 @@ export class EditLayerComponent implements OnInit {
 
     switch (this.stepper.selectedIndex) {
       case 0:
-        this.apiServices.ngOnDestroy;
-        this.loading = false;
         this.firstForm.reset();
         this.selectedFilters = [];
         this.queryDetails.polygons = [];
@@ -341,6 +351,7 @@ export class EditLayerComponent implements OnInit {
     var layer: any;
     this.overlayMaps = {};
     this.apiServices.apiPoints = {};
+    this.apiServices.totalProgress = 0;
     this.isDrawn && this.isFilterOn && this.saveDrawings();
     for (layer of this.apiServices.storedLayers) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
@@ -377,7 +388,6 @@ export class EditLayerComponent implements OnInit {
       }
 
       Object.entries(this.apiServices.apiPoints).forEach((element: any) => {
-        console.log(element);
         let filterName = element[0];
         this.overlayMaps[filterName]
           ? this.overlayMaps[filterName].addLayers(element[1].getLayers())

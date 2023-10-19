@@ -367,7 +367,6 @@ export class CreateLayerComponent implements OnInit {
       }
 
       Object.entries(this.apiServices.apiPoints).forEach((element: any) => {
-        console.log(element);
         let filterName = element[0];
         this.overlayMaps[filterName]
           ? this.overlayMaps[filterName].addLayers(element[1].getLayers())

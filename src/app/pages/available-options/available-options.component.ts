@@ -41,8 +41,7 @@ export class AvailableOptionsComponent implements OnInit {
 
   //storing selected search Id(s) into services
   public storeIds(id: string) {
-    this.apiServices.currentId = [];
-    this.apiServices.currentId.push(id);
+    localStorage.setItem("searchId", id);
   }
 
   async deleteSearch(id: string) {

@@ -212,12 +212,6 @@ export class ApiService {
                     );
                     this.totalProgress += this.nominalProgress;
                     this.setProgress(this.totalProgress);
-
-                    console.log(
-                      this.totalProgress > 100
-                        ? Math.floor(this.totalProgress)
-                        : Math.ceil(this.totalProgress)
-                    );
                   },
                   (error) => {
                     console.log(error);
@@ -297,12 +291,6 @@ export class ApiService {
 
                     this.totalProgress += this.nominalProgress;
                     this.setProgress(this.totalProgress);
-
-                    console.log(
-                      this.totalProgress > 100
-                        ? Math.floor(this.totalProgress)
-                        : Math.ceil(this.totalProgress)
-                    );
                   },
                   (error) => {
                     console.log(error);
@@ -385,12 +373,6 @@ export class ApiService {
 
                   this.totalProgress += this.nominalProgress;
                   this.setProgress(this.totalProgress);
-
-                  console.log(
-                    this.totalProgress > 100
-                      ? Math.floor(this.totalProgress)
-                      : Math.ceil(this.totalProgress)
-                  );
                 })
               );
             },
@@ -470,8 +452,6 @@ export class ApiService {
         };
     });
   }
-
-  public currentId = [];
 
   /**
    * This function performs a search for documents based on the provided IDs.

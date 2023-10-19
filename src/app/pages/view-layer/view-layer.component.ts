@@ -53,12 +53,13 @@ export class ViewLayerComponent implements OnInit {
    */
   async ngOnInit() {
     this.loading = false;
+    this.apiServices.ngOnDestroy();
+    let id = [];
+    id.push(localStorage.getItem("searchId"));
     try {
       this.loading = true;
       // Fetch data from the API.
-      let data: any = await this.apiServices.getSearch(
-        this.apiServices.currentId
-      );
+      let data: any = await this.apiServices.getSearch(id);
       this.overlayMaps = this.apiServices.apiPoints;
       this.loading = false;
       switch (data.city) {
