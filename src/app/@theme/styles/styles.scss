@@ -135,7 +135,7 @@ button:disabled {
 }
 
 button:disabled:hover {
-  background-color: rgb(206, 194, 194) !important;
+  background-color: rgb(226, 215, 215) !important;
 }
 
 .btn-primary {
@@ -305,14 +305,34 @@ a:hover {
 }
 
 //progress bar
-.progress-bar {
+.transparent-loading-mask {
+  z-index: 10000;
+  background-color: #ffffff;
+  opacity: 0.6;
+  height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.progress-status {
+  margin-top: 2%;
+  font-family: var(--text-paragraph-font-family);
+  font-size: var(--text-paragraph-font-size);
+  font-weight: var(--text-paragraph-font-weight);
+}
+
+.progress-bar {
   background-color: #ccc;
-  height: 20px;
+  height: 3px;
+  margin: 1% 2%;
 }
 
 .progress {
-  background-color: #4caf50;
+  background-color: #3366ff;
   height: 100%;
   width: 0;
   transition: width 0.3s;

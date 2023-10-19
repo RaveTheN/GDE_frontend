@@ -228,8 +228,11 @@ export class CreateLayerComponent implements OnInit {
       nameInput: new FormControl("", Validators.required),
       descriptionInput: new FormControl(""),
     });
+
     this.apiServices.progress$.subscribe((value) => {
-      this.progress = value;
+      value < 100
+        ? (this.progress = Math.ceil(value))
+        : (this.progress = Math.floor(value));
     });
   }
 

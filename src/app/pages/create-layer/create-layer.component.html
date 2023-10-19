@@ -109,6 +109,7 @@
           </div>
         </form>
         <button
+          [disabled]="loading"
           type="button"
           class="btn-primary"
           nbStepperPrevious
@@ -117,6 +118,7 @@
           {{ "prev" | translate }}
         </button>
         <button
+          [disabled]="loading"
           type="button"
           class="btn-primary"
           (click)="onSecondSubmit()"
@@ -136,11 +138,26 @@
 
         <div class="map-container">
           <div class="map-frame">
-            <div id="map"></div>
+            <div id="map">
+              <div [hidden]="progress === 100" class="transparent-loading-mask">
+                <div
+                  class="input-group"
+                  [class.spinner]="progress !== 100"
+                ></div>
+                <div class="progress-status">{{ progress }}%</div>
+              </div>
+            </div>
           </div>
         </div>
-        <button class="btn-primary" nbStepperPrevious>prev</button>
-        <button class="btn-primary" (click)="onThirdSubmit()" nbStepperNext>
+        <button class="btn-primary" nbStepperPrevious>
+          {{ "prev" | translate }}
+        </button>
+        <button
+          [disabled]="progress !== 100"
+          class="btn-primary"
+          (click)="onThirdSubmit()"
+          nbStepperNext
+        >
           {{ "next" | translate }}
         </button>
       </nb-step>

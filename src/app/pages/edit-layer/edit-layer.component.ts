@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, Input, OnInit, ViewChild } from "@angular/core";
 import {
   FormBuilder,
   FormControl,
@@ -39,6 +39,9 @@ export class EditLayerComponent implements OnInit {
     { id: 2, display: "Ruoholahti" },
     { id: 3, display: "Lauttasaari" },
   ];
+
+  //contols progress of the loading bar
+  @Input() progress: number = 0;
 
   //forms declaration
   firstForm: FormGroup;
@@ -219,6 +222,12 @@ export class EditLayerComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.apiServices.progress$.subscribe((value) => {
+      value < 100
+        ? (this.progress = Math.ceil(value))
+        : (this.progress = Math.floor(value));
+    });
+
     let data: any;
 
     try {
