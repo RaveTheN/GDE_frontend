@@ -23,8 +23,6 @@ export class ApiService {
     shadowUrl: "https://unpkg.com/leaflet@1.4.0/dist/images/marker-shadow.png",
   });
 
-  protected ngUnsubscribe: Subject<void> = new Subject<void>();
-
   constructor(private http: HttpClient) {}
 
   //Stores the filters to be passed to create-layer.component
@@ -36,16 +34,17 @@ export class ApiService {
   //Stores the points to be passed to create-layer.component
   apiPoints = {};
 
-  //progress
+  //these are all the variables and the function that are needed to control the progress bar when receiving points
   nominalProgress = 0;
   totalProgress = 0;
   private progressSource = new BehaviorSubject<number>(0);
   progress$ = this.progressSource.asObservable();
-
   setProgress(value: number) {
     this.progressSource.next(value);
   }
 
+  //use this variable and the funtion to unsubscribe from requests' response
+  protected ngUnsubscribe: Subject<void> = new Subject<void>();
   public ngOnDestroy(): void {
     // This aborts all HTTP requests.
     this.ngUnsubscribe.next();
@@ -62,7 +61,7 @@ export class ApiService {
   }
 
   /**
-   * Retrieves filters for a specific city from the API.
+   * Retrieves filters for a specific city from Orion.
    * @param cityValue - The city for which filters are requested.
    * @returns A Promise that resolves with the retrieved filters.
    */
@@ -103,10 +102,12 @@ export class ApiService {
 
   /**
    * Retrieves polygon data for specified filters and adds markers to the map.
-   * @param body - An object containing city, filter, and polygon data.
+   * @param body - An object containing city, and filter data.
    */
   public getPolygonData(body: { city: string; filter: string[] }) {
+    //empty the array in which to put the triangles from polygons tesselation
     let tesselationResults = [];
+    //set the percentage of which the progress bar will advance for each response we get
     this.nominalProgress = 100 / this.storedLayers.length / body.filter.length;
     return new Promise(async (resolve, reject) => {
       //for every filter
@@ -160,6 +161,7 @@ export class ApiService {
                     multipoint: [
                       {
                         point: {
+                          //MIND: coordinates inside the geometry I have received so fare are inverted.
                           latitude: centroid.geometry.coordinates[1],
                           longitude: centroid.geometry.coordinates[0],
                         },
@@ -179,6 +181,7 @@ export class ApiService {
                 .pipe(takeUntil(this.ngUnsubscribe))
                 .subscribe(
                   (data) => {
+                    //data is a featureCollection
                     resolve(
                       data.forEach((element) => {
                         element.features
@@ -203,13 +206,16 @@ export class ApiService {
                                   {
                                     icon: this.customIcon,
                                   }
+                                  //message to show inside the popup when clicking a marker
                                 ).bindPopup(`${element.properties.type}`)
                           )
                           .forEach((element) =>
+                            //add the marker (which is a layer) in the markergroup stored with the name of the filter
                             element.addTo(this.apiPoints[filter])
                           );
                       })
                     );
+                    //add the percentage of progress every time it gets a response (to make the bar change, this is listened inside the frontend component)
                     this.totalProgress += this.nominalProgress;
                     this.setProgress(this.totalProgress);
                   },
@@ -224,7 +230,10 @@ export class ApiService {
                   }
                 );
             } else {
+              //it goes here if it is not a circle of any kind, real or made with smaller polygons
+              //tesselate is the functions that simplifies a polygon into a featureCollection of smaller triangles
               var triangles = turf.tesselate(poly);
+              //for every triangle odf the feature
               let feature: any;
               for (feature of triangles.features) {
                 let polygonArray = [];
@@ -234,8 +243,10 @@ export class ApiService {
                     latitude: coordinate[1],
                     longitude: coordinate[0],
                   };
+                  //polygonArray contains all the triangles mapped with latitude and longitude
                   polygonArray.push(edge);
                 }
+                //stores the result of the above process and it is now ready to be used in the http call
                 tesselationResults.push(polygonArray);
               }
               this.http
@@ -257,8 +268,10 @@ export class ApiService {
                 .pipe(takeUntil(this.ngUnsubscribe))
                 .subscribe(
                   (data) => {
+                    //data is a featureCollection
                     resolve(
                       data.forEach((element) => {
+                        console.log(element);
                         element.features
                           .map((element: any) =>
                             element.geometry === null
@@ -288,7 +301,7 @@ export class ApiService {
                           );
                       })
                     );
-
+                    //add the percentage of progress every time it gets a response (to make the bar change, this is listened inside the frontend component)
                     this.totalProgress += this.nominalProgress;
                     this.setProgress(this.totalProgress);
                   },
@@ -315,11 +328,12 @@ export class ApiService {
    * external - means whether to search inside or outside the shape.
    */
   public getPointRadiusData(body: any): any {
+    //set the percentage of which the progress bar will advance for each response we get
     this.nominalProgress = 100 / this.storedLayers.length / body.filter.length;
     return new Promise((resolve, reject) => {
       //cycling once for each voice inside body.filter
       for (const filter of body.filter) {
-        //making a new key in apiPoint with the name of the current filter
+        //making a new key in apiPoint with the name of the current filter, if it doesn't exist
         this.apiPoints[filter]
           ? null
           : (this.apiPoints[filter] = new MarkerClusterGroup());
@@ -392,6 +406,7 @@ export class ApiService {
 
   public async saveSearch(queryDetails: any) {
     return new Promise((resolve, reject) => {
+      //resets the array un which to store each feature, that will then be stored inside the key "features" of the geojson object part of the stored data
       let featuresArray = [];
       for (const filter of queryDetails.filters) {
         //extracting coordinates from apiPoints (which contains all the points obtained from the last search)

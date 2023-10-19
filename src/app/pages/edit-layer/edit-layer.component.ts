@@ -351,7 +351,6 @@ export class EditLayerComponent implements OnInit {
     var layer: any;
     this.overlayMaps = {};
     this.apiServices.apiPoints = {};
-    this.apiServices.totalProgress = 0;
     this.isDrawn && this.isFilterOn && this.saveDrawings();
     for (layer of this.apiServices.storedLayers) {
       // For polygons, layer._latlngs[i] is an array of LatLngs objects
@@ -372,6 +371,8 @@ export class EditLayerComponent implements OnInit {
     }
     try {
       this.loading = true;
+
+      this.apiServices.totalProgress = 0;
       if (this.queryDetails.circles.length !== 0) {
         await this.apiServices.getPointRadiusData({
           city: this.queryDetails.city,
