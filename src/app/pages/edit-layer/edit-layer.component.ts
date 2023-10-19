@@ -262,8 +262,9 @@ export class EditLayerComponent implements OnInit {
 
       this.initFiltersMap(data);
     } catch (error) {
-      // Show a message in case of error
       this.loading = false;
+
+      // Show a message in case of error
       console.error("API call failed:", error);
     }
   }
@@ -280,6 +281,11 @@ export class EditLayerComponent implements OnInit {
     this.map != undefined ? (this.map = this.map.remove()) : null;
   }
 
+  onAbort() {
+    this.apiServices.ngOnDestroy;
+    this.loading = false;
+  }
+
   async onStepChange(event: any) {
     // The event object contains information about the current step and previous step.
     // You can access them as follows:
@@ -287,6 +293,8 @@ export class EditLayerComponent implements OnInit {
 
     switch (this.stepper.selectedIndex) {
       case 0:
+        this.apiServices.ngOnDestroy;
+        this.loading = false;
         this.firstForm.reset();
         this.selectedFilters = [];
         this.queryDetails.polygons = [];

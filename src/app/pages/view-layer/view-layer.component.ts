@@ -52,6 +52,7 @@ export class ViewLayerComponent implements OnInit {
    * Initializes the component.
    */
   async ngOnInit() {
+    this.loading = false;
     try {
       this.loading = true;
       // Fetch data from the API.

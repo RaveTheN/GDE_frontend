@@ -67,11 +67,14 @@
             </div>
           </div>
         </form>
-        <a href="pages/available-options"
-          ><button type="button" class="btn-primary">
-            {{ "prev" | translate }}
-          </button></a
+        <button
+          type="button"
+          class="btn-primary"
+          routerLink="/pages/view-layer"
+          (click)="onAbort()"
         >
+          {{ "prev" | translate }}
+        </button>
         <button
           [disabled]="loading"
           type="button"
