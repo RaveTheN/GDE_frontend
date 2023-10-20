@@ -287,7 +287,7 @@ a:hover {
 
 .map-frame {
   border: 1px solid black;
-  height: 25em;
+  height: 32em;
   overflow: hidden;
 }
 
@@ -365,7 +365,8 @@ a:hover {
 
   .list-group li p {
     font-size: 12px;
-    align-items: baseline;
+
+    overflow-wrap: anywhere;
   }
 
   .list-group li a {
@@ -381,6 +382,10 @@ a:hover {
     padding: 5px !important;
     flex-wrap: wrap !important;
     justify-content: center !important;
+  }
+
+  .map-frame {
+    height: 25em;
   }
 
   .map-container {

@@ -34,6 +34,9 @@ export class ApiService {
   //Stores the points to be passed to create-layer.component
   apiPoints = {};
 
+  //store here all the projects info retrieved with the call getAll
+  allProjects = [];
+
   //these are all the variables and the function that are needed to control the progress bar when receiving points
   nominalProgress = 0;
   totalProgress = 0;
@@ -230,7 +233,7 @@ export class ApiService {
                   }
                 );
             } else {
-              //it goes here if it is not a circle of any kind, real or made with smaller polygons
+              //it goes here if it is not a circle of any kind: real or made with smaller polygons
               //tesselate is the functions that simplifies a polygon into a featureCollection of smaller triangles
               var triangles = turf.tesselate(poly);
               //for every triangle odf the feature
@@ -406,7 +409,7 @@ export class ApiService {
 
   public async saveSearch(queryDetails: any) {
     return new Promise((resolve, reject) => {
-      //resets the array un which to store each feature, that will then be stored inside the key "features" of the geojson object part of the stored data
+      //resets the array in which to store each feature, that will then be stored inside the key "features" of the geojson object of the stored data
       let featuresArray = [];
       for (const filter of queryDetails.filters) {
         //extracting coordinates from apiPoints (which contains all the points obtained from the last search)
@@ -475,26 +478,27 @@ export class ApiService {
    */
   public getSearch(id: string[]) {
     return new Promise((resolve, reject) => {
-      // Send an HTTP GET request to the API to retrieve search results for the provided IDs
+      // Send an HTTP GET request to Orion to retrieve search results for the provided IDs
       this.http
         .get(`${environment.base_url}/api/document/${id}`)
         .subscribe((data: any) => {
-          // Extract the 'filter' property from the API response
+          // Extract the 'filter' property from Orion response
           let filter = data.filter;
           filter.forEach((filterName, index) => {
+            //Create a key in the apiPoints object, with the name of the filter currently cycling. that key will contatin a MarkerClusterGroup, in which are stored the markers.
             this.apiPoints[filterName] = new MarkerClusterGroup();
 
             // Extract the coordinates of the search results and create markers for each
             let markers = data.geojson.properties.features[
               index
             ].geometry.coordinates[0].map((coordinate: [number, number]) => {
-              // Create markers using the custom icon declared at the beginning and bind a popup with the filter name
+              // Create markers using the custom icon and bind a popup with the filter name
               return L.marker([coordinate[0], coordinate[1]], {
                 icon: this.customIcon,
               }).bindPopup(`${filterName}`);
             });
 
-            // Add markers to the corresponding layer group
+            // Add markers to the corresponding markerClusterGroup
             markers.forEach((marker: L.Marker) =>
               marker.addTo(this.apiPoints[filterName])
             );
@@ -513,8 +517,10 @@ export class ApiService {
     });
   }
 
-  allProjects = [];
-
+  /**
+   * This function performs a search for all the projects stored in the DB for the given user.
+   * @returns A Promise that resolves an array with objects containing basic info to be shown for each project or an error message.
+   */
   public getAll() {
     return new Promise((resolve, reject) => {
       this.http
@@ -552,11 +558,16 @@ export class ApiService {
     });
   }
 
+  /**
+   * This function performs a search for documents based on the provided IDs.
+   * @param id - A string with the ID of the project we want to delete.
+   * @returns A Promise that resolves deleting the requested project or an error message.
+   */
   public deleteEntry(id: string) {
     return new Promise((resolve, reject) => {
       this.http
         .delete(`${environment.base_url}/api/document/${id}`)
-        .subscribe((data: any) => {
+        .subscribe(() => {
           resolve("entry deleted");
         }),
         (error) => {
@@ -570,6 +581,11 @@ export class ApiService {
     });
   }
 
+  /**
+   * This function performs a search for documents based on the provided IDs.
+   * @param queryDetails - An object containing data to compile the body for the update of the given project.
+   * @returns A Promise that resolves returning the up to date data or an error message.
+   */
   public async updateSearch(queryDetails: any) {
     return new Promise((resolve, reject) => {
       let featuresArray = [];
