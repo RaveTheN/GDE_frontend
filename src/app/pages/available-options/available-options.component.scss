@@ -5,3 +5,16 @@
   border-radius: 4px;
   font-size: large;
 }
+
+.confirmation-dialog {
+  position: absolute;
+  background-color: rgb(196, 212, 175);
+  z-index: 100;
+  padding: 1%;
+  border-radius: 4px;
+  border: solid gray 1px;
+}
+
+.dialog-button {
+  margin: 5px;
+}

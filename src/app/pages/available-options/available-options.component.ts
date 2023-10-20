@@ -71,4 +71,14 @@ export class AvailableOptionsComponent implements OnInit {
   ngAfterContentInit(): void {
     console.log(this.apiServices.allProjects);
   }
+  //delete confirmation
+  confirmationId = "";
+
+  setConfirmation(id) {
+    this.confirmationId = id;
+  }
+
+  closeDialog() {
+    this.confirmationId = "";
+  }
 }
