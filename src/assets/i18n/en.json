@@ -16,5 +16,9 @@
   "description": "Description:",
   "save": "Save",
   "select_city": "Select City",
-  "edit": "Edit"
+  "edit": "Edit",
+  "confirm_deletion": "Confirm deletion",
+  "confirm_deletion_message": "Are you sure you want to delete this item?",
+  "confirm": "Confirm",
+  "cancel": "Cancel"
 }

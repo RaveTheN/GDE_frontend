@@ -274,7 +274,6 @@ export class ApiService {
                     //data is a featureCollection
                     resolve(
                       data.forEach((element) => {
-                        console.log(element);
                         element.features
                           .map((element: any) =>
                             element.geometry === null

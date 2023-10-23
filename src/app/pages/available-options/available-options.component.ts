@@ -69,7 +69,7 @@ export class AvailableOptionsComponent implements OnInit {
   }
 
   ngAfterContentInit(): void {
-    console.log(this.apiServices.allProjects);
+    // console.log(this.apiServices.allProjects);
   }
   //delete confirmation
   confirmationId = "";

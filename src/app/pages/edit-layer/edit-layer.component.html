@@ -68,6 +68,7 @@
           </div>
         </form>
         <button
+          [disabled]="loading"
           type="button"
           class="btn-primary"
           [routerLink]="dynamicUrl()"
