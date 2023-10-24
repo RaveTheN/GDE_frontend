@@ -20,5 +20,7 @@
   "confirm_deletion": "Confirm deletion",
   "confirm_deletion_message": "Are you sure you want to delete this item?",
   "confirm": "Confirm",
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "no_results": "Nothing to show.",
+  "create_first": "Create your first project."
 }

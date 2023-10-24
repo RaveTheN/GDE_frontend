@@ -19,9 +19,11 @@
   </div>
   <div class="divider"></div>
 
-  <p *ngIf="previousSearches.length === 0; else list">
-    Create your first project
-  </p>
+  <h5 *ngIf="previousSearches.length === 0; else list">
+    {{ "no_results" | translate }}&nbsp;<a href="pages/create-layer">{{
+      "create_first" | translate
+    }}</a>
+  </h5>
   <ng-template #list>
     <ul class="list-group">
       <li
