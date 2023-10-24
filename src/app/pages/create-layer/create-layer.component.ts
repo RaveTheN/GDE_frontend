@@ -145,19 +145,17 @@ export class CreateLayerComponent implements OnInit {
    * it confirms the presence of drawings created by the user
    */
   checkDrawing() {
+    let layerCount = 0;
+
     //the settimout is to make sue that leaflet has added/removed the layers before we are counting them
     setTimeout(() => {
-      this.map.eachLayer((e) => {
-        (e !== this.map.eachLayer[0] &&
-          e !== this.map.eachLayer[1] &&
-          e !== this.map.eachLayer[2] &&
-          e instanceof L.Polygon) ||
-        e instanceof L.Circle
-          ? (this.isDrawn = true)
-          : (this.isDrawn = false);
+      this.map.eachLayer(function () {
+        layerCount++;
       });
+
+      //i must be > 3 as map._layers will always have at least 4 layers, if at least one drawing is present.
+      layerCount > 3 ? (this.isDrawn = true) : (this.isDrawn = false);
     }, 100);
-    console.log(this.isDrawn);
   }
 
   // Usage: call checkDrawing() to check if there are drawings on the map.
