@@ -28,12 +28,17 @@ export class EditLayerComponent implements OnInit {
   citySelected: boolean = false;
   //controlling the loading spinner
   loading = false;
-  //areas
+  //areas - these are not shown atm
   areas: any[] = [
     { id: 1, display: "Alppila" },
     { id: 2, display: "Ruoholahti" },
     { id: 3, display: "Lauttasaari" },
   ];
+
+  //utility for clearing the map from previous instances that might have left traces
+  public clearMap() {
+    this.map != undefined ? (this.map = this.map.remove()) : null;
+  }
 
   //contols progress of the loading bar
   @Input() progress: number = 0;
@@ -42,9 +47,11 @@ export class EditLayerComponent implements OnInit {
   firstForm: FormGroup;
   secondForm: FormGroup;
 
+  //controls for secondform
   nameInput: FormControl;
   descriptionInput: FormControl;
 
+  //object in which to store the data input by the user
   queryDetails = {
     id: "",
     city: "",
@@ -56,12 +63,13 @@ export class EditLayerComponent implements OnInit {
     layers: [],
   };
 
+  //get and store here the coordinates in which to point the center of the map
+  centerCityFromApi: any = [];
+
   constructor(
     private apiServices: ApiService,
     private formBuilder: FormBuilder
   ) {}
-
-  centerCityFromApi: any = [];
 
   /**
    * Step 1 map rendering
@@ -82,7 +90,7 @@ export class EditLayerComponent implements OnInit {
       layers: [this.osm],
     });
 
-    // Initialise the FeatureGroup to store editable layers
+    // Initialise the FeatureGroup to store editable layers and add them to the map
     var editableLayers = new L.FeatureGroup();
     this.map.addLayer(editableLayers);
 
@@ -99,14 +107,15 @@ export class EditLayerComponent implements OnInit {
     });
     this.map.addControl(drawControl);
 
-    //initialize function to draw areas inside the map
+    //this function gets called whenever we draw something on the map
     this.map.on("draw:created", function (e: any) {
       let drawingLayer = e.layer;
-      //layer in which we are going to draw the selecion areas
+      //and then the drawn layer will get stored in editableLayers
       editableLayers.addLayer(drawingLayer);
     });
 
     this.apiServices.storedLayers.forEach((element) => {
+      //style and color of the shapes that are shown on the map
       const style: any = {
         color: "#3388ff",
         opacity: 0.5,
@@ -115,17 +124,21 @@ export class EditLayerComponent implements OnInit {
 
       L.geoJSON(element, {
         style,
+        //returns a circle if element has radius in the properties
         pointToLayer(feature, latlng) {
           if (feature.properties.radius) {
             return new L.Circle(latlng, feature.properties.radius);
           }
         },
+        //then add them to the map, in editableLayers
         onEachFeature(feature, layer) {
           layer.addTo(editableLayers);
         },
       });
 
+      //set it like a shape has been already drawn
       this.isDrawn = true;
+      //empty the variable in which the layers are stored
       this.apiServices.storedLayers = [];
     });
   }
@@ -181,9 +194,9 @@ export class EditLayerComponent implements OnInit {
   /**
    * Step3 map rendering
    */
-  public finalMap: L.Map;
 
-  overlayMaps = {};
+  //store here the layers to be added to the map
+  overlayMaps: any = {};
 
   //map for step3
   public initFinalMap(): void {
@@ -197,47 +210,55 @@ export class EditLayerComponent implements OnInit {
     L.control.layers(null, this.overlayMaps).addTo(this.map);
 
     // Loop through your overlayMaps and add them to the map
+    //They will also be set on, in the layer control
     for (const key in this.overlayMaps) {
       if (this.overlayMaps.hasOwnProperty(key)) {
-        this.overlayMaps[key] = this.overlayMaps[key];
-        this.overlayMaps[key].addTo(this.map); // Add each overlay to the map
+        this.overlayMaps[key].addTo(this.map);
       }
     }
   }
 
   async ngOnInit() {
-    let checkBoxValues = {};
-
+    //Form builder for the checkbox in step 1
     this.firstForm = this.formBuilder.group({});
 
+    //controls for name and description saving
     this.nameInput = new FormControl();
     this.descriptionInput = new FormControl();
 
+    //Form builder for saving name and description in step 3
     this.secondForm = this.formBuilder.group({
       nameInput: this.nameInput,
       descriptionInput: this.descriptionInput,
     });
 
+    //subscribe to the value of the apiServices.progress$
+    //this way progress will update anytime progress$ changes
     this.apiServices.progress$.subscribe((value) => {
       value < 100
         ? (this.progress = Math.ceil(value))
         : (this.progress = Math.floor(value));
     });
 
+    //store here the data received by the http request
     let data: any;
+    //initialize the array in which to store the id of the project you are fetching
+    //the push it in the array  from localStorage
     let id = [];
     id.push(localStorage.getItem("searchId"));
 
     try {
+      //sets the spinner on
       this.loading = true;
+      //fetch the project
       data = await this.apiServices.getSearch(id);
+      //ask orion for the filters of the city of the project
       await this.apiServices.getFilters(data.city);
 
+      //sets the spinner of
       this.loading = false;
-      //pushing fetch results in this.filters
-      this.apiServices.apiFilters.forEach((element) => {
-        this.filters.push(element);
-      });
+
+      //sets center of the map according to the city of the project
       switch (data.city) {
         case "Helsinki":
           this.centerCityFromApi = [60.1699, 24.9384];
@@ -249,29 +270,50 @@ export class EditLayerComponent implements OnInit {
           this.centerCityFromApi = [51.0501, 3.7303];
           break;
       }
+      //save all the relevant info of the project in queryDetails
       this.queryDetails.id = data.id;
       this.queryDetails.queryName = data.name;
       this.queryDetails.city = data.city;
       this.queryDetails.queryDescription = data.description;
+
+      //push fetch results in this.filters
+      this.apiServices.apiFilters.forEach((element) => {
+        this.filters.push(element);
+      });
+
+      //store the filters previosly selected by the user
       data.filter.forEach((e) => {
         this.queryDetails.filters.push(e);
         this.selectedFilters.push(e);
       });
+
+      //initalize an empty object to manage the application of the filters
+      let checkBoxValues = {};
+
+      //set each filter has a key of the object, with value true or false
+      //the true ones are those that will be checked by default at loading
       this.filters.forEach((filter) => {
         checkBoxValues[filter] = this.queryDetails.filters.includes(filter);
       });
 
+      //pass the object as the new control group of first form
+      this.firstForm = this.formBuilder.group(checkBoxValues);
+
+      //then set isFilter on, as we already have filters applied
       this.selectedFilters.length === 0
         ? (this.isFilterOn = false)
         : (this.isFilterOn = true);
-      this.firstForm = this.formBuilder.group(checkBoxValues);
+
+      //push all the layers drawn by the user in storedLayers
       data.layers.forEach((e) =>
         this.apiServices.storedLayers.push(JSON.parse(e))
       );
 
+      //clear the map and initialize it
       this.clearMap();
       this.initFiltersMap();
     } catch (error) {
+      //set spinner of even if it is an error
       this.loading = false;
 
       // Show a message in case of error
@@ -286,10 +328,6 @@ export class EditLayerComponent implements OnInit {
   @ViewChild("stepper")
   stepper: NbStepperComponent;
   changeEvent: NbStepChangeEvent;
-
-  public clearMap() {
-    this.map != undefined ? (this.map = this.map.remove()) : null;
-  }
 
   //
   dynamicUrl(): string {

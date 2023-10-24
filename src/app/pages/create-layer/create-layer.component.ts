@@ -8,7 +8,6 @@ import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
 import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
 import { ApiService } from "../../services/api.service";
 import { __await } from "tslib";
-import { TranslateService } from "@ngx-translate/core";
 import { saveAs } from "file-saver";
 
 @Component({
@@ -30,12 +29,17 @@ export class CreateLayerComponent implements OnInit {
   loading = false;
   //alert when not selecting a city
   citySelected: boolean = false;
-  //areas
+  //areas - these are not shown atm
   areas: any[] = [
     { id: 1, display: "Alppila" },
     { id: 2, display: "Ruoholahti" },
     { id: 3, display: "Lauttasaari" },
   ];
+
+  //utility for clearing the map from previous instances that might have left traces
+  public clearMap() {
+    this.map != undefined ? (this.map = this.map.remove()) : null;
+  }
 
   //contols progress of the loading bar
   @Input() progress: number = 0;
@@ -67,10 +71,7 @@ export class CreateLayerComponent implements OnInit {
   ];
   option: any;
 
-  constructor(
-    private apiServices: ApiService,
-    private translate: TranslateService
-  ) {}
+  constructor(private apiServices: ApiService) {}
 
   /**
    * Step 2 map rendering
@@ -91,7 +92,7 @@ export class CreateLayerComponent implements OnInit {
       layers: [this.osm],
     });
 
-    // Initialise the FeatureGroup to store editable layers
+    // Initialise the FeatureGroup to store editable layers and add them to the map
     var editableLayers = new L.FeatureGroup();
     this.map.addLayer(editableLayers);
 
@@ -108,14 +109,16 @@ export class CreateLayerComponent implements OnInit {
     });
     this.map.addControl(drawControl);
 
-    //initialize function to draw areas inside the map
+    //this function gets called whenever we draw something on the map
     this.map.on("draw:created", function (e: any) {
       let drawingLayer = e.layer;
-      //layer in which we are going to draw the selecion areas
+      //and then the drawn layer will get stored in editableLayers
       editableLayers.addLayer(drawingLayer);
     });
 
+    //for each drawn area saved in storedLayer
     this.apiServices.storedLayers.forEach((element) => {
+      //style and color of the shapes that are shown on the map
       const style: any = {
         color: "#3388ff",
         opacity: 0.5,
@@ -124,17 +127,21 @@ export class CreateLayerComponent implements OnInit {
 
       L.geoJSON(element, {
         style,
+        //returns a circle if element has radius in the properties
         pointToLayer(feature, latlng) {
           if (feature.properties.radius) {
             return new L.Circle(latlng, feature.properties.radius);
           }
         },
+        //then add them to the map, in editableLayers
         onEachFeature(feature, layer) {
           layer.addTo(editableLayers);
         },
       });
 
+      //set it like a shape has been already drawn
       this.isDrawn = true;
+      //empty the variable in which the layers are stored
       this.apiServices.storedLayers = [];
     });
   }
@@ -190,8 +197,8 @@ export class CreateLayerComponent implements OnInit {
   /**
    * Step3 map rendering
    */
-  public finalMap: L.Map;
 
+  //store here the layers to be added to the map
   overlayMaps: any = {};
 
   //map for step3
@@ -206,29 +213,33 @@ export class CreateLayerComponent implements OnInit {
     L.control.layers(null, this.overlayMaps).addTo(this.map);
 
     // Loop through your overlayMaps keys and add them to the map
+    //They will also be set on, in the layer control
     for (const key in this.overlayMaps) {
       if (this.overlayMaps.hasOwnProperty(key)) {
-        this.overlayMaps[key] = this.overlayMaps[key];
-        this.overlayMaps[key].addTo(this.map); // Add each overlay to the map
+        this.overlayMaps[key].addTo(this.map);
       }
     }
   }
 
   ngOnInit() {
-    this.translate.setDefaultLang("en");
-    //Step 1 radio validator
+    //Form group and control for the radio selection in step 1
     this.firstForm = new FormGroup({
       cityOptions: new FormControl(null, Validators.required),
     });
 
+    //Form group and control for the checkbox in step 2
     this.secondForm = new FormGroup({
       filters: new FormControl("", Validators.required),
     });
+
+    //Form group and controls for saving name and description in the form in step 3
     this.thirdForm = new FormGroup({
       nameInput: new FormControl("", Validators.required),
       descriptionInput: new FormControl(""),
     });
 
+    //subscribe to the value of the apiServices.progress$
+    //this way progress will update anytime progress$ changes
     this.apiServices.progress$.subscribe((value) => {
       value < 100
         ? (this.progress = Math.ceil(value))
@@ -243,10 +254,6 @@ export class CreateLayerComponent implements OnInit {
   @ViewChild("stepper")
   stepper: NbStepperComponent;
   changeEvent: NbStepChangeEvent;
-
-  public clearMap() {
-    this.map != undefined ? (this.map = this.map.remove()) : null;
-  }
 
   onStepChange(event: any) {
     // The event object contains information about the current step and previous step.
