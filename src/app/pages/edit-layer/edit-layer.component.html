@@ -16,7 +16,7 @@
               <div class="filters-checkbox-out">
                 <div class="filters-checkbox-in" *ngFor="let filter of filters">
                   <nb-checkbox
-                    formControlName="filters"
+                    [formControlName]="filter"
                     (change)="onChange(filter)"
                     >{{ filter }}</nb-checkbox
                   >

@@ -1,10 +1,5 @@
 import { Component, Input, OnInit, ViewChild } from "@angular/core";
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 
 import * as L from "leaflet";
 import "../../../../node_modules/leaflet-draw/dist/leaflet.draw-src.js";
@@ -64,19 +59,7 @@ export class EditLayerComponent implements OnInit {
   constructor(
     private apiServices: ApiService,
     private formBuilder: FormBuilder
-  ) {
-    this.firstForm = new FormGroup({
-      filters: new FormControl("", Validators.required),
-    });
-
-    this.nameInput = new FormControl();
-    this.descriptionInput = new FormControl();
-
-    this.secondForm = this.formBuilder.group({
-      nameInput: this.nameInput,
-      descriptionInput: this.descriptionInput,
-    });
-  }
+  ) {}
 
   centerCityFromApi: any = [];
 
@@ -92,7 +75,7 @@ export class EditLayerComponent implements OnInit {
   });
 
   //map for step 1
-  private initFiltersMap(data: any = null): void {
+  private initFiltersMap(): void {
     this.map = L.map("map", {
       center: this.centerCityFromApi,
       zoom: 12,
@@ -223,6 +206,18 @@ export class EditLayerComponent implements OnInit {
   }
 
   async ngOnInit() {
+    let checkBoxValues = {};
+
+    this.firstForm = this.formBuilder.group({});
+
+    this.nameInput = new FormControl();
+    this.descriptionInput = new FormControl();
+
+    this.secondForm = this.formBuilder.group({
+      nameInput: this.nameInput,
+      descriptionInput: this.descriptionInput,
+    });
+
     this.apiServices.progress$.subscribe((value) => {
       value < 100
         ? (this.progress = Math.ceil(value))
@@ -258,13 +253,24 @@ export class EditLayerComponent implements OnInit {
       this.queryDetails.queryName = data.name;
       this.queryDetails.city = data.city;
       this.queryDetails.queryDescription = data.description;
-      data.filter.forEach((e) => this.queryDetails.filters.push(e));
+      data.filter.forEach((e) => {
+        this.queryDetails.filters.push(e);
+        this.selectedFilters.push(e);
+      });
+      this.filters.forEach((filter) => {
+        checkBoxValues[filter] = this.queryDetails.filters.includes(filter);
+      });
+
+      this.selectedFilters.length === 0
+        ? (this.isFilterOn = false)
+        : (this.isFilterOn = true);
+      this.firstForm = this.formBuilder.group(checkBoxValues);
       data.layers.forEach((e) =>
         this.apiServices.storedLayers.push(JSON.parse(e))
       );
 
       this.clearMap();
-      this.initFiltersMap(data);
+      this.initFiltersMap();
     } catch (error) {
       this.loading = false;
 
@@ -307,13 +313,10 @@ export class EditLayerComponent implements OnInit {
 
     switch (this.stepper.selectedIndex) {
       case 0:
-        this.firstForm.reset();
-        this.selectedFilters = [];
         this.queryDetails.polygons = [];
         this.queryDetails.circles = [];
         this.hidingAlerts = true;
         this.checkDrawing();
-        this.isFilterOn = false;
         this.clearMap();
         setTimeout(() => this.initFiltersMap(), 300);
         break;
