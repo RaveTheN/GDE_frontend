@@ -252,6 +252,7 @@ export class EditLayerComponent implements OnInit {
 
     //store here the data received by the http request
     let data: any;
+    let dataFilters: any;
     //initialize the array in which to store the id of the project you are fetching
     //the push it in the array  from localStorage
     let id = [];
@@ -263,7 +264,7 @@ export class EditLayerComponent implements OnInit {
       //fetch the project
       data = await this.apiServices.getSearch(id);
       //ask orion for the filters of the city of the project
-      await this.apiServices.getFilters(data.city);
+      dataFilters = await this.apiServices.getFilters(data.city);
 
       //sets the spinner of
       this.loading = false;
@@ -287,7 +288,7 @@ export class EditLayerComponent implements OnInit {
       this.queryDetails.queryDescription = data.description;
 
       //push fetch results in this.filters
-      this.apiServices.apiFilters.forEach((element) => {
+      dataFilters.forEach((element) => {
         this.filters.push(element);
       });
 

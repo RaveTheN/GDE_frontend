@@ -311,11 +311,14 @@ export class CreateLayerComponent implements OnInit {
     if (this.queryDetails.city !== "" && this.firstForm.status !== "INVALID") {
       //loading true = spinner on
       this.loading = true;
+
+      //store here the data received by the http request
+      let data: any;
       try {
         //ask orion the filters for the selected city
-        await this.apiServices.getFilters(this.queryDetails.city);
+        data = await this.apiServices.getFilters(this.queryDetails.city);
         //pushing fetch results in this.filters
-        this.apiServices.apiFilters.forEach((element) => {
+        data.forEach((element) => {
           this.filters.push(element);
         });
         //go to step 2

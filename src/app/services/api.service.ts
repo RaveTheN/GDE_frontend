@@ -25,9 +25,6 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  //Stores the filters to be passed to create-layer.component
-  apiFilters: string[] = [];
-
   //store drawn layers here
   public storedLayers = [];
 
@@ -59,9 +56,6 @@ export class ApiService {
    * Sets apiFilters with the data provided by getFilters().
    * @param data - An array of filter data to set.
    */
-  setFilters(data: string[]): void {
-    this.apiFilters = data;
-  }
 
   /**
    * Retrieves filters for a specific city from Orion.
@@ -86,7 +80,7 @@ export class ApiService {
             const dataArray = cleanData.split(" ");
 
             // Set the filters and resolve the Promise with the filter data
-            resolve(this.setFilters(dataArray));
+            resolve(dataArray);
           },
           (error) => {
             console.log(error);
