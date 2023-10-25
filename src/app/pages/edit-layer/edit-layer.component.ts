@@ -20,8 +20,18 @@ export class EditLayerComponent implements OnInit {
    */
   //hiding alerts by default
   hidingAlerts: boolean = true;
+
   //showing alert when not selecting a filter
   isFilterOn: boolean = false;
+  //utility to set isFilter on if there are filters already selected
+  //then pass them to query filters
+  checkAndSetFilters() {
+    this.selectedFilters.length === 0
+      ? (this.isFilterOn = false)
+      : (this.isFilterOn = true);
+    this.queryDetails.filters = this.selectedFilters;
+  }
+
   //showing alert when not drawing shape
   isDrawn: boolean = false;
   //alert when not selecting a city
@@ -350,6 +360,7 @@ export class EditLayerComponent implements OnInit {
     this.changeEvent = event;
 
     switch (this.stepper.selectedIndex) {
+      //step 1
       case 0:
         this.queryDetails.polygons = [];
         this.queryDetails.circles = [];
@@ -358,19 +369,23 @@ export class EditLayerComponent implements OnInit {
         this.clearMap();
         setTimeout(() => this.initFiltersMap(), 300);
         break;
+      //step 2
       case 1:
         this.clearMap();
         setTimeout(() => this.initFinalMap(), 300);
         break;
+      //step 3
       case 2:
         this.nameInput.setValue(this.queryDetails.queryName);
         this.descriptionInput.setValue(this.queryDetails.queryDescription);
     }
   }
 
-  //filters checkbox
-  //this array serves as a token for the one that will be received from the backend
+  //filters fetched from API
   filters = [];
+
+  //filters selected by the user
+  selectedFilters = [];
 
   onChange(f: string) {
     this.selectedFilters.includes(f)
@@ -378,17 +393,11 @@ export class EditLayerComponent implements OnInit {
           (filter) => filter !== f
         ))
       : this.selectedFilters.push(f);
-    //set form status to invalid when no filter is selected
-    this.selectedFilters.length === 0
-      ? (this.isFilterOn = false)
-      : (this.isFilterOn = true);
-    this.queryDetails.filters = this.selectedFilters;
+    this.checkAndSetFilters();
   }
 
-  selectedFilters = [];
-
   /**
-   * Step1 submit
+   * function called on step 1 submit (selecting filters and drawing areas)
    */
   async onFirstSubmit() {
     var layer: any;
@@ -450,7 +459,9 @@ export class EditLayerComponent implements OnInit {
   }
 
   /**
-   * Step2 submit
+   * Submit of step 3 - store drawn areas inside queryDetails,
+   * stores in queryDetails the name and description written in the form
+   * then calls the update function
    */
   async onThirdSubmit() {
     this.apiServices.storedLayers.forEach((layer) => {

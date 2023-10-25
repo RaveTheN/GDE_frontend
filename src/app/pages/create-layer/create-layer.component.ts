@@ -23,6 +23,13 @@ export class CreateLayerComponent implements OnInit {
   hidingAlerts: boolean = true;
   //showing alert when not selecting a filter
   isFilterOn: boolean = false;
+  //utility to set isFilter on if there are filters already selected
+  checkAndSetFilters() {
+    this.selectedFilters.length === 0
+      ? (this.isFilterOn = false)
+      : (this.isFilterOn = true);
+    this.queryDetails.filters = this.selectedFilters;
+  }
   //showing alert when not drawing shape
   isDrawn: boolean = false;
   //controlling the loading spinner
@@ -69,6 +76,7 @@ export class CreateLayerComponent implements OnInit {
     { value: [[51.0501, 3.7303], "Flanders"], label: "Flanders" },
     { value: [[43.462776, -3.805], "Santander"], label: "Santander" },
   ];
+  //option takes the value of one of the element of the array options - check the radio group in the html
   option: any;
 
   constructor(private apiServices: ApiService) {}
@@ -261,40 +269,50 @@ export class CreateLayerComponent implements OnInit {
     this.changeEvent = event;
 
     switch (this.stepper.selectedIndex) {
+      //step 1
       case 0:
         //emptying filters everytime the city selection step renders
         this.filters = [];
         this.loading = false;
         this.apiServices.ngOnDestroy();
         break;
+      //step 2
       case 1:
-        this.secondForm.reset();
-        this.selectedFilters = [];
         this.queryDetails.polygons = [];
         this.queryDetails.circles = [];
+        this.checkAndSetFilters();
         this.isDrawn = false;
         this.hidingAlerts = true;
-        this.isFilterOn = false;
         this.clearMap();
         setTimeout(() => this.initFiltersMap(), 300);
         break;
+      //step 3
       case 2:
         this.clearMap();
         setTimeout(() => this.initFinalMap(), 300);
         break;
+      //step 4
+      //do nothing
     }
   }
 
   /**
-   * Step1 submit
+   * functions called on step 1 submit (selecting region)
    */
+
   async onFirstSubmit() {
+    //string for selected city
+    let cityString = this.option[1];
+    //coordinates of the point we want to center the map to (inside the city)
+    let cityCoordinates = this.option[0];
     this.citySelected = true;
-    this.queryDetails.city = this.option[1];
-    this.queryDetails.center = this.option[0];
+    this.queryDetails.city = cityString;
+    this.queryDetails.center = cityCoordinates;
     if (this.queryDetails.city !== "" && this.firstForm.status !== "INVALID") {
+      //loading true = spinner on
       this.loading = true;
       try {
+        //ask orion the filters for the selected city
         await this.apiServices.getFilters(this.queryDetails.city);
         //pushing fetch results in this.filters
         this.apiServices.apiFilters.forEach((element) => {
@@ -311,27 +329,25 @@ export class CreateLayerComponent implements OnInit {
     }
   }
 
-  //filters checkbox
+  //filters fetched from API
   filters = [];
-  // filters = ["PointOfInterest", "Open311ServiceRequest"];
 
+  //filters selected by the user
+  selectedFilters = [];
+
+  //called everytime the user checks a box
+  //f = filter
   onChange(f: string) {
     this.selectedFilters.includes(f)
       ? (this.selectedFilters = this.selectedFilters.filter(
           (filter) => filter !== f
         ))
       : this.selectedFilters.push(f);
-    //set form status to invalid when no filter is selected
-    this.selectedFilters.length === 0
-      ? (this.isFilterOn = false)
-      : (this.isFilterOn = true);
-    this.queryDetails.filters = this.selectedFilters;
+    this.checkAndSetFilters();
   }
 
-  selectedFilters = [];
-
   /**
-   * Step2 submit
+   * function called on step 2 submit (selecting filters and drawing areas)
    */
   async onSecondSubmit() {
     var layer: any;
@@ -392,7 +408,7 @@ export class CreateLayerComponent implements OnInit {
   }
 
   /**
-   * Step3 submit
+   * Submit of step 3 - store drawn areas inside queryDetails
    */
   onThirdSubmit() {
     this.apiServices.storedLayers.forEach((layer) => {
