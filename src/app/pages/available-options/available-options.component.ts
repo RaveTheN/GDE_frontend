@@ -35,8 +35,8 @@ export class AvailableOptionsComponent implements OnInit {
   }
 
   switchLanguage(language: string) {
-    document.cookie = `urbanageLanguage=${language}`;
-    this.translate.use(this.getCookie("urbanageLanguage"));
+    document.cookie = `language=${language}`;
+    this.translate.use(this.getCookie("language"));
   }
 
   //storing selected search Id(s) into services
@@ -56,9 +56,9 @@ export class AvailableOptionsComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.switchLanguage(this?.getCookie("urbanageLanguage"));
+    this.switchLanguage(this?.getCookie("language"));
     document.getElementById("languageSelector");
-    //remove entries in storedLayers previous unfinished researches
+    //remove entries in storedLayers from previous unfinished researches
     this.apiServices.storedLayers = [];
     try {
       this.previousSearches = await this.apiServices.getAll();
