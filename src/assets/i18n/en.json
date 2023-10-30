@@ -4,7 +4,7 @@
   "view": "View",
   "delete": "Delete",
   "select_region": "Select the region to apply filters to:",
-  "select_region_warning": "Please select a region first:",
+  "select_region_warning": "⚠️ Please select a region first:",
   "prev": "Prev",
   "next": "Next",
   "select_filters": "Select one or more of the filters and draw the area in which to perform the research.",

@@ -146,24 +146,22 @@
               <textarea
                 nbInput
                 type="text"
+                class="form-control"
                 placeholder="Description"
                 formControlName="descriptionInput"
               ></textarea>
             </div>
           </div>
           <button class="btn-primary" nbStepperPrevious>
-            {{ "prev" | translate }}
-          </button>
-          <a href="pages/available-options"
-            ><button
-              [disabled]="secondForm.value.nameInput === ''"
-              type="button"
-              class="btn-primary"
-              (click)="onThirdSubmit()"
-            >
-              {{ "save" | translate }}
-            </button></a
+            {{ "prev" | translate }}</button
+          ><button
+            [disabled]="secondForm.value.nameInput === ''"
+            type="button"
+            class="btn-primary"
+            (click)="onThirdSubmit()"
           >
+            {{ "save" | translate }}
+          </button>
         </form>
       </nb-step>
     </nb-stepper>

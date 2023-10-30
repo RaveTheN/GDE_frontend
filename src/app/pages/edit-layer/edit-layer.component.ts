@@ -8,6 +8,8 @@ import { ApiService } from "../../services/api.service";
 import { __await } from "tslib";
 
 import { saveAs } from "file-saver";
+import { Router } from "@angular/router";
+import { TranslateService } from "@ngx-translate/core";
 
 @Component({
   selector: "ngx-edit-layer",
@@ -78,7 +80,10 @@ export class EditLayerComponent implements OnInit {
 
   constructor(
     private apiServices: ApiService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+
+    private translate: TranslateService,
+    private router: Router
   ) {}
 
   /**
@@ -228,7 +233,29 @@ export class EditLayerComponent implements OnInit {
     }
   }
 
+  getCookie(cname: string) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let cookiesArray = decodedCookie.split(";");
+    for (let c of cookiesArray) {
+      while (c.charAt(0) == " ") {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
+
+  switchLanguage(language: string) {
+    document.cookie = `language=${language}`;
+    this.translate.use(this.getCookie("language"));
+  }
+
   async ngOnInit() {
+    this.switchLanguage(this?.getCookie("language"));
+
     //Form builder for the checkbox in step 1
     this.firstForm = this.formBuilder.group({});
 
@@ -465,6 +492,7 @@ export class EditLayerComponent implements OnInit {
    * then calls the update function
    */
   async onThirdSubmit() {
+    this.queryDetails.layers = [];
     this.apiServices.storedLayers.forEach((layer) => {
       this.queryDetails.layers.push(JSON.stringify(layer));
     });
@@ -474,6 +502,7 @@ export class EditLayerComponent implements OnInit {
       if (this.queryDetails.queryName.length !== 0) {
         // Make the API call with the prepared data
         await this.apiServices.updateSearch(this.queryDetails);
+        this.router.navigate(["pages/available-options"]);
       }
     } catch (error) {
       // Show a message in case of error

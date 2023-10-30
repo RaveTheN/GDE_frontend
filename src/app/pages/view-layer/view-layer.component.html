@@ -11,12 +11,13 @@
         <div id="map"></div>
       </div>
     </div>
-    <a href="pages/available-options"
-      ><button type="button" class="btn-primary">
-        {{ "prev" | translate }}
-      </button></a
+    <button
+      type="button"
+      class="btn-primary"
+      routerLink="/pages/available-options"
     >
-
+      {{ "prev" | translate }}
+    </button>
     &nbsp;
     <button class="btn-primary" routerLink="/pages/edit-layer">
       {{ "edit" | translate }}

@@ -1,6 +1,7 @@
-import { Component, OnInit, AfterContentInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ApiService } from "../../services/api.service";
 import { TranslateService } from "@ngx-translate/core";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "ngx-available-options",
@@ -14,7 +15,8 @@ export class AvailableOptionsComponent implements OnInit {
 
   constructor(
     private apiServices: ApiService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private router: Router
   ) {
     translate.setDefaultLang("en");
   }
@@ -46,16 +48,45 @@ export class AvailableOptionsComponent implements OnInit {
 
   async deleteSearch(id: string) {
     let element = document.getElementById(id);
+    let positionInArray: number;
+    //get the position of the element we want to delete in the previousSearches array
+    this.previousSearches.forEach((e) => {
+      if (e.id === id) {
+        //store the index in positionInArray
+        positionInArray = this.previousSearches.indexOf(e);
+      }
+    });
     try {
       await this.apiServices.deleteEntry(id);
       element.remove();
+      //remove element from the array
+      this.previousSearches.splice(positionInArray, 1);
     } catch (error) {
       //Show a message in case of error
       console.error("API call failed:", error);
     }
   }
 
+  navigate() {
+    this.router.navigate(["pages/create-layer"]);
+  }
+
   async ngOnInit() {
+    window.addEventListener(
+      "message",
+      (event) => {
+        //this.receiveMessage();
+        console.log("set token", event);
+        if (event.data.hasOwnProperty("accessToken")) {
+          localStorage.setItem("token", event.data.accessToken);
+          document.cookie = `language=${event.data.language}`;
+          console.log("after token");
+          this.apiServices.storedLayers = [];
+        }
+      },
+      false
+    );
+
     this.switchLanguage(this?.getCookie("language"));
     document.getElementById("languageSelector");
     //remove entries in storedLayers from previous unfinished researches
@@ -66,6 +97,9 @@ export class AvailableOptionsComponent implements OnInit {
       //Show a message in case of error
       console.error("API call failed:", error);
     }
+
+    //empty any leftover layer from previous searches
+    this.apiServices.storedLayers = [];
   }
 
   ngAfterContentInit(): void {

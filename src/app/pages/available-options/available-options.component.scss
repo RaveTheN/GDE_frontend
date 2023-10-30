@@ -18,3 +18,14 @@
 .dialog-button {
   margin: 5px;
 }
+
+.emptyListLink {
+  color: #75b531 !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+}
+
+.emptyListLink:hover {
+  text-decoration: underline !important;
+  cursor: pointer !important;
+}

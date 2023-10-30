@@ -4,7 +4,7 @@
   "view": "Visualizza",
   "delete": "Elimina",
   "select_region": "Seleziona la regione in cui applicare i filtri:",
-  "select_region_warning": "Seleziona prima una regione:",
+  "select_region_warning": "⚠️ Seleziona prima una regione:",
   "prev": "Indietro",
   "next": "Avanti",
   "select_filters": "Seleziona uno o più filtri e disegna l'area in cui vuoi effettuare la ricerca.",

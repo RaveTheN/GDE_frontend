@@ -1,7 +1,7 @@
 <div class="container">
   <div class="upperSide">
     <h1>{{ "projects" | translate }}</h1>
-    <select
+    <!-- <select
       (change)="switchLanguage($event.target.value)"
       id="languageSelector"
       [value]="getCookie('language')"
@@ -12,7 +12,7 @@
       <option value="es">Español</option>
       <option value="it">Italiano</option>
       <option value="nl">Hollandse</option>
-    </select>
+    </select> -->
     <button class="btn-primary" routerLink="/pages/create-layer">
       {{ "new_project" | translate }}
     </button>
@@ -20,9 +20,11 @@
   <div class="divider"></div>
 
   <h5 *ngIf="previousSearches.length === 0; else list">
-    {{ "no_results" | translate }}&nbsp;<a href="pages/create-layer">{{
-      "create_first" | translate
-    }}</a>
+    {{ "no_results" | translate }}&nbsp;<a
+      class="emptyListLink"
+      (click)="navigate()"
+      >{{ "create_first" | translate }}</a
+    >
   </h5>
   <ng-template #list>
     <ul class="list-group">

@@ -9,6 +9,8 @@ import { NbStepChangeEvent, NbStepperComponent } from "@nebular/theme";
 import { ApiService } from "../../services/api.service";
 import { __await } from "tslib";
 import { saveAs } from "file-saver";
+import { TranslateService } from "@ngx-translate/core";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "ngx-create-layer",
@@ -25,6 +27,7 @@ export class CreateLayerComponent implements OnInit {
   isFilterOn: boolean = false;
   //utility to set isFilter on if there are filters already selected
   checkAndSetFilters() {
+    this.queryDetails.filters = [];
     this.selectedFilters.length === 0
       ? (this.isFilterOn = false)
       : (this.isFilterOn = true);
@@ -35,7 +38,7 @@ export class CreateLayerComponent implements OnInit {
   //controlling the loading spinner
   loading = false;
   //alert when not selecting a city
-  citySelected: boolean = false;
+  citySelected: boolean = true;
   //areas - these are not shown atm
   areas: any[] = [
     { id: 1, display: "Alppila" },
@@ -77,9 +80,13 @@ export class CreateLayerComponent implements OnInit {
     { value: [[43.462776, -3.805], "Santander"], label: "Santander" },
   ];
   //option takes the value of one of the element of the array options - check the radio group in the html
-  option: any;
+  option: [[number, number], string] = [[0, 0], ""];
 
-  constructor(private apiServices: ApiService) {}
+  constructor(
+    private apiServices: ApiService,
+    private translate: TranslateService,
+    private router: Router
+  ) {}
 
   /**
    * Step 2 map rendering
@@ -149,9 +156,10 @@ export class CreateLayerComponent implements OnInit {
 
       //set it like a shape has been already drawn
       this.isDrawn = true;
-      //empty the variable in which the layers are stored
-      this.apiServices.storedLayers = [];
     });
+
+    //empty the variable in which the layers are stored
+    this.apiServices.storedLayers = [];
   }
 
   /**
@@ -229,7 +237,29 @@ export class CreateLayerComponent implements OnInit {
     }
   }
 
+  getCookie(cname: string) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let cookiesArray = decodedCookie.split(";");
+    for (let c of cookiesArray) {
+      while (c.charAt(0) == " ") {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
+
+  switchLanguage(language: string) {
+    document.cookie = `language=${language}`;
+    this.translate.use(this.getCookie("language"));
+  }
+
   ngOnInit() {
+    this.switchLanguage(this?.getCookie("language"));
+
     //Form group and control for the radio selection in step 1
     this.firstForm = new FormGroup({
       cityOptions: new FormControl(null, Validators.required),
@@ -273,6 +303,8 @@ export class CreateLayerComponent implements OnInit {
       case 0:
         //emptying filters everytime the city selection step renders
         this.filters = [];
+        this.selectedFilters = [];
+        this.secondForm.reset();
         this.loading = false;
         this.apiServices.ngOnDestroy();
         break;
@@ -301,12 +333,10 @@ export class CreateLayerComponent implements OnInit {
    */
 
   async onFirstSubmit() {
-    //string for selected city
-    let cityString = this.option[1];
+    this.citySelected = this.option[1].length > 0;
     //coordinates of the point we want to center the map to (inside the city)
     let cityCoordinates = this.option[0];
-    this.citySelected = true;
-    this.queryDetails.city = cityString;
+    this.queryDetails.city = this.option[1];
     this.queryDetails.center = cityCoordinates;
     if (this.queryDetails.city !== "" && this.firstForm.status !== "INVALID") {
       //loading true = spinner on
@@ -414,6 +444,7 @@ export class CreateLayerComponent implements OnInit {
    * Submit of step 3 - store drawn areas inside queryDetails
    */
   onThirdSubmit() {
+    this.queryDetails.layers = [];
     this.apiServices.storedLayers.forEach((layer) => {
       this.queryDetails.layers.push(JSON.stringify(layer));
     });
@@ -429,6 +460,7 @@ export class CreateLayerComponent implements OnInit {
       if (this.queryDetails.queryName.length !== 0) {
         // Make the API call with the prepared data
         await this.apiServices.saveSearch(this.queryDetails);
+        this.router.navigate(["pages/available-options"]);
       }
     } catch (error) {
       this.loading = false;

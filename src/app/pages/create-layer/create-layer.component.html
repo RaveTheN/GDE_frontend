@@ -6,12 +6,7 @@
           <div class="input-group" [class.spinner]="loading">
             <div>
               <p>{{ "select_region" | translate }}</p>
-              <p
-                [hidden]="
-                  citySelected === false || firstForm.status === 'VALID'
-                "
-                class="alert"
-              >
+              <p [hidden]="citySelected === true" class="alert">
                 {{ "select_region_warning" | translate }}
               </p>
               <nb-radio-group
@@ -28,11 +23,14 @@
               </nb-radio-group>
             </div>
           </div>
-          <a href="pages/available-options"
-            ><button type="button" class="btn-primary" [disabled]="loading">
-              {{ "prev" | translate }}
-            </button></a
+          <button
+            type="button"
+            class="btn-primary"
+            [disabled]="loading"
+            routerLink="/pages/available-options"
           >
+            {{ "prev" | translate }}
+          </button>
           <button
             type="button"
             class="btn-primary"
@@ -184,6 +182,7 @@
             <div>
               <p>{{ "description" | translate }}</p>
               <textarea
+                class="form-control"
                 nbInput
                 type="text"
                 placeholder="Description"
@@ -191,17 +190,17 @@
               ></textarea>
             </div>
           </div>
-          <button class="btn-primary" nbStepperPrevious>prev</button>
-          <a href="pages/available-options"
-            ><button
-              [disabled]="thirdForm.value.nameInput === ''"
-              class="btn-primary"
-              type="button"
-              (click)="onFourthSubmit()"
-            >
-              {{ "save" | translate }}
-            </button></a
+          <button class="btn-primary" nbStepperPrevious>
+            {{ "prev" | translate }}
+          </button>
+          <button
+            [disabled]="thirdForm.value.nameInput === ''"
+            class="btn-primary"
+            type="button"
+            (click)="onFourthSubmit()"
           >
+            {{ "save" | translate }}
+          </button>
         </form>
       </nb-step>
     </nb-stepper>
